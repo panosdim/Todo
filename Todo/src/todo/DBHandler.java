@@ -21,7 +21,7 @@ public class DBHandler {
 
     DBHandler() {
         try {
-            String dbURL = "jdbc:sqlite:C:\\Users\\ckok\\Downloads\\Todo\\Todo.db";
+            String dbURL = "jdbc:sqlite:Todo.db";
             con = DriverManager.getConnection(dbURL);
         } catch (SQLException ex) {
             Alert alert = new Alert(Alert.AlertType.ERROR);
