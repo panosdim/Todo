@@ -17,7 +17,7 @@ import javafx.scene.control.Label;
  * @author ckok
  */
 public class MainController implements Initializable {
-    
+    DBHandler db;
     @FXML
     private Label label;
     
@@ -25,11 +25,12 @@ public class MainController implements Initializable {
     private void handleButtonAction(ActionEvent event) {
         System.out.println("You clicked me!");
         label.setText("Hello World!");
+        db.viewTable("tasks");
     }
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        DBHandler db = new DBHandler();
+        db = new DBHandler();
                 
     }    
     
