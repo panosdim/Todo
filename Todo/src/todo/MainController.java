@@ -25,12 +25,14 @@ public class MainController implements Initializable {
     private void handleButtonAction(ActionEvent event) {
         System.out.println("You clicked me!");
         label.setText("Hello World!");
-        db.viewTable("tasks");
+        db.insertToDoItem("Call Nikos", 1);
+        db.viewTable();
+        
     }
     
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-        db = new DBHandler();
+        db = new DBHandler("tasks");
                 
     }    
     

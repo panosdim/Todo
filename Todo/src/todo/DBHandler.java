@@ -10,7 +10,11 @@ import javafx.scene.control.Alert;
 import java.util.ArrayList;
 import java.util.List;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import static javafx.application.Platform.exit;
+import java.util.Date;
+
+
 
 /**
  *
@@ -20,8 +24,12 @@ import static javafx.application.Platform.exit;
 public class DBHandler {
 
     private Connection con;
+    private String dbName;
 
-    DBHandler() {
+    DBHandler( String dbName1) {
+        
+        dbName = dbName1;
+        
         try {
             String dbURL = "jdbc:sqlite:Todo.db";
             // First, you need to establish a connection with the data source you want to use. 
@@ -52,11 +60,28 @@ public class DBHandler {
             exit();
         }
     }
-
+public void insertToDoItem (String Description, int Status){
+		
+	try {
+            Statement statement = con.createStatement();
+            
+            statement.setQueryTimeout(30);  // set timeout to 30 sec.
+            
+            Date d = new Date();
+            SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd");
+        
+            
+	    String query = "INSERT INTO " + dbName + " (Description, Date, Status) " + 
+                            "VALUES ('"+ Description + "', '" + ft.format( d) +"', '" + Integer.toString(Status) + "')";
+		
+            statement.executeQuery(query);
+                } catch (SQLException sQLException) {
+        }
+	}
     // This method outputs the contents of the table Tasks
     // In the method, con is a Connection object and dbName is the name of 
     // the database in which you are creating the table.
-    public void viewTable(String dbName) {
+    public void viewTable() {
 
           try {
             Statement statement = con.createStatement();
