@@ -81,21 +81,27 @@ public void insertToDoItem (String Description, int Status){
     // This method outputs the contents of the table Tasks
     // In the method, con is a Connection object and dbName is the name of 
     // the database in which you are creating the table.
-    public void viewTable() {
+    public ResultSet viewTable() {
+        
+        ResultSet rs;
 
           try {
             Statement statement = con.createStatement();
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
 
-            ResultSet rs = statement.executeQuery("SELECT * FROM " + dbName);
-            while (rs.next()) {
+            rs = statement.executeQuery("SELECT * FROM " + dbName);
+            return rs;
+            //while (rs.next()) {
                 // read the result set
+                /*
                 System.out.println("date = " + rs.getString("date"));
                 System.out.println("description = " + rs.getString("description"));
                 System.out.println("status = " + rs.getInt("status"));
                 System.out.println("id = " + rs.getInt("id"));
-            }
+*/
+            //}
         } catch (SQLException sQLException) {
         }
+        return null; 
     }
 }
