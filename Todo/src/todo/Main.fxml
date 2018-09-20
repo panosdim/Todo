@@ -2,21 +2,16 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="AnchorPane" prefHeight="507.0" prefWidth="913.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="todo.MainController">
+<AnchorPane id="AnchorPane" prefHeight="507.0" prefWidth="913.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="todo.MainController">
     <children>
-        <Button fx:id="button" layoutX="25.0" layoutY="64.0" onAction="#handleButtonAction" text="list all items" />
-        <Label fx:id="label" layoutX="126" layoutY="120" minHeight="16" minWidth="69" />
-      <TextField fx:id="description" layoutX="14.0" layoutY="39.0" onAction="#insertTextField" promptText="Add todo task" />
-      <TableView fx:id="listAllToDos" layoutX="316.0" layoutY="147.0" prefHeight="200.0" prefWidth="200.0">
-        <columns>
-          <TableColumn prefWidth="75.0" text="description" />
-          <TableColumn prefWidth="75.0" text="date" />
-        </columns>
-      </TableView>
+        <Button fx:id="buttonDeleteOne" layoutX="25.0" layoutY="64.0" onAction="#handleButtonDeleteOneAction" text="Delete selected" />
+      <TextField fx:id="description" layoutX="14.0" layoutY="31.0" onAction="#insertTextField" prefHeight="26.0" prefWidth="604.0" promptText="Add todo task" />
+      <ListView fx:id="myList" layoutX="26.0" layoutY="109.0" onMouseClicked="#selectListItem" prefHeight="364.0" prefWidth="855.0" />
+        <Label fx:id="label" layoutX="304.0" layoutY="71.0" minHeight="16" minWidth="69" prefHeight="18.0" prefWidth="150.0" />
+      <Button fx:id="buttonDeleteAll" layoutX="160.0" layoutY="64.0" onAction="#handleButtonDeleteAllAction" text="Clear List" />
     </children>
 </AnchorPane>

@@ -78,28 +78,58 @@ public void insertToDoItem (String Description, int Status){
                 } catch (SQLException sQLException) {
         }
 	}
+
+public void deleteToDoItem (){
+		
+	try {
+            Statement statement = con.createStatement();
+            
+            statement.setQueryTimeout(30);  // set timeout to 30 sec.
+            
+  	    String query = "DELETE FROM " + dbName;
+            System.out.println(query);
+            statement.executeQuery(query);
+                } catch (SQLException sQLException) {
+        }
+	}
+
+public void deleteToDoItem (String description){
+		
+	try {
+            Statement statement = con.createStatement();
+            
+            statement.setQueryTimeout(30);  // set timeout to 30 sec.
+            
+  	    String query = "DELETE FROM " + dbName + " WHERE description='"+ description + "'";
+            System.out.println(query);
+            statement.executeQuery(query);
+                } catch (SQLException sQLException) {
+        }
+	}
+
     // This method outputs the contents of the table Tasks
     // In the method, con is a Connection object and dbName is the name of 
     // the database in which you are creating the table.
     public ResultSet viewTable() {
         
-        ResultSet rs;
+        //ResultSet rs;
 
           try {
             Statement statement = con.createStatement();
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
 
-            rs = statement.executeQuery("SELECT * FROM " + dbName);
-            return rs;
-            //while (rs.next()) {
+            return statement.executeQuery("SELECT * FROM " + dbName);
+           /* 
+            while (rs.next()) {
                 // read the result set
-                /*
+                
                 System.out.println("date = " + rs.getString("date"));
                 System.out.println("description = " + rs.getString("description"));
                 System.out.println("status = " + rs.getInt("status"));
                 System.out.println("id = " + rs.getInt("id"));
-*/
-            //}
+
+            }*/
+            //return rs;
         } catch (SQLException sQLException) {
         }
         return null; 
