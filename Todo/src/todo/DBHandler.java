@@ -60,7 +60,13 @@ public class DBHandler {
             exit();
         }
     }
-public void insertToDoItem (String Description, int Status){
+    
+    
+    //This method inserts new entry into DB
+    //with description and status from parameter list
+    //and current date
+    //DB handles ID on it's own
+    public void insertToDoItem (String Description, int Status){
 		
 	try {
             Statement statement = con.createStatement();
@@ -70,22 +76,28 @@ public void insertToDoItem (String Description, int Status){
             Date d = new Date();
             SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd");
         
-            
+            //INSERT query with description and status from parameters
+            //and current date
+            //no id is provided, DB handles on it's own
 	    String query = "INSERT INTO " + dbName + " (Description, Date, Status) " + 
                             "VALUES ('"+ Description + "', '" + ft.format( d) +"', '" + Integer.toString(Status) + "')";
 		
-            statement.executeQuery(query);
+            ResultSet insertRes = statement.executeQuery(query);
+            System.out.println(insertRes);
                 } catch (SQLException sQLException) {
         }
 	}
 
-public void deleteToDoItem (){
+    //This method deletes all entries from DB
+    //since parameter id is missing
+    public void deleteToDoItem (){
 		
 	try {
             Statement statement = con.createStatement();
             
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
             
+            //DELETE all query
   	    String query = "DELETE FROM " + dbName;
             System.out.println(query);
             statement.executeQuery(query);
@@ -93,14 +105,17 @@ public void deleteToDoItem (){
         }
 	}
 
-public void deleteToDoItem (int id){
+    //This method deletes one entry from DB
+    //based on parameter id
+    public void deleteToDoItem (int id){
 		
 	try {
             Statement statement = con.createStatement();
             
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
             
-  	    String query = "DELETE FROM " + dbName + " WHERE id='"+ id + "'";
+            //DELETE query is created WHERE id matches given id
+  	    String query = "DELETE FROM " + dbName + " WHERE id="+ id ;
             System.out.println(query);
             statement.executeQuery(query);
                 } catch (SQLException sQLException) {
