@@ -93,14 +93,14 @@ public void deleteToDoItem (){
         }
 	}
 
-public void deleteToDoItem (String description){
+public void deleteToDoItem (int id){
 		
 	try {
             Statement statement = con.createStatement();
             
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
             
-  	    String query = "DELETE FROM " + dbName + " WHERE description='"+ description + "'";
+  	    String query = "DELETE FROM " + dbName + " WHERE id='"+ id + "'";
             System.out.println(query);
             statement.executeQuery(query);
                 } catch (SQLException sQLException) {

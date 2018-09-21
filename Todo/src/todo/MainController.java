@@ -10,6 +10,7 @@ import java.net.URL;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -27,8 +28,9 @@ import javafx.scene.control.TextField;
 public class MainController implements Initializable {
     DBHandler db;
     private String descriptionText;
-    //private int id = -1;
-    private String itemToDelete = null;
+    private int id = -1;
+    //private String itemToDelete = null;
+    private ArrayList<Integer> ids = new ArrayList<Integer>();
      
     @FXML
     private Label label;
@@ -40,21 +42,21 @@ public class MainController implements Initializable {
     
     @FXML
     private void selectListItem(MouseEvent event) {
-        //id = myList.getSelectionModel().getSelectedIndex();
+        id = ids.get(myList.getSelectionModel().getSelectedIndex());
         label.setText("");
-        itemToDelete = myList.getSelectionModel().getSelectedItem();
-        System.out.println(itemToDelete);
+        //itemToDelete = myList.getSelectionModel().getSelectedItem();
+        System.out.println(id + "\t" + myList.getSelectionModel().getSelectedIndex());
     }
     
     @FXML
     private void handleButtonDeleteOneAction(ActionEvent event) {
         
-        if(itemToDelete == null) {
+        if(id == -1) {
             label.setText("No item selected!!!");
         } else {
             
-            db.deleteToDoItem(itemToDelete);
-            itemToDelete = null;
+            db.deleteToDoItem(id);
+            id = -1;
         }
         listAllTasks ();
     }
@@ -85,7 +87,8 @@ public class MainController implements Initializable {
          try {
             while (activetoDoList.next()) {
                 items.add(activetoDoList.getString("description"));
-                System.out.println(activetoDoList.getInt("id") + "\t" + activetoDoList.getString("description"));
+                ids.add(activetoDoList.getInt("id"));
+                //System.out.println(activetoDoList.getInt("id") + "\t" + activetoDoList.getString("description"));
          }
          myList.setItems(items);
         } catch (SQLException sQLException) {
