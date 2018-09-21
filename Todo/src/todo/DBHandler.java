@@ -122,6 +122,45 @@ public class DBHandler {
         }
 	}
 
+    
+    
+    //This method sets one entry from DB to done
+    //based on parameter id
+    public void setItemToDone (int id){
+		
+	try {
+            Statement statement = con.createStatement();
+            
+            statement.setQueryTimeout(30);  // set timeout to 30 sec.
+            
+            //UPDATE query is created WHERE id matches given id
+            //SET Status = 0 (done)
+  	    String query = "UPDATE " + dbName + " SET Status = 0 WHERE id="+ id ;
+            System.out.println(query);
+            statement.executeQuery(query);
+                } catch (SQLException sQLException) {
+        }
+	}    
+    
+    //setItemToActive
+    //This method sets one entry from DB to active
+    //based on parameter id
+    public void setItemToActive (int id){
+		
+	try {
+            Statement statement = con.createStatement();
+            
+            statement.setQueryTimeout(30);  // set timeout to 30 sec.
+            
+            //UPDATE query is created WHERE id matches given id
+            //SET Status = 1 (active)
+  	    String query = "UPDATE " + dbName + " SET Status = 1 WHERE id="+ id ;
+            System.out.println(query);
+            statement.executeQuery(query);
+                } catch (SQLException sQLException) {
+        }
+	}      
+    
     // This method outputs the contents of the table Tasks
     // In the method, con is a Connection object and dbName is the name of 
     // the database in which you are creating the table.

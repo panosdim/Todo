@@ -4,14 +4,23 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane id="AnchorPane" prefHeight="507.0" prefWidth="913.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="todo.MainController">
+<AnchorPane id="AnchorPane" prefHeight="783.0" prefWidth="913.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="todo.MainController">
     <children>
-        <Button fx:id="buttonDeleteOne" layoutX="25.0" layoutY="64.0" onAction="#handleButtonDeleteOneAction" text="Delete selected" />
-      <TextField fx:id="description" layoutX="14.0" layoutY="31.0" onAction="#insertTextField" prefHeight="26.0" prefWidth="604.0" promptText="Add todo task" />
-      <ListView fx:id="myList" layoutX="26.0" layoutY="109.0" onMouseClicked="#selectListItem" prefHeight="364.0" prefWidth="855.0" />
+      <TextField fx:id="description" layoutX="26.0" layoutY="31.0" onAction="#insertTextField" prefHeight="26.0" prefWidth="604.0" promptText="Add todo task" />
         <Label fx:id="label" layoutX="304.0" layoutY="71.0" minHeight="16" minWidth="69" prefHeight="18.0" prefWidth="150.0" />
-      <Button fx:id="buttonDeleteAll" layoutX="160.0" layoutY="64.0" onAction="#handleButtonDeleteAllAction" text="Clear List" />
+      <Button fx:id="buttonDeleteAll" layoutX="35.0" layoutY="73.0" onAction="#handleButtonDeleteAllAction" text="Clear List" />
+      <TitledPane animated="false" layoutX="28.0" layoutY="509.0" text="completed items">
+         <content>
+            <ListView fx:id="myDoneList" onMouseClicked="#selectDoneListItem" prefHeight="205.0" prefWidth="855.0" />
+         </content>
+      </TitledPane>
+      <TitledPane animated="false" layoutX="28.0" layoutY="121.0" text="pending items">
+         <content>
+            <ListView fx:id="myActiveList" onMouseClicked="#selectActiveListItem" prefHeight="302.0" prefWidth="855.0" />
+         </content>
+      </TitledPane>
     </children>
 </AnchorPane>
