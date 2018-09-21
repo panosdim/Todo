@@ -98,7 +98,7 @@ public class MainController implements Initializable {
         //reset prompt text of textField
         description.setPromptText("Add todo task");
         
-        //refresh list of tasks
+        //refresh list of tasks after every task
         listAllTasks ();
 
     }

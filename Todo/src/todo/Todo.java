@@ -22,7 +22,8 @@ public class Todo extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("Main.fxml"));
         
         Scene scene = new Scene(root);
-        
+        stage.setTitle("ToDo v0.1");
+        stage.isResizable( );
         stage.setScene(scene);
         stage.show();
     }

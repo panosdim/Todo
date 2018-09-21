@@ -82,10 +82,10 @@ public class DBHandler {
 	    String query = "INSERT INTO " + dbName + " (Description, Date, Status) " + 
                             "VALUES ('"+ Description + "', '" + ft.format( d) +"', '" + Integer.toString(Status) + "')";
 		
-            ResultSet insertRes = statement.executeQuery(query);
-            System.out.println(insertRes);
-                } catch (SQLException sQLException) {
-        }
+            statement.executeQuery(query);
+            
+            } catch (SQLException sQLException) {
+            }
 	}
 
     //This method deletes all entries from DB
