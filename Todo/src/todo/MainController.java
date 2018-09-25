@@ -21,6 +21,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.MouseButton;
 
@@ -49,6 +50,8 @@ public class MainController implements Initializable {
     private ListView<String> myActiveList = new ListView<String>();
     @FXML
     private ListView<String> myDoneList = new ListView<String>();
+    @FXML
+    private TableView<TodoItem> tblitems = new TableView<>(); 
     
     
     //method handling selection of single task via mouse click event
