@@ -107,7 +107,7 @@ public class DBHandler {
 
     //This method deletes one entry from DB
     //based on parameter id
-    public void deleteToDoItem (int id){
+    public void deleteToDoItem (long id){
 		
 	try {
             Statement statement = con.createStatement();
@@ -126,7 +126,7 @@ public class DBHandler {
     
     //This method sets one entry from DB to done
     //based on parameter id
-    public void setItemToDone (int id){
+    public void setItemToDone (long id){
 		
 	try {
             Statement statement = con.createStatement();
@@ -145,7 +145,7 @@ public class DBHandler {
     //setItemToActive
     //This method sets one entry from DB to active
     //based on parameter id
-    public void setItemToActive (int id){
+    public void setItemToActive (long id){
 		
 	try {
             Statement statement = con.createStatement();

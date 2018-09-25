@@ -11,7 +11,7 @@
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="AnchorPane" prefHeight="783.0" prefWidth="913.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="todo.MainController">
+<AnchorPane id="AnchorPane" prefHeight="783.0" prefWidth="913.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="todo.MainController">
     <children>
       <VBox layoutY="31.0" spacing="10.0" AnchorPane.leftAnchor="24.0" AnchorPane.rightAnchor="24.0" AnchorPane.topAnchor="24.0">
          <children>
@@ -22,25 +22,21 @@
                   <Button fx:id="buttonDeleteAll" onAction="#handleButtonDeleteAllAction" text="Clear List" />
                </children>
             </HBox>
-            <TableView fx:id="tblitems" prefHeight="200.0" prefWidth="453.0">
+            <TableView fx:id="tblitems" onMouseClicked="#selectTableItem" prefHeight="200.0" prefWidth="453.0">
               <columns>
-                <TableColumn prefWidth="75.0" text="ID" />
-                <TableColumn prefWidth="75.0" text="Description" />
-                  <TableColumn prefWidth="75.0" text="Date" />
-                  <TableColumn prefWidth="75.0" text="Status" />
+                <TableColumn fx:id="tblColId" prefWidth="75.0" text="ID" />
+                <TableColumn fx:id="tblColDesc" prefWidth="75.0" text="Description" />
+                  <TableColumn fx:id="tblColDate" prefWidth="75.0" text="Date" />
+                  <TableColumn fx:id="tblColStat" prefWidth="75.0" text="Status" />
               </columns>
             </TableView>
          </children>
       </VBox>
-      <TitledPane animated="false" layoutX="28.0" layoutY="509.0" text="completed items">
-         <content>
-            <ListView fx:id="myDoneList" onMouseClicked="#selectDoneListItem" prefHeight="205.0" prefWidth="855.0" />
-         </content>
-      </TitledPane>
-      <TitledPane animated="false" layoutX="28.0" layoutY="121.0" text="pending items">
+      <TitledPane animated="false" layoutX="24.0" layoutY="380.0" prefHeight="200.0" prefWidth="858.0" text="pending items">
          <content>
             <ListView fx:id="myActiveList" onMouseClicked="#selectActiveListItem" prefHeight="302.0" prefWidth="855.0" />
          </content>
       </TitledPane>
+      <ListView fx:id="myDoneList" layoutX="20.0" layoutY="599.0" onMouseClicked="#selectDoneListItem" prefHeight="130.0" prefWidth="866.0" />
     </children>
 </AnchorPane>
