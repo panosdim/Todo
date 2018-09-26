@@ -66,21 +66,21 @@ public class DBHandler {
     //with description and status from parameter list
     //and current date
     //DB handles ID on it's own
-    public void insertToDoItem (String Description, int Status){
+    public void insertToDoItem (String Description, int Status, String date){
 		
 	try {
             Statement statement = con.createStatement();
             
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
             
-            Date d = new Date();
-            SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd");
+       //     Date d = new Date();
+       //     SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd");
         
             //INSERT query with description and status from parameters
             //and current date
             //no id is provided, DB handles on it's own
 	    String query = "INSERT INTO " + dbName + " (Description, Date, Status) " + 
-                            "VALUES ('"+ Description + "', '" + ft.format( d) +"', '" + Integer.toString(Status) + "')";
+                            "VALUES ('"+ Description + "', '" + date +"', '" + Integer.toString(Status) + "')";
 		
             statement.executeQuery(query);
             
@@ -122,11 +122,10 @@ public class DBHandler {
         }
 	}
 
-    
-    
-    //This method sets one entry from DB to done
-    //based on parameter id
-    public void setItemToDone (long id){
+    //setDueDate
+     //This method changes status of one entry from DB
+    //based on parameter id and status
+    public void setDueDate (long id, String date){
 		
 	try {
             Statement statement = con.createStatement();
@@ -134,18 +133,19 @@ public class DBHandler {
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
             
             //UPDATE query is created WHERE id matches given id
-            //SET Status = 0 (done)
-  	    String query = "UPDATE " + dbName + " SET Status = 0 WHERE id="+ id ;
+            //SET Date = date
+  	    String query = "UPDATE " + dbName + " SET Date = '" + date + "' WHERE id="+ id ;
             System.out.println(query);
             statement.executeQuery(query);
                 } catch (SQLException sQLException) {
         }
-	}    
+	}  
     
-    //setItemToActive
-    //This method sets one entry from DB to active
-    //based on parameter id
-    public void setItemToActive (long id){
+    
+    //changeItemStatus
+    //This method changes status of one entry from DB
+    //based on parameter id and status
+    public void changeItemStatus (long id, int status){
 		
 	try {
             Statement statement = con.createStatement();
@@ -154,7 +154,7 @@ public class DBHandler {
             
             //UPDATE query is created WHERE id matches given id
             //SET Status = 1 (active)
-  	    String query = "UPDATE " + dbName + " SET Status = 1 WHERE id="+ id ;
+  	    String query = "UPDATE " + dbName + " SET Status = " + status + " WHERE id="+ id ;
             System.out.println(query);
             statement.executeQuery(query);
                 } catch (SQLException sQLException) {

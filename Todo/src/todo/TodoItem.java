@@ -14,9 +14,9 @@ public class TodoItem {
     private long id;
     private String description;
     private String date;
-    private int status;
+    private String status;
 
-    public TodoItem(long id, String description, String date, int status) {
+    public TodoItem(long id, String description, String date, String status) {
         this.id = id;
         this.description = description;
         this.date = date;
@@ -47,11 +47,11 @@ public class TodoItem {
         this.date = date;
     }
 
-    public int getStatus() {
+    public String getStatus() {
         return status;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(String status) {
         this.status = status;
     }
 
