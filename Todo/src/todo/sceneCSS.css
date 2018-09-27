@@ -1,0 +1,17 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Sep 26, 2018, 3:14:30 PM
+    Author     : aled
+*/
+#strike { text-decoration: line-through red; }
+
+.root {
+    -fx-background-image: url("bridge.jpg");
+    -fx-background-repeat: stretch;   
+    -fx-background-position: center center;
+    -fx-background-size: cover;
+}

@@ -9,11 +9,11 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="AnchorPane" prefHeight="783.0" prefWidth="913.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="todo.MainController">
+<AnchorPane id="AnchorPane" prefHeight="700.0" prefWidth="865.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="todo.MainController">
     <children>
-      <VBox layoutY="31.0" prefHeight="649.0" prefWidth="865.0" spacing="10.0" AnchorPane.leftAnchor="24.0" AnchorPane.rightAnchor="24.0" AnchorPane.topAnchor="24.0">
+      <VBox layoutY="31.0" prefHeight="649.0" prefWidth="865.0" spacing="10.0" AnchorPane.bottomAnchor="24.0" AnchorPane.leftAnchor="24.0" AnchorPane.rightAnchor="24.0" AnchorPane.topAnchor="24.0">
          <children>
-            <VBox prefWidth="100.0" spacing="15.0">
+            <VBox prefHeight="686.0" prefWidth="866.0" spacing="15.0">
                <children>
                   <HBox>
                      <children>
@@ -23,15 +23,15 @@
                   <HBox prefHeight="42.0" prefWidth="866.0" spacing="15.0">
                      <children>
                         <DatePicker fx:id="datePicker" onAction="#handleDatePicker" promptText="Pick a date" />
-                        <Button fx:id="buttonShowDate" mnemonicParsing="false" onAction="#handleButtonShowDate" text="Show date only" />
+                        <Button fx:id="buttonShowDate" mnemonicParsing="false" onAction="#handleButtonShowDate" text="Show All Dates" />
                         <Button fx:id="buttonShowOptions" mnemonicParsing="false" onAction="#handleButtonShowOptions" text="Show All" />
                      </children>
                   </HBox>
-                  <TableView fx:id="tblitems" onMouseClicked="#selectTableItem" prefHeight="500.0" prefWidth="866.0">
+                  <TableView fx:id="tblitems" onMouseClicked="#selectTableItem" opacity="0.8" prefHeight="500.0" prefWidth="866.0" stylesheets="@sceneCSS.css">
                     <columns>
                       <TableColumn fx:id="tblColId" minWidth="40.0" prefWidth="40.0" text="ID" visible="false" />
                       <TableColumn fx:id="tblColDesc" minWidth="200.0" prefWidth="600.0" text="Description" />
-                        <TableColumn fx:id="tblColDate" minWidth="95.0" prefWidth="95.0" text="Date" />
+                        <TableColumn fx:id="tblColDate" minWidth="95.0" prefWidth="95.0" text="Due Date" />
                         <TableColumn fx:id="tblColStat" minWidth="120.0" prefWidth="120.0" text="Status" />
                     </columns>
                   </TableView>

@@ -24,9 +24,12 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.util.Callback;
 
 /**
  *
@@ -37,10 +40,6 @@ public class MainController implements Initializable {
     DBHandler db;
     private String descriptionText;
     private long id = -1; //id read from DB used to delete single task
-    //private ArrayList<Integer> activeIds = new ArrayList<Integer>(); // list of DB's IDs
-    //private ArrayList<Integer> doneIds = new ArrayList<Integer>(); // list of DB's IDs
-    //private ObservableList<String> activeItems = FXCollections.observableArrayList(); //ObservableList of items
-    //private ObservableList<String> doneItems = FXCollections.observableArrayList(); //ObservableList of items
     private ObservableList<TodoItem> tableItems = FXCollections.observableArrayList(); //ObservableList of items
     private boolean onlyActive = true; //used to view all items or only active ones, default=true
     private LocalDate localDate = null; //used to read from DatePicker 
@@ -52,6 +51,8 @@ public class MainController implements Initializable {
     MenuItem setActiveItem = new MenuItem("Set Item to Pending");
     MenuItem setDueDate = new MenuItem("Set Due Date");
 
+    //
+    //private final String strikeThrough = getClass().getResource("sceneCSS.css").toExternalForm();
     //@FXML
     //private Label label;
     @FXML
@@ -91,6 +92,13 @@ public class MainController implements Initializable {
             id = tblitems.getItems().get(index).getId();
             //terminal printout of both: list ID and DB's ID just for check
             System.out.println(id + "\t" + index);
+
+            //doubleclick sets to done
+            if (event.getClickCount() == 2) {
+                db.changeItemStatus(id, 0);
+                listAllTasks();
+            }
+
             //reset index
             index = -1;
         } else {
@@ -134,6 +142,9 @@ public class MainController implements Initializable {
         localDate = datePicker.getValue();
         if (localDate != null) {
             System.out.println(localDate.toString());
+            buttonShowDate.setText("Show Date Only");
+        } else {
+            buttonShowDate.setText("Show All Dates");
         }
 
     }
@@ -146,12 +157,12 @@ public class MainController implements Initializable {
         showDate = localDate;
         //if null, keep button text
         if (showDate == null) {
-            buttonShowDate.setText("Show Date Only");
-            
-        //if not null, change button text
-        } else {
             buttonShowDate.setText("Show All Dates");
-            
+
+            //if not null, change button text
+        } else {
+            buttonShowDate.setText("Show Date Only");
+
         }
         //reset datePicker value
         datePicker.setValue(null);
@@ -162,6 +173,7 @@ public class MainController implements Initializable {
     //method to build context menu
     private void buildTableContextMenu() {
 
+        
         //declarations of actions for Menu Items
         //Set Done
         EventHandler<ActionEvent> actionSetDone = new EventHandler<ActionEvent>() {
@@ -172,7 +184,7 @@ public class MainController implements Initializable {
 
             }
         };
-
+        
         //Set Active
         EventHandler<ActionEvent> actionSetActive = new EventHandler<ActionEvent>() {
             @Override
@@ -342,7 +354,7 @@ public class MainController implements Initializable {
                         }
 
                     }
-                //onlyActive is false, show all
+                    //onlyActive is false, show all
                 } else {
                     //check if showDate is set
                     if (showDate == null) {
@@ -354,7 +366,7 @@ public class MainController implements Initializable {
                             tableItems.add(new TodoItem(toDoList.getInt("id"), toDoList.getString("description"), toDoList.getString("date"), mapStatus(intStatus)));
                         }
                     }
-                    
+
                 }
 
             }
@@ -365,16 +377,44 @@ public class MainController implements Initializable {
 
             //tblColDesc = new TableColumn("Description");
             tblColDesc.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("description"));
+            tblColDesc.setStyle( "-fx-alignment: LEFT;");
 
             //tblColDate = new TableColumn("Date");
             tblColDate.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("date"));
+            tblColDate.setStyle( "-fx-alignment: CENTER;");
 
             //tblColStat = new TableColumn("Status");
             tblColStat.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("status"));
+            tblColStat.setStyle( "-fx-alignment: CENTER;");
+            /*
+            //set text strike-through for Done items
+            tblitems.setRowFactory(new Callback<TableView<TodoItem>, TableRow<TodoItem>>() {
+                @Override
+                public TableRow<TodoItem> call(TableView<TodoItem> tblitemsView) {
+                    return new TableRow<TodoItem>() {
+                        @Override
+                        protected void updateItem(TodoItem todoItem, boolean b) {
+                            super.updateItem(todoItem, b);
 
+                            if (todoItem == null) {
+                                return;
+                            }
+
+                            if (todoItem.getStatus().equals("Done")) // Example requirement
+                            {
+                                getStyleClass().add("strike");
+                            }
+                        }
+                    };
+                }
+            });
+            */ 
             //populate tblitems (TableView<TodoItem>) to be displayed in App from ObservableList<TodoItem>            
             tblitems.setItems(tableItems);
             tblitems.getColumns().setAll(tblColId, tblColDesc, tblColDate, tblColStat);
+            tblColDate.setSortType(TableColumn.SortType.ASCENDING);
+            tblitems.getSortOrder().setAll(tblColDate);
+            tblitems.getStyleClass().add("strike");
 
         } catch (SQLException sQLException) {
         }

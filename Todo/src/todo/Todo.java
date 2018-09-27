@@ -20,10 +20,11 @@ public class Todo extends Application {
     @Override
     public void start(Stage stage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("Main.fxml"));
-        
         Scene scene = new Scene(root);
         stage.setTitle("ToDo v0.2");
-        stage.isResizable( );
+        //set background photo
+        scene.getStylesheets().addAll(this.getClass().getResource("sceneCSS.css").toExternalForm());
+        //stage.isResizable( );
         stage.setScene(scene);
         stage.show();
     }
