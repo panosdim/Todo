@@ -63,25 +63,26 @@ public class MainController implements Initializable {
     private TextField description;
     @FXML
     private DatePicker datePicker = new DatePicker();
+    
 
     //@FXML
     //private ListView<String> myActiveList = new ListView<String>();
     //@FXML
     //private ListView<String> myDoneList = new ListView<String>();
     @FXML
-    private TableView<TodoItem> tblitems = new TableView<TodoItem>();
+        private TableView<TodoItem> tblitems = new TableView<TodoItem>();
     @FXML
-    private TableColumn tblColId;
+        private TableColumn tblColId;
     @FXML
-    private TableColumn tblColDesc;
+        private TableColumn tblColDesc;
     @FXML
-    private TableColumn tblColDate;
+        private TableColumn tblColDate;
     @FXML
-    private TableColumn tblColStat;
+        private TableColumn tblColStat;
 
     //method handling selection of single task via mouse click event
     @FXML
-    private void selectTableItem(MouseEvent event) {
+        private void selectTableItem(MouseEvent event) {
 
         //index from list of taks is read via MouseEvent (any for now)
         int index = tblitems.getSelectionModel().getSelectedIndex();
@@ -110,7 +111,7 @@ public class MainController implements Initializable {
 
     //method handling action on 'Clear list' button
     @FXML
-    private void handleButtonDeleteAllAction(ActionEvent event) {
+        private void handleButtonDeleteAllAction(ActionEvent event) {
 
         //call deleteToDoItem without parameters to delete all
         db.deleteToDoItem();
@@ -121,15 +122,15 @@ public class MainController implements Initializable {
 
     //method handling action on 'Show All/Show active' button
     @FXML
-    private void handleButtonShowOptions(ActionEvent event) {
+        private void handleButtonShowOptions(ActionEvent event) {
 
         //call deleteToDoItem without parameters to delete all
         if (onlyActive == true) {
             onlyActive = false;
-            buttonShowOptions.setText("Show Active");
+            buttonShowOptions.setText("Hide Done");
         } else {
             onlyActive = true;
-            buttonShowOptions.setText("Show All");
+            buttonShowOptions.setText("Show Done");
         }
 
         //refresh list of tasks
@@ -138,7 +139,7 @@ public class MainController implements Initializable {
 
     //handleDatePicker
     @FXML
-    private void handleDatePicker() {
+        private void handleDatePicker() {
         localDate = datePicker.getValue();
         if (localDate != null) {
             System.out.println(localDate.toString());
@@ -151,7 +152,7 @@ public class MainController implements Initializable {
 
     //handle Show Date button
     @FXML
-    private void handleButtonShowDate(ActionEvent event) {
+        private void handleButtonShowDate(ActionEvent event) {
 
         //assign date from localDate from datePicker
         showDate = localDate;
@@ -173,22 +174,21 @@ public class MainController implements Initializable {
     //method to build context menu
     private void buildTableContextMenu() {
 
-        
         //declarations of actions for Menu Items
         //Set Done
         EventHandler<ActionEvent> actionSetDone = new EventHandler<ActionEvent>() {
             @Override
-            public void handle(ActionEvent event) {
+        public void handle(ActionEvent event) {
                 db.changeItemStatus(id, 0);
                 listAllTasks();
 
             }
         };
-        
+
         //Set Active
         EventHandler<ActionEvent> actionSetActive = new EventHandler<ActionEvent>() {
             @Override
-            public void handle(ActionEvent event) {
+        public void handle(ActionEvent event) {
                 db.changeItemStatus(id, 1);
                 listAllTasks();
             }
@@ -197,7 +197,7 @@ public class MainController implements Initializable {
         //Delete
         EventHandler<ActionEvent> actionDelete = new EventHandler<ActionEvent>() {
             @Override
-            public void handle(ActionEvent event) {
+        public void handle(ActionEvent event) {
                 db.deleteToDoItem(id);
                 listAllTasks();
             }
@@ -206,7 +206,7 @@ public class MainController implements Initializable {
         //Set Due Date
         EventHandler<ActionEvent> actionSetDueDate = new EventHandler<ActionEvent>() {
             @Override
-            public void handle(ActionEvent event) {
+        public void handle(ActionEvent event) {
                 if (localDate == null) {
                     //insert new task with description and status=1 and date=""
                     db.setDueDate(id, "");
@@ -237,7 +237,7 @@ public class MainController implements Initializable {
 
     //method handling action on textField to add new task (ENTER press)
     @FXML
-    private void insertTextField(ActionEvent event) {
+        private void insertTextField(ActionEvent event) {
 
         //get description from textField
         descriptionText = description.getText();
@@ -377,15 +377,15 @@ public class MainController implements Initializable {
 
             //tblColDesc = new TableColumn("Description");
             tblColDesc.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("description"));
-            tblColDesc.setStyle( "-fx-alignment: LEFT;");
+            tblColDesc.setStyle("-fx-alignment: LEFT;");
 
             //tblColDate = new TableColumn("Date");
             tblColDate.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("date"));
-            tblColDate.setStyle( "-fx-alignment: CENTER;");
+            tblColDate.setStyle("-fx-alignment: CENTER;");
 
             //tblColStat = new TableColumn("Status");
             tblColStat.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("status"));
-            tblColStat.setStyle( "-fx-alignment: CENTER;");
+            tblColStat.setStyle("-fx-alignment: CENTER;");
             /*
             //set text strike-through for Done items
             tblitems.setRowFactory(new Callback<TableView<TodoItem>, TableRow<TodoItem>>() {
@@ -408,20 +408,22 @@ public class MainController implements Initializable {
                     };
                 }
             });
-            */ 
+             */
             //populate tblitems (TableView<TodoItem>) to be displayed in App from ObservableList<TodoItem>            
             tblitems.setItems(tableItems);
             tblitems.getColumns().setAll(tblColId, tblColDesc, tblColDate, tblColStat);
             tblColDate.setSortType(TableColumn.SortType.ASCENDING);
-            tblitems.getSortOrder().setAll(tblColDate);
-            tblitems.getStyleClass().add("strike");
+            //tblColStat.setSortType(TableColumn.SortType.DESCENDING);
+            tblitems.getSortOrder().setAll( tblColDate);
+            //tblitems.getStyleClass().add("strike");
 
         } catch (SQLException sQLException) {
         }
     }
 
+
     @Override
-    public void initialize(URL url, ResourceBundle rb) {
+        public void initialize(URL url, ResourceBundle rb) {
 
         //create new DBHandler object and establish connection to DB
         db = new DBHandler("tasks");

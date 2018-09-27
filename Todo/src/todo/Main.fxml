@@ -24,7 +24,7 @@
                      <children>
                         <DatePicker fx:id="datePicker" onAction="#handleDatePicker" promptText="Pick a date" />
                         <Button fx:id="buttonShowDate" mnemonicParsing="false" onAction="#handleButtonShowDate" text="Show All Dates" />
-                        <Button fx:id="buttonShowOptions" mnemonicParsing="false" onAction="#handleButtonShowOptions" text="Show All" />
+                        <Button fx:id="buttonShowOptions" mnemonicParsing="false" onAction="#handleButtonShowOptions" text="Show Done" />
                      </children>
                   </HBox>
                   <TableView fx:id="tblitems" onMouseClicked="#selectTableItem" opacity="0.8" prefHeight="500.0" prefWidth="866.0" stylesheets="@sceneCSS.css">
@@ -34,6 +34,9 @@
                         <TableColumn fx:id="tblColDate" minWidth="95.0" prefWidth="95.0" text="Due Date" />
                         <TableColumn fx:id="tblColStat" minWidth="120.0" prefWidth="120.0" text="Status" />
                     </columns>
+                     <columnResizePolicy>
+                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                     </columnResizePolicy>
                   </TableView>
                </children>
             </VBox>
