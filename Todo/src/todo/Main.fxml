@@ -14,7 +14,7 @@
     <children>
       <HBox spacing="15.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
          <children>
-            <ListView fx:id="menuList" onMouseClicked="#selectMenuList" opacity="0.61" prefHeight="200.0" prefWidth="250.0" />
+            <ListView fx:id="menuList" onMouseClicked="#selectMenuList" opacity="0.8" prefHeight="200.0" prefWidth="250.0" />
             <VBox prefHeight="649.0" prefWidth="865.0" spacing="15.0">
                <children>
                   <VBox prefHeight="686.0" prefWidth="866.0" spacing="15.0">
@@ -34,10 +34,10 @@
                         <TableView fx:id="tblitems" onMouseClicked="#selectTableItem" opacity="0.8" prefHeight="560.0" prefWidth="735.0">
                           <columns>
                             <TableColumn fx:id="tblColId" minWidth="40.0" prefWidth="40.0" text="ID" visible="false" />
-                            <TableColumn fx:id="tblColDesc" minWidth="200.0" onEditCommit="#handleDescriptionEdit" prefWidth="510.0" text="Description" />
+                            <TableColumn fx:id="tblColDesc" minWidth="200.0" onEditCommit="#handleDescriptionEdit" prefWidth="400.0" text="Description" />
                               <TableColumn fx:id="tblColDate" minWidth="95.0" prefWidth="95.0" text="Due Date" />
                               <TableColumn fx:id="tblColStat" minWidth="120.0" prefWidth="120.0" text="Status" />
-                              <TableColumn fx:id="tblColStar" minWidth="120.0" prefWidth="120.0" text="Starred" />
+                              <TableColumn fx:id="tblColStar" minWidth="75.0" prefWidth="75.0" />
                           </columns>
                         </TableView>
                      </children>

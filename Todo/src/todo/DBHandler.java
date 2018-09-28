@@ -14,8 +14,6 @@ import java.text.SimpleDateFormat;
 import static javafx.application.Platform.exit;
 import java.util.Date;
 
-
-
 /**
  *
  * @author ckok
@@ -26,10 +24,10 @@ public class DBHandler {
     private Connection con;
     private String dbName;
 
-    DBHandler( String dbName1) {
-        
+    DBHandler(String dbName1) {
+
         dbName = dbName1;
-        
+
         try {
             String dbURL = "jdbc:sqlite:Todo.db";
             // First, you need to establish a connection with the data source you want to use. 
@@ -60,191 +58,169 @@ public class DBHandler {
             exit();
         }
     }
-    
-    
+
     //This method inserts new entry into DB
     //with description and status from parameter list
     //and current date
     //DB handles ID on it's own
-    public void insertToDoItem (String Description, int Status, String date){
-		
-	try {
+    public void insertToDoItem(String Description, int Status, String date) {
+
+        try {
             Statement statement = con.createStatement();
-            
+
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
-            
-       //     Date d = new Date();
-       //     SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd");
-        
+
+            //     Date d = new Date();
+            //     SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd");
             //INSERT query with description and status from parameters
             //and current date
             //no id is provided, DB handles on it's own
-	    String query = "INSERT INTO " + dbName + " (Description, Date, Status, Starred) " + 
-                            "VALUES ('"+ Description + "', '" + date +"', '" + Integer.toString(Status) + "', 0)";
-		
+            String query = "INSERT INTO " + dbName + " (Description, Date, Status, Starred) "
+                    + "VALUES ('" + Description + "', '" + date + "', '" + Integer.toString(Status) + "', 0)";
+            System.out.println(query);
             statement.executeQuery(query);
-            
-            } catch (SQLException sQLException) {
-            }
-	}
+
+        } catch (SQLException sQLException) {
+        }
+    }
 
     //This method deletes all entries from DB
     //since parameter id is missing
-    public void deleteToDoItem (){
-		
-	try {
+    public void deleteToDoItem() {
+
+        try {
             Statement statement = con.createStatement();
-            
+
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
-            
+
             //DELETE all query
-  	    String query = "DELETE FROM " + dbName;
+            String query = "DELETE FROM " + dbName;
             System.out.println(query);
             statement.executeQuery(query);
-                } catch (SQLException sQLException) {
+        } catch (SQLException sQLException) {
         }
-	}
+    }
 
     //This method deletes one entry from DB
     //based on parameter id
-    public void deleteToDoItem (long id){
-		
-	try {
+    public void deleteToDoItem(long id) {
+
+        try {
             Statement statement = con.createStatement();
-            
+
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
-            
+
             //DELETE query is created WHERE id matches given id
-  	    String query = "DELETE FROM " + dbName + " WHERE id="+ id ;
+            String query = "DELETE FROM " + dbName + " WHERE id=" + id;
             System.out.println(query);
             statement.executeQuery(query);
-                } catch (SQLException sQLException) {
+        } catch (SQLException sQLException) {
         }
-	}
+    }
 
     //setDueDate
-     //This method changes status of one entry from DB
+    //This method changes status of one entry from DB
     //based on parameter id and status
-    public void setDueDate (long id, String date){
-		
-	try {
+    public void setDueDate(long id, String date) {
+
+        try {
             Statement statement = con.createStatement();
-            
+
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
-            
+
             //UPDATE query is created WHERE id matches given id
             //SET Date = date
-  	    String query = "UPDATE " + dbName + " SET Date = '" + date + "' WHERE id="+ id ;
+            String query = "UPDATE " + dbName + " SET Date = '" + date + "' WHERE id=" + id;
             System.out.println(query);
             statement.executeQuery(query);
-                } catch (SQLException sQLException) {
+        } catch (SQLException sQLException) {
         }
-	}  
-    
-    
+    }
+
     //editDescription
-     //This method edits description of one entry from DB
+    //This method edits description of one entry from DB
     //based on parameter id and desc
-    public void editDescription (long id, String desc){
-		
-	try {
+    public void editDescription(long id, String desc) {
+
+        try {
             Statement statement = con.createStatement();
-            
+
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
-            
+
             //UPDATE query is created WHERE id matches given id
             //SET Date = date
-  	    String query = "UPDATE " + dbName + " SET Description = '" + desc + "' WHERE id="+ id ;
+            String query = "UPDATE " + dbName + " SET Description = '" + desc + "' WHERE id=" + id;
             System.out.println(query);
             statement.executeQuery(query);
-                } catch (SQLException sQLException) {
+        } catch (SQLException sQLException) {
         }
-	}  
+    }
 
-//setItemStarred
+//changeStarred
     //This method changes status of one entry from DB
     //based on parameter id and status
-    public void setItemStarred (long id){
-		
-	try {
-            Statement statement = con.createStatement();
-            
-            statement.setQueryTimeout(30);  // set timeout to 30 sec.
-            
-            //UPDATE query is created WHERE id matches given id
-            //SET Status = 1 (active)
-  	    String query = "UPDATE " + dbName + " SET Starred = 1 WHERE id="+ id ;
-            System.out.println(query);
-            statement.executeQuery(query);
-                } catch (SQLException sQLException) {
-        }
-	}
-//resetItemStarred
-    //This method changes status of one entry from DB
-    //based on parameter id and status
-    public void resetItemStarred (long id){
-		
-	try {
-            Statement statement = con.createStatement();
-            
-            statement.setQueryTimeout(30);  // set timeout to 30 sec.
-            
-            //UPDATE query is created WHERE id matches given id
-            //SET Status = 1 (active)
-  	    String query = "UPDATE " + dbName + " SET Starred = 0 WHERE id="+ id ;
-            System.out.println(query);
-            statement.executeQuery(query);
-                } catch (SQLException sQLException) {
-        }
-	}
+    public void changeStarred(long id, int star) {
 
-    
-    
-    
+        try {
+            Statement statement = con.createStatement();
+
+            statement.setQueryTimeout(30);  // set timeout to 30 sec.
+
+            //UPDATE query is created WHERE id matches given id
+            //SET Status = 1 (active)
+            String query = "UPDATE " + dbName + " SET Starred = " + star + " WHERE id=" + id;
+            System.out.println(query);
+            statement.executeQuery(query);
+        } catch (SQLException sQLException) {
+        }
+    }
+
     //changeItemStatus
     //This method changes status of one entry from DB
     //based on parameter id and status
-    public void changeItemStatus (long id, int status){
-		
-	try {
+    public void changeItemStatus(long id, int status) {
+
+        try {
             Statement statement = con.createStatement();
-            
+
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
-            
+
             //UPDATE query is created WHERE id matches given id
             //SET Status = 1 (active)
-  	    String query = "UPDATE " + dbName + " SET Status = " + status + " WHERE id="+ id ;
+            String query = "UPDATE " + dbName + " SET Status = " + status + " WHERE id=" + id;
             System.out.println(query);
             statement.executeQuery(query);
-                } catch (SQLException sQLException) {
+        } catch (SQLException sQLException) {
         }
-	}      
-    
+    }
+
     // This method outputs the contents of the table Tasks
     // In the method, con is a Connection object and dbName is the name of 
     // the database in which you are creating the table.
-    public ResultSet viewTable() {
-        
+    public ResultSet viewTable(boolean onlyActive, boolean onlyStarred) {
+        //choice
+        //0 - all
+        //1 - skipp finished
+        //2 - only starred
         //ResultSet rs;
-
-          try {
+        try {
             Statement statement = con.createStatement();
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
-
-            return statement.executeQuery("SELECT * FROM " + dbName);
-           /* 
-            while (rs.next()) {
-                // read the result set
-                
-                System.out.println("date = " + rs.getString("date"));
-                System.out.println("description = " + rs.getString("description"));
-                System.out.println("status = " + rs.getInt("status"));
-                System.out.println("id = " + rs.getInt("id"));
-
-            }*/
-            //return rs;
+            
+            String query = "SELECT * FROM " + dbName;;
+            
+            if(onlyStarred) {
+                if(onlyActive) query = "SELECT * FROM " + dbName + " WHERE (Starred = 1 AND Status <> 0)";
+                else query = "SELECT * FROM " + dbName + " WHERE Starred = 1";
+            } else {
+                if(onlyActive) query = "SELECT * FROM " + dbName + " WHERE Status <> 0";
+            }
+            
+            System.out.println(query);
+            return statement.executeQuery(query);
+            
         } catch (SQLException sQLException) {
         }
-        return null; 
+        return null;
     }
 }

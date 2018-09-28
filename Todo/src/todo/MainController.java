@@ -5,7 +5,11 @@
  */
 package todo;
 
+import java.awt.Graphics;
+import java.awt.Image;
 import static java.awt.SystemColor.control;
+import java.awt.image.ImageObserver;
+import java.awt.image.ImageProducer;
 import javafx.scene.input.MouseEvent;
 import java.net.URL;
 import java.sql.ResultSet;
@@ -29,6 +33,7 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
@@ -40,6 +45,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.image.ImageView;
 import javafx.stage.Popup;
 import javafx.util.Callback;
 
@@ -55,6 +61,7 @@ public class MainController implements Initializable {
     private ObservableList<TodoItem> tableItems = FXCollections.observableArrayList(); //ObservableList of items
     private ObservableList<String> menuItems = FXCollections.observableArrayList(); //ObservableList of items
     private boolean onlyActive = true; //used to view all items or only active ones, default=true
+    private boolean onlyStarred = false;
     private LocalDate localDate = null; //used to read from DatePicker 
     private LocalDate showDateStart = null; //used to filter items for one day only
     private LocalDate showDateEnd = null;
@@ -63,7 +70,10 @@ public class MainController implements Initializable {
     MenuItem deleteMenuItem = new MenuItem("Delete Item");
     MenuItem setDoneMenuItem = new MenuItem("Set Item to Done");
     MenuItem setActiveItem = new MenuItem("Set Item to Pending");
-    MenuItem setDueDate = new MenuItem("Set Due Date");
+    Menu setDueDate = new Menu("Set Due Date");
+    MenuItem setDueToday = new MenuItem("today");
+    MenuItem setDueTomorrow = new MenuItem("tomorrow");
+    MenuItem setDueDatePicker = new MenuItem("from Calendar");
     MenuItem editItem = new MenuItem("Edit");
     MenuItem starItem = new MenuItem("Set Favorite");
     MenuItem unstarItem = new MenuItem("Unfavor");
@@ -97,7 +107,7 @@ public class MainController implements Initializable {
     private TableColumn tblColStat;
     @FXML
     private TableColumn tblColStar;
-        
+
     @FXML
     private ListView menuList = new ListView<String>();
 
@@ -113,7 +123,7 @@ public class MainController implements Initializable {
 
             id = tblitems.getItems().get(index).getId();
             //terminal printout of both: list ID and DB's ID just for check
-            System.out.println(id + "\t" + index);
+            System.out.println(id + "\t" + index + "\t" + tblitems.getItems().get(index).getStar());
 
             //doubleclick sets to done
             if (event.getClickCount() == 2) {
@@ -142,28 +152,39 @@ public class MainController implements Initializable {
                 break;
             case 0:
                 showDateStart = null;
+                onlyStarred = false;
                 listAllTasks();
                 index = -1;
                 break;
             case 1:
-                showDateStart = showDateEnd = LocalDate.now();
+                showDateStart = null;
+                onlyStarred = true;
                 listAllTasks();
                 index = -1;
                 break;
             case 2:
-                showDateStart = showDateEnd = LocalDate.now().plus(1, ChronoUnit.DAYS);
+                showDateStart = showDateEnd = LocalDate.now();
+                onlyStarred = false;
                 listAllTasks();
                 index = -1;
                 break;
             case 3:
-                showDateStart = LocalDate.now().with(WeekFields.of(Locale.FRANCE).dayOfWeek(), 1);
-                showDateEnd = LocalDate.now().with(WeekFields.of(Locale.FRANCE).dayOfWeek(), 7);
+                showDateStart = showDateEnd = LocalDate.now().plus(1, ChronoUnit.DAYS);
+                onlyStarred = false;
                 listAllTasks();
                 index = -1;
                 break;
             case 4:
+                showDateStart = LocalDate.now().with(WeekFields.of(Locale.FRANCE).dayOfWeek(), 1);
+                showDateEnd = LocalDate.now().with(WeekFields.of(Locale.FRANCE).dayOfWeek(), 7);
+                onlyStarred = false;
+                listAllTasks();
+                index = -1;
+                break;
+            case 5:
                 showDateStart = LocalDate.now().withDayOfMonth(1);
                 showDateEnd = LocalDate.now().withDayOfMonth(showDateStart.lengthOfMonth());
+                onlyStarred = false;
                 listAllTasks();
                 index = -1;
                 break;
@@ -221,28 +242,6 @@ public class MainController implements Initializable {
         //listAllTasks();
     }
 
-    /*
-    //handle Show Date button
-    @FXML
-    private void handleButtonShowDate(ActionEvent event) {
-
-        //assign date from localDate from datePicker
-        showDate = localDate;
-        //if null, keep button text
-        if (showDate == null) {
-            buttonShowDate.setText("Show All Dates");
-
-            //if not null, change button text
-        } else {
-            buttonShowDate.setText("Show Date Only");
-
-        }
-        //reset datePicker value
-        datePicker.setValue(null);
-        //refresh list of tasks
-        listAllTasks();
-    }
-     */
     //method to build context menu
     private void buildTableContextMenu() {
 
@@ -270,22 +269,20 @@ public class MainController implements Initializable {
         EventHandler<ActionEvent> actionSetStarred = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                db.setItemStarred(id);
+                db.changeStarred(id, 1);
                 listAllTasks();
             }
-        };  
-        
-        
+        };
+
         //UnStar
         EventHandler<ActionEvent> actionResetStarred = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                db.resetItemStarred(id);
+                db.changeStarred(id, 0);
                 listAllTasks();
             }
-        };         
-        
-        
+        };
+
         //Delete
         EventHandler<ActionEvent> actionDelete = new EventHandler<ActionEvent>() {
             @Override
@@ -300,8 +297,8 @@ public class MainController implements Initializable {
             @Override
             public void handle(ActionEvent event) {
                 if (localDate == null) {
-                    //insert new task with description and status=1 and date=""
-                    db.setDueDate(id, "");
+                    //dont do anything!!!
+                    //db.setDueDate(id, "");
 
                 } else {
                     //insert new task with description and status=1 and set date
@@ -309,6 +306,32 @@ public class MainController implements Initializable {
                 }
                 //reset date in DatePicker
                 datePicker.setValue(null);
+                listAllTasks();
+
+            }
+        };
+
+        EventHandler<ActionEvent> actionSetDueDateToday = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                //change due date to today
+                db.setDueDate(id, LocalDate.now().toString());
+
+                //reset date in DatePicker
+                //datePicker.setValue(null);
+                listAllTasks();
+
+            }
+        };
+
+        EventHandler<ActionEvent> actionSetDueDateTomorrow = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                //change due date to tomorrow
+                db.setDueDate(id, LocalDate.now().plus(1, ChronoUnit.DAYS).toString());
+
+                //reset date in DatePicker
+                //datePicker.setValue(null);
                 listAllTasks();
 
             }
@@ -328,12 +351,23 @@ public class MainController implements Initializable {
 
         //Assignment of actions to Menu Items
         setDoneMenuItem.setOnAction(actionSetDone);
+        setDoneMenuItem.setGraphic(new ImageView("/todo/done.png"));
         setActiveItem.setOnAction(actionSetActive);
+        setActiveItem.setGraphic(new ImageView("/todo/undo.png"));
         deleteMenuItem.setOnAction(actionDelete);
-        setDueDate.setOnAction(actionSetDueDate);
+        deleteMenuItem.setGraphic(new ImageView("/todo/delete.png"));
+        //setDueDate.setOnAction(actionSetDueDate);
+        setDueToday.setOnAction(actionSetDueDateToday);
+        setDueTomorrow.setOnAction(actionSetDueDateTomorrow);
+        setDueDatePicker.setOnAction(actionSetDueDate);
+        setDueDate.getItems().addAll(setDueToday, setDueTomorrow, setDueDatePicker);
+        setDueDate.setGraphic(new ImageView("/todo/calendar.png"));
         editItem.setOnAction(actionEdit);
+        editItem.setGraphic(new ImageView("/todo/edit.png"));
         starItem.setOnAction(actionSetStarred);
+        starItem.setGraphic(new ImageView("/todo/star.png"));
         unstarItem.setOnAction(actionResetStarred);
+        unstarItem.setGraphic(new ImageView("/todo/unstar.png"));
         //context menu for TableView
         ContextMenu tableContextMenu = new ContextMenu(editItem, starItem, unstarItem, setDueDate, setDoneMenuItem, setActiveItem, deleteMenuItem);
 
@@ -351,8 +385,17 @@ public class MainController implements Initializable {
         descriptionText = description.getText();
 
         if (localDate == null) {
-            //insert new task with description and status=1 and date=""
-            db.insertToDoItem(descriptionText, 1, "");
+
+            if (showDateStart == null) {
+                //insert new task with description and status=1 and date=today by default
+                db.insertToDoItem(descriptionText, 1, LocalDate.now().toString());
+            } else if (showDateStart == showDateEnd) {
+                //insert new task with description and status=1 and date=showDateStart (today or tomorrow only)
+                db.insertToDoItem(descriptionText, 1, showDateStart.toString());
+            } else {
+                //insert new task with description and status=1 and date=today by default
+                db.insertToDoItem(descriptionText, 1, LocalDate.now().toString());
+            }
 
         } else {
             //insert new task with description and status=1 and set date
@@ -433,6 +476,7 @@ public class MainController implements Initializable {
     //build side menu
     private void buildSideMenu() {
         menuItems.add("Show All");
+        menuItems.add("Show Favorites");
         menuItems.add("Show Today");
         menuItems.add("Show Tomorrow");
         menuItems.add("Show Week");
@@ -444,8 +488,8 @@ public class MainController implements Initializable {
 //private method for refreshing list of tasks
     private void listAllTasks() {
 
-        //read all DB and save to local variable 'activetoDoList'
-        ResultSet toDoList = db.viewTable();
+        //read all DB and save to local variable 'toDoList'
+        ResultSet toDoList = db.viewTable(onlyActive, onlyStarred);
 
         try {
 
@@ -456,42 +500,19 @@ public class MainController implements Initializable {
             while (toDoList.next()) {
 
                 int intStatus = checkOverDue(toDoList.getInt("status"), toDoList.getString("date"), toDoList.getInt("id"));
-                
-                //if showing only active items
-                if (onlyActive == true) {
-                    //check if active?
-                    if (intStatus != 0) {
-                        //check if showDate is set
-                        if (showDateStart == null) {
-                            //show all
-                            tableItems.add(new TodoItem(toDoList.getInt("id"), toDoList.getString("description"), toDoList.getString("date"), mapStatus(intStatus), toDoList.getInt("starred")));
-                        } else {
-                            //show only for selected dates
-                            if (showDateStart.toString().compareTo(toDoList.getString("date")) <= 0) {
-                                if (showDateEnd.toString().compareTo(toDoList.getString("date")) >= 0) {
-                                    tableItems.add(new TodoItem(toDoList.getInt("id"), toDoList.getString("description"), toDoList.getString("date"), mapStatus(intStatus), toDoList.getInt("starred")));
-                                }
-                            }
-                        }
 
-                    }
-                    //onlyActive is false, show all
+                //check if showDate is set
+                if (showDateStart == null) {
+                    //show all
+                    tableItems.add(new TodoItem(toDoList.getInt("id"), toDoList.getString("description"), toDoList.getString("date"), mapStatus(intStatus), toDoList.getInt("starred")));
                 } else {
-                    //check if showDate is set
-                    if (showDateStart == null) {
-                        //show all
-                        tableItems.add(new TodoItem(toDoList.getInt("id"), toDoList.getString("description"), toDoList.getString("date"), mapStatus(intStatus), toDoList.getInt("starred")));
-                    } else {
-                        //show only for selected dates
-                        if (showDateStart.toString().compareTo(toDoList.getString("date")) <= 0) {
-                            if (showDateEnd.toString().compareTo(toDoList.getString("date")) >= 0) {
-                                tableItems.add(new TodoItem(toDoList.getInt("id"), toDoList.getString("description"), toDoList.getString("date"), mapStatus(intStatus), toDoList.getInt("starred")));
-                            }
+                    //show only for selected dates
+                    if (showDateStart.toString().compareTo(toDoList.getString("date")) <= 0) {
+                        if (showDateEnd.toString().compareTo(toDoList.getString("date")) >= 0) {
+                            tableItems.add(new TodoItem(toDoList.getInt("id"), toDoList.getString("description"), toDoList.getString("date"), mapStatus(intStatus), toDoList.getInt("starred")));
                         }
                     }
-
                 }
-
             }
 
             //set properties of cells
@@ -523,10 +544,52 @@ public class MainController implements Initializable {
             //tblColStat = new TableColumn("Status");
             tblColStat.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("status"));
             //tblColStat.setStyle("-fx-alignment: CENTER;");
-            
+
             //tblColStat = new TableColumn("Status");
-            tblColStar.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("starred"));
-            //tblColStat.setStyle("-fx-alignment: CENTER;");            
+            tblColStar.setCellValueFactory(new PropertyValueFactory<TodoItem, Integer>("star"));
+            //set tblColStar to button
+            Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>> cellFactory = new Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>>() {
+                @Override
+                public TableCell<TodoItem, Integer> call(final TableColumn<TodoItem, Integer> param) {
+                    final TableCell<TodoItem, Integer> cell = new TableCell<TodoItem, Integer>() {
+
+                        
+                        private Button starButton = new Button("Star");
+                        
+
+                        {
+                            starButton.setOnAction((ActionEvent event) -> {
+                                if (getTableView().getItems().get(getIndex()).getStar() == 0) getTableView().getItems().get(getIndex()).setStar(1);
+                                else getTableView().getItems().get(getIndex()).setStar(0);
+                                db.changeStarred(getTableView().getItems().get(getIndex()).getId(), getTableView().getItems().get(getIndex()).getStar());
+                                listAllTasks();
+                                //System.out.println("Starred value = " + getTableView().getItems().get(getIndex()).getStar());
+                            });
+                        }
+
+                        @Override
+                        public void updateItem(Integer item, boolean empty) {
+                            super.updateItem(item, empty);
+                            if (empty) {
+                                setGraphic(null);
+                            } else {
+                                if(item == 1){
+                                    starButton.setText("Unstar");
+                                    setGraphic(starButton);
+                                } else {
+                                    starButton.setText("Star");
+                                    setGraphic(starButton);
+                                }
+                                
+                            }
+                        }
+                    };
+                    return cell;
+                }
+            };
+
+            tblColStar.setCellFactory(cellFactory);
+
             /*
             //set text strike-through for Done items
             tblitems.setRowFactory(new Callback<TableView<TodoItem>, TableRow<TodoItem>>() {
@@ -552,7 +615,7 @@ public class MainController implements Initializable {
              */
             //populate tblitems (TableView<TodoItem>) to be displayed in App from ObservableList<TodoItem>            
             tblitems.setItems(tableItems);
-            tblitems.getColumns().setAll(tblColId, tblColDesc, tblColDate, tblColStat, tblColStar);
+            tblitems.getColumns().setAll(tblColStar, tblColId, tblColDesc, tblColDate, tblColStat);
             tblColDate.setSortType(TableColumn.SortType.ASCENDING);
             //tblColStat.setSortType(TableColumn.SortType.DESCENDING);
             tblitems.getSortOrder().setAll(tblColDate);
