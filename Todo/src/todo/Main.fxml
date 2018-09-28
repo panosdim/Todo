@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<AnchorPane id="AnchorPane" prefHeight="700.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="todo.MainController">
+<AnchorPane id="AnchorPane" prefHeight="700.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="todo.MainController">
     <children>
       <HBox spacing="15.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
          <children>
@@ -31,12 +31,13 @@
                               <Button fx:id="buttonDeleteAll" onAction="#handleButtonDeleteAllAction" text="Clear List" />
                            </children>
                         </HBox>
-                        <TableView fx:id="tblitems" onMouseClicked="#selectTableItem" opacity="0.8" prefHeight="560.0" prefWidth="735.0" stylesheets="@sceneCSS.css">
+                        <TableView fx:id="tblitems" onMouseClicked="#selectTableItem" opacity="0.8" prefHeight="560.0" prefWidth="735.0">
                           <columns>
                             <TableColumn fx:id="tblColId" minWidth="40.0" prefWidth="40.0" text="ID" visible="false" />
                             <TableColumn fx:id="tblColDesc" minWidth="200.0" onEditCommit="#handleDescriptionEdit" prefWidth="510.0" text="Description" />
                               <TableColumn fx:id="tblColDate" minWidth="95.0" prefWidth="95.0" text="Due Date" />
                               <TableColumn fx:id="tblColStat" minWidth="120.0" prefWidth="120.0" text="Status" />
+                              <TableColumn fx:id="tblColStar" minWidth="120.0" prefWidth="120.0" text="Starred" />
                           </columns>
                         </TableView>
                      </children>

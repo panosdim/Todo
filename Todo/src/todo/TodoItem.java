@@ -15,12 +15,15 @@ public class TodoItem {
     private String description;
     private String date;
     private String status;
+    private int star;
 
-    public TodoItem(long id, String description, String date, String status) {
+
+    public TodoItem(long id, String description, String date, String status, int star) {
         this.id = id;
         this.description = description;
         this.date = date;
         this.status = status;
+        this.star = star;
     }
 
     public long getId() {
@@ -55,4 +58,11 @@ public class TodoItem {
         this.status = status;
     }
 
+    public int getStar() {
+        return star;
+    }
+
+    public void setStar(int star) {
+        this.star = star;
+    }
 }

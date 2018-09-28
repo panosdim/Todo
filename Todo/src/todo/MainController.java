@@ -65,6 +65,8 @@ public class MainController implements Initializable {
     MenuItem setActiveItem = new MenuItem("Set Item to Pending");
     MenuItem setDueDate = new MenuItem("Set Due Date");
     MenuItem editItem = new MenuItem("Edit");
+    MenuItem starItem = new MenuItem("Set Favorite");
+    MenuItem unstarItem = new MenuItem("Unfavor");
 
     //
     //private final String strikeThrough = getClass().getResource("sceneCSS.css").toExternalForm();
@@ -93,6 +95,9 @@ public class MainController implements Initializable {
     private TableColumn tblColDate;
     @FXML
     private TableColumn tblColStat;
+    @FXML
+    private TableColumn tblColStar;
+        
     @FXML
     private ListView menuList = new ListView<String>();
 
@@ -261,6 +266,26 @@ public class MainController implements Initializable {
             }
         };
 
+        //Set Starred
+        EventHandler<ActionEvent> actionSetStarred = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                db.setItemStarred(id);
+                listAllTasks();
+            }
+        };  
+        
+        
+        //UnStar
+        EventHandler<ActionEvent> actionResetStarred = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                db.resetItemStarred(id);
+                listAllTasks();
+            }
+        };         
+        
+        
         //Delete
         EventHandler<ActionEvent> actionDelete = new EventHandler<ActionEvent>() {
             @Override
@@ -307,8 +332,10 @@ public class MainController implements Initializable {
         deleteMenuItem.setOnAction(actionDelete);
         setDueDate.setOnAction(actionSetDueDate);
         editItem.setOnAction(actionEdit);
+        starItem.setOnAction(actionSetStarred);
+        unstarItem.setOnAction(actionResetStarred);
         //context menu for TableView
-        ContextMenu tableContextMenu = new ContextMenu(editItem, setDueDate, setDoneMenuItem, setActiveItem, deleteMenuItem);
+        ContextMenu tableContextMenu = new ContextMenu(editItem, starItem, unstarItem, setDueDate, setDoneMenuItem, setActiveItem, deleteMenuItem);
 
         //set context menu for tblitems TableView object
         tblitems.setContextMenu(tableContextMenu);
@@ -437,12 +464,12 @@ public class MainController implements Initializable {
                         //check if showDate is set
                         if (showDateStart == null) {
                             //show all
-                            tableItems.add(new TodoItem(toDoList.getInt("id"), toDoList.getString("description"), toDoList.getString("date"), mapStatus(intStatus)));
+                            tableItems.add(new TodoItem(toDoList.getInt("id"), toDoList.getString("description"), toDoList.getString("date"), mapStatus(intStatus), toDoList.getInt("starred")));
                         } else {
                             //show only for selected dates
                             if (showDateStart.toString().compareTo(toDoList.getString("date")) <= 0) {
                                 if (showDateEnd.toString().compareTo(toDoList.getString("date")) >= 0) {
-                                    tableItems.add(new TodoItem(toDoList.getInt("id"), toDoList.getString("description"), toDoList.getString("date"), mapStatus(intStatus)));
+                                    tableItems.add(new TodoItem(toDoList.getInt("id"), toDoList.getString("description"), toDoList.getString("date"), mapStatus(intStatus), toDoList.getInt("starred")));
                                 }
                             }
                         }
@@ -453,12 +480,12 @@ public class MainController implements Initializable {
                     //check if showDate is set
                     if (showDateStart == null) {
                         //show all
-                        tableItems.add(new TodoItem(toDoList.getInt("id"), toDoList.getString("description"), toDoList.getString("date"), mapStatus(intStatus)));
+                        tableItems.add(new TodoItem(toDoList.getInt("id"), toDoList.getString("description"), toDoList.getString("date"), mapStatus(intStatus), toDoList.getInt("starred")));
                     } else {
                         //show only for selected dates
                         if (showDateStart.toString().compareTo(toDoList.getString("date")) <= 0) {
                             if (showDateEnd.toString().compareTo(toDoList.getString("date")) >= 0) {
-                                tableItems.add(new TodoItem(toDoList.getInt("id"), toDoList.getString("description"), toDoList.getString("date"), mapStatus(intStatus)));
+                                tableItems.add(new TodoItem(toDoList.getInt("id"), toDoList.getString("description"), toDoList.getString("date"), mapStatus(intStatus), toDoList.getInt("starred")));
                             }
                         }
                     }
@@ -496,6 +523,10 @@ public class MainController implements Initializable {
             //tblColStat = new TableColumn("Status");
             tblColStat.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("status"));
             //tblColStat.setStyle("-fx-alignment: CENTER;");
+            
+            //tblColStat = new TableColumn("Status");
+            tblColStar.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("starred"));
+            //tblColStat.setStyle("-fx-alignment: CENTER;");            
             /*
             //set text strike-through for Done items
             tblitems.setRowFactory(new Callback<TableView<TodoItem>, TableRow<TodoItem>>() {
@@ -521,7 +552,7 @@ public class MainController implements Initializable {
              */
             //populate tblitems (TableView<TodoItem>) to be displayed in App from ObservableList<TodoItem>            
             tblitems.setItems(tableItems);
-            tblitems.getColumns().setAll(tblColId, tblColDesc, tblColDate, tblColStat);
+            tblitems.getColumns().setAll(tblColId, tblColDesc, tblColDate, tblColStat, tblColStar);
             tblColDate.setSortType(TableColumn.SortType.ASCENDING);
             //tblColStat.setSortType(TableColumn.SortType.DESCENDING);
             tblitems.getSortOrder().setAll(tblColDate);

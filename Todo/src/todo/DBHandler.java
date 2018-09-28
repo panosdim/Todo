@@ -79,8 +79,8 @@ public class DBHandler {
             //INSERT query with description and status from parameters
             //and current date
             //no id is provided, DB handles on it's own
-	    String query = "INSERT INTO " + dbName + " (Description, Date, Status) " + 
-                            "VALUES ('"+ Description + "', '" + date +"', '" + Integer.toString(Status) + "')";
+	    String query = "INSERT INTO " + dbName + " (Description, Date, Status, Starred) " + 
+                            "VALUES ('"+ Description + "', '" + date +"', '" + Integer.toString(Status) + "', 0)";
 		
             statement.executeQuery(query);
             
@@ -161,7 +161,45 @@ public class DBHandler {
         }
 	}  
 
+//setItemStarred
+    //This method changes status of one entry from DB
+    //based on parameter id and status
+    public void setItemStarred (long id){
+		
+	try {
+            Statement statement = con.createStatement();
+            
+            statement.setQueryTimeout(30);  // set timeout to 30 sec.
+            
+            //UPDATE query is created WHERE id matches given id
+            //SET Status = 1 (active)
+  	    String query = "UPDATE " + dbName + " SET Starred = 1 WHERE id="+ id ;
+            System.out.println(query);
+            statement.executeQuery(query);
+                } catch (SQLException sQLException) {
+        }
+	}
+//resetItemStarred
+    //This method changes status of one entry from DB
+    //based on parameter id and status
+    public void resetItemStarred (long id){
+		
+	try {
+            Statement statement = con.createStatement();
+            
+            statement.setQueryTimeout(30);  // set timeout to 30 sec.
+            
+            //UPDATE query is created WHERE id matches given id
+            //SET Status = 1 (active)
+  	    String query = "UPDATE " + dbName + " SET Starred = 0 WHERE id="+ id ;
+            System.out.println(query);
+            statement.executeQuery(query);
+                } catch (SQLException sQLException) {
+        }
+	}
 
+    
+    
     
     //changeItemStatus
     //This method changes status of one entry from DB
