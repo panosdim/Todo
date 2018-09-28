@@ -142,6 +142,27 @@ public class DBHandler {
 	}  
     
     
+    //editDescription
+     //This method edits description of one entry from DB
+    //based on parameter id and desc
+    public void editDescription (long id, String desc){
+		
+	try {
+            Statement statement = con.createStatement();
+            
+            statement.setQueryTimeout(30);  // set timeout to 30 sec.
+            
+            //UPDATE query is created WHERE id matches given id
+            //SET Date = date
+  	    String query = "UPDATE " + dbName + " SET Description = '" + desc + "' WHERE id="+ id ;
+            System.out.println(query);
+            statement.executeQuery(query);
+                } catch (SQLException sQLException) {
+        }
+	}  
+
+
+    
     //changeItemStatus
     //This method changes status of one entry from DB
     //based on parameter id and status
