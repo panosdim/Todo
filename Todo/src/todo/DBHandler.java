@@ -63,7 +63,7 @@ public class DBHandler {
     //with description and status from parameter list
     //and current date
     //DB handles ID on it's own
-    public void insertToDoItem(String Description, int Status, String date) {
+    public void insertToDoItem(String Description, int Status, String date, int star) {
 
         try {
             Statement statement = con.createStatement();
@@ -76,7 +76,7 @@ public class DBHandler {
             //and current date
             //no id is provided, DB handles on it's own
             String query = "INSERT INTO " + dbName + " (Description, Date, Status, Starred) "
-                    + "VALUES ('" + Description + "', '" + date + "', '" + Integer.toString(Status) + "', 0)";
+                    + "VALUES ('" + Description + "', '" + date + "', '" + Integer.toString(Status) + "', " + star + ")";
             System.out.println(query);
             statement.executeQuery(query);
 

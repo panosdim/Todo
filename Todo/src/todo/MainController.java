@@ -71,12 +71,14 @@ public class MainController implements Initializable {
     MenuItem setDoneMenuItem = new MenuItem("Set Item to Done");
     MenuItem setActiveItem = new MenuItem("Set Item to Pending");
     Menu setDueDate = new Menu("Set Due Date");
-    MenuItem setDueToday = new MenuItem("today");
-    MenuItem setDueTomorrow = new MenuItem("tomorrow");
-    MenuItem setDueDatePicker = new MenuItem("from Calendar");
+    //MenuItem setDueToday = new MenuItem("today");
+    //MenuItem setDueTomorrow = new MenuItem("tomorrow");
+    DatePicker menuDatePicker = new DatePicker();
+    MenuItem setDueDatePicker = new MenuItem();
     MenuItem editItem = new MenuItem("Edit");
     MenuItem starItem = new MenuItem("Set Favorite");
     MenuItem unstarItem = new MenuItem("Unfavor");
+    
 
     //
     //private final String strikeThrough = getClass().getResource("sceneCSS.css").toExternalForm();
@@ -153,24 +155,28 @@ public class MainController implements Initializable {
             case 0:
                 showDateStart = null;
                 onlyStarred = false;
+                description.setPromptText("Add new todo task");
                 listAllTasks();
                 index = -1;
                 break;
             case 1:
                 showDateStart = null;
                 onlyStarred = true;
+                description.setPromptText("Add new favorite todo task");
                 listAllTasks();
                 index = -1;
                 break;
             case 2:
                 showDateStart = showDateEnd = LocalDate.now();
                 onlyStarred = false;
+                description.setPromptText("Add new todo task for today");
                 listAllTasks();
                 index = -1;
                 break;
             case 3:
                 showDateStart = showDateEnd = LocalDate.now().plus(1, ChronoUnit.DAYS);
                 onlyStarred = false;
+                description.setPromptText("Add new todo task for tomorrow");
                 listAllTasks();
                 index = -1;
                 break;
@@ -178,6 +184,7 @@ public class MainController implements Initializable {
                 showDateStart = LocalDate.now().with(WeekFields.of(Locale.FRANCE).dayOfWeek(), 1);
                 showDateEnd = LocalDate.now().with(WeekFields.of(Locale.FRANCE).dayOfWeek(), 7);
                 onlyStarred = false;
+                description.setPromptText("Add new todo task for today");
                 listAllTasks();
                 index = -1;
                 break;
@@ -185,6 +192,7 @@ public class MainController implements Initializable {
                 showDateStart = LocalDate.now().withDayOfMonth(1);
                 showDateEnd = LocalDate.now().withDayOfMonth(showDateStart.lengthOfMonth());
                 onlyStarred = false;
+                description.setPromptText("Add new todo task for today");
                 listAllTasks();
                 index = -1;
                 break;
@@ -226,7 +234,8 @@ public class MainController implements Initializable {
         localDate = datePicker.getValue();
         if (localDate != null) {
             System.out.println(localDate.toString());
-            //buttonShowDate.setText("Show Date Only");
+            description.setPromptText("Add new todo task for selected date");
+            
         } else {
             //buttonShowDate.setText("Show All Dates");
         }
@@ -296,6 +305,9 @@ public class MainController implements Initializable {
         EventHandler<ActionEvent> actionSetDueDate = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
+                
+                localDate = menuDatePicker.getValue();
+                //menuDatePicker.getOnMouseClicked();
                 if (localDate == null) {
                     //dont do anything!!!
                     //db.setDueDate(id, "");
@@ -303,14 +315,15 @@ public class MainController implements Initializable {
                 } else {
                     //insert new task with description and status=1 and set date
                     db.setDueDate(id, localDate.toString());
+                    //db.setDueDate(id, menuDatePicker.getValue().toString());
                 }
                 //reset date in DatePicker
-                datePicker.setValue(null);
+                menuDatePicker.setValue(null);
                 listAllTasks();
 
             }
         };
-
+/*
         EventHandler<ActionEvent> actionSetDueDateToday = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -336,7 +349,7 @@ public class MainController implements Initializable {
 
             }
         };
-
+*/
         //Edit description
         EventHandler<ActionEvent> actionEdit;
         actionEdit = new EventHandler<ActionEvent>() {
@@ -357,10 +370,11 @@ public class MainController implements Initializable {
         deleteMenuItem.setOnAction(actionDelete);
         deleteMenuItem.setGraphic(new ImageView("/todo/delete.png"));
         //setDueDate.setOnAction(actionSetDueDate);
-        setDueToday.setOnAction(actionSetDueDateToday);
-        setDueTomorrow.setOnAction(actionSetDueDateTomorrow);
+        //setDueToday.setOnAction(actionSetDueDateToday);
+        //setDueTomorrow.setOnAction(actionSetDueDateTomorrow);
+        setDueDatePicker.setGraphic(menuDatePicker);
         setDueDatePicker.setOnAction(actionSetDueDate);
-        setDueDate.getItems().addAll(setDueToday, setDueTomorrow, setDueDatePicker);
+        setDueDate.getItems().addAll(/*setDueToday, setDueTomorrow,*/ setDueDatePicker);
         setDueDate.setGraphic(new ImageView("/todo/calendar.png"));
         editItem.setOnAction(actionEdit);
         editItem.setGraphic(new ImageView("/todo/edit.png"));
@@ -383,30 +397,32 @@ public class MainController implements Initializable {
 
         //get description from textField
         descriptionText = description.getText();
+        //save previous prompt text
+        String prevPromptText = description.getPromptText();
 
         if (localDate == null) {
 
             if (showDateStart == null) {
                 //insert new task with description and status=1 and date=today by default
-                db.insertToDoItem(descriptionText, 1, LocalDate.now().toString());
+                db.insertToDoItem(descriptionText, 1, LocalDate.now().toString(), onlyStarred ? 1 : 0);
             } else if (showDateStart == showDateEnd) {
                 //insert new task with description and status=1 and date=showDateStart (today or tomorrow only)
-                db.insertToDoItem(descriptionText, 1, showDateStart.toString());
+                db.insertToDoItem(descriptionText, 1, showDateStart.toString(), onlyStarred ? 1 : 0);
             } else {
                 //insert new task with description and status=1 and date=today by default
-                db.insertToDoItem(descriptionText, 1, LocalDate.now().toString());
+                db.insertToDoItem(descriptionText, 1, LocalDate.now().toString(), onlyStarred ? 1 : 0);
             }
 
         } else {
             //insert new task with description and status=1 and set date
-            db.insertToDoItem(descriptionText, 1, localDate.toString());
+            db.insertToDoItem(descriptionText, 1, localDate.toString(), onlyStarred ? 1 : 0);
         }
 
         //clear description field, ready for next task
         description.clear();
 
         //reset prompt text of textField
-        description.setPromptText("Add todo task");
+        description.setPromptText(prevPromptText);
 
         //reset date in DatePicker
         datePicker.setValue(null);
@@ -554,8 +570,7 @@ public class MainController implements Initializable {
                     final TableCell<TodoItem, Integer> cell = new TableCell<TodoItem, Integer>() {
 
                         
-                        private Button starButton = new Button("Star");
-                        
+                        private Button starButton = new Button();
 
                         {
                             starButton.setOnAction((ActionEvent event) -> {
@@ -574,11 +589,17 @@ public class MainController implements Initializable {
                                 setGraphic(null);
                             } else {
                                 if(item == 1){
-                                    starButton.setText("Unstar");
+                                    starButton.setGraphic(new ImageView("/todo/star.png"));
+                                    starButton.setOpacity(0.2);
+                                    
                                     setGraphic(starButton);
+                                    //setGraphic(new ImageView("/todo/unstar.png"));
                                 } else {
-                                    starButton.setText("Star");
+                                    //starButton.setText("Star");
+                                    starButton.setGraphic(new ImageView("/todo/unstar.png"));
+                                    starButton.setOpacity(0.2);
                                     setGraphic(starButton);
+                                    
                                 }
                                 
                             }
