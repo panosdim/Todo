@@ -10,6 +10,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.scene.image.Image;
 
 /**
  *
@@ -21,7 +22,8 @@ public class Todo extends Application {
     public void start(Stage stage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("Main.fxml"));
         Scene scene = new Scene(root);
-        stage.setTitle("ToDo v0.3");
+        stage.getIcons().add(new Image(getClass().getResourceAsStream("todo1.png"))); 
+        stage.setTitle("ToDo v0.4");
         //set background photo
         scene.getStylesheets().addAll(this.getClass().getResource("sceneCSS.css").toExternalForm());
         //stage.isResizable( );
