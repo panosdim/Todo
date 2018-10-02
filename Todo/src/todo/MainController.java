@@ -35,6 +35,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SelectionMode;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
@@ -78,7 +79,6 @@ public class MainController implements Initializable {
     MenuItem editItem = new MenuItem("Edit");
     MenuItem starItem = new MenuItem("Set Favorite");
     MenuItem unstarItem = new MenuItem("Unfavor");
-    
 
     //
     //private final String strikeThrough = getClass().getResource("sceneCSS.css").toExternalForm();
@@ -118,19 +118,41 @@ public class MainController implements Initializable {
     private void selectTableItem(MouseEvent event) {
 
         //index from list of taks is read via MouseEvent (any for now)
+        int column = -1;
         int index = tblitems.getSelectionModel().getSelectedIndex();
+        tblitems.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+                
+        for (TablePosition tp : tblitems.getSelectionModel().getSelectedCells()) {
+            if (index == tp.getRow()) column = tp.getColumn();
+        }
+        System.out.println("x=" + index + ", y=" + column);
 
         //if valid, it's used to find DB's ID
         if (index != -1) {
-
             id = tblitems.getItems().get(index).getId();
-            //terminal printout of both: list ID and DB's ID just for check
-            System.out.println(id + "\t" + index + "\t" + tblitems.getItems().get(index).getStar());
+            
+            //if 'star' column clicked
+            if (column != 0) {
+                
+                //terminal printout of both: list ID and DB's ID just for check
+                System.out.println(id + "\t" + index + "\t" + tblitems.getItems().get(index).getStar());
 
-            //doubleclick sets to done
-            if (event.getClickCount() == 2) {
-                db.changeItemStatus(id, 0);
+                //doubleclick sets to done
+                if (event.getClickCount() == 2) {
+                    db.changeItemStatus(id, 0);
+                    listAllTasks();
+                }
+               
+                //for any other column
+            } else {
+                if (tblitems.getItems().get(index).getStar() == 0) {
+                    tblitems.getItems().get(index).setStar(1);
+                } else {
+                    tblitems.getItems().get(index).setStar(0);
+                }
+                db.changeStarred(id , tblitems.getItems().get(index).getStar());
                 listAllTasks();
+                //System.out.println("Starred value = " + getTableView().getItems().get(getIndex()).getStar());
             }
 
             //reset index
@@ -235,7 +257,7 @@ public class MainController implements Initializable {
         if (localDate != null) {
             System.out.println(localDate.toString());
             description.setPromptText("Add new todo task for selected date");
-            
+
         } else {
             //buttonShowDate.setText("Show All Dates");
         }
@@ -305,7 +327,7 @@ public class MainController implements Initializable {
         EventHandler<ActionEvent> actionSetDueDate = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                
+
                 localDate = menuDatePicker.getValue();
                 //menuDatePicker.getOnMouseClicked();
                 if (localDate == null) {
@@ -323,7 +345,7 @@ public class MainController implements Initializable {
 
             }
         };
-/*
+        /*
         EventHandler<ActionEvent> actionSetDueDateToday = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -349,7 +371,7 @@ public class MainController implements Initializable {
 
             }
         };
-*/
+         */
         //Edit description
         EventHandler<ActionEvent> actionEdit;
         actionEdit = new EventHandler<ActionEvent>() {
@@ -374,7 +396,7 @@ public class MainController implements Initializable {
         //setDueTomorrow.setOnAction(actionSetDueDateTomorrow);
         setDueDatePicker.setGraphic(menuDatePicker);
         setDueDatePicker.setOnAction(actionSetDueDate);
-        setDueDate.getItems().addAll(/*setDueToday, setDueTomorrow,*/ setDueDatePicker);
+        setDueDate.getItems().addAll(/*setDueToday, setDueTomorrow,*/setDueDatePicker);
         setDueDate.setGraphic(new ImageView("/todo/calendar.png"));
         editItem.setOnAction(actionEdit);
         editItem.setGraphic(new ImageView("/todo/edit.png"));
@@ -474,7 +496,7 @@ public class MainController implements Initializable {
                 String todayString = new SimpleDateFormat("yyyy-MM-dd").format(today);
                 //System.out.println(todayString + "\t" + dueDateString);
                 //if today is less than dueDate, change status to 'pending'
-                if (dueDateString.compareTo(todayString) > 0) {
+                if (dueDateString.compareTo(todayString) >= 0) {
                     outStatus = 1;
                 }
                 //if date was removed, cant be overdue, change to pending    
@@ -569,18 +591,20 @@ public class MainController implements Initializable {
                 public TableCell<TodoItem, Integer> call(final TableColumn<TodoItem, Integer> param) {
                     final TableCell<TodoItem, Integer> cell = new TableCell<TodoItem, Integer>() {
 
-                        
-                        private Button starButton = new Button();
+                        private ImageView star = new ImageView();
 
-                        {
-                            starButton.setOnAction((ActionEvent event) -> {
-                                if (getTableView().getItems().get(getIndex()).getStar() == 0) getTableView().getItems().get(getIndex()).setStar(1);
-                                else getTableView().getItems().get(getIndex()).setStar(0);
+     /*                   {
+                            star.setOnMouseClicked((MouseEvent event) -> {
+                                if (getTableView().getItems().get(getIndex()).getStar() == 0) {
+                                    getTableView().getItems().get(getIndex()).setStar(1);
+                                } else {
+                                    getTableView().getItems().get(getIndex()).setStar(0);
+                                }
                                 db.changeStarred(getTableView().getItems().get(getIndex()).getId(), getTableView().getItems().get(getIndex()).getStar());
                                 listAllTasks();
-                                //System.out.println("Starred value = " + getTableView().getItems().get(getIndex()).getStar());
+                                System.out.println("Starred value = " + getTableView().getItems().get(getIndex()).getStar());
                             });
-                        }
+                        }*/
 
                         @Override
                         public void updateItem(Integer item, boolean empty) {
@@ -588,20 +612,11 @@ public class MainController implements Initializable {
                             if (empty) {
                                 setGraphic(null);
                             } else {
-                                if(item == 1){
-                                    starButton.setGraphic(new ImageView("/todo/star.png"));
-                                    starButton.setOpacity(0.2);
-                                    
-                                    setGraphic(starButton);
-                                    //setGraphic(new ImageView("/todo/unstar.png"));
+                                if (item == 1) {
+                                    setGraphic(new ImageView("/todo/star.png"));
                                 } else {
-                                    //starButton.setText("Star");
-                                    starButton.setGraphic(new ImageView("/todo/unstar.png"));
-                                    starButton.setOpacity(0.2);
-                                    setGraphic(starButton);
-                                    
+                                    setGraphic(new ImageView("/todo/unstar.png"));
                                 }
-                                
                             }
                         }
                     };
