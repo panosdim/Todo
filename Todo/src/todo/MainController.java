@@ -510,8 +510,6 @@ public class MainController implements Initializable {
 //private method for refreshing list of tasks
     private void listAllTasks() {
 
-        
-        
         //read all DB and save to local variable 'toDoList'
         ResultSet toDoList = db.viewTable(onlyActive, onlyStarred);
 
@@ -693,6 +691,11 @@ public class MainController implements Initializable {
             tblitems.getSortOrder().setAll(tblColDate);
             //tblitems.getStyleClass().add("strike");
             tblitems.setEditable(true);
+            tblitems.setFixedCellSize(30);
+            tblitems.prefHeightProperty().bind(tblitems.fixedCellSizeProperty().multiply(tblitems.getItems().size()+1).add(1.01));
+            tblitems.minHeightProperty().bind(tblitems.prefHeightProperty());
+            tblitems.maxHeightProperty().bind(tblitems.prefHeightProperty());
+            //tblColDate.
 
         } catch (SQLException sQLException) {
         }
