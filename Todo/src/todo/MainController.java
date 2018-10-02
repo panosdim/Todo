@@ -46,6 +46,10 @@ import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.DataFormat;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.stage.Popup;
 import javafx.util.Callback;
 
@@ -65,6 +69,7 @@ public class MainController implements Initializable {
     private LocalDate localDate = null; //used to read from DatePicker 
     private LocalDate showDateStart = null; //used to filter items for one day only
     private LocalDate showDateEnd = null;
+    private DataFormat SERIALIZED_MIME_TYPE = new DataFormat("application/x-java-serialized-object");
 
     //declarations of Menu Items
     MenuItem deleteMenuItem = new MenuItem("Delete Item");
@@ -125,7 +130,7 @@ public class MainController implements Initializable {
             id = tblitems.getItems().get(index).getId();
             //terminal printout of both: list ID and DB's ID just for check
             System.out.println(id + "\t" + index + "\t" + tblitems.getItems().get(index).getStar());
-            
+
             //dynamic context menu
             dynamicContextMenu(index);
 
@@ -505,6 +510,8 @@ public class MainController implements Initializable {
 //private method for refreshing list of tasks
     private void listAllTasks() {
 
+        
+        
         //read all DB and save to local variable 'toDoList'
         ResultSet toDoList = db.viewTable(onlyActive, onlyStarred);
 
@@ -588,7 +595,7 @@ public class MainController implements Initializable {
                         }
                     };
 
-                    cell.setOnMouseClicked((event)->{
+                    cell.setOnMouseClicked((event) -> {
                         if (cell.getItem() == 1) {
                             cell.setItem(0);
                         } else {
@@ -596,10 +603,9 @@ public class MainController implements Initializable {
                         }
 
                         db.changeStarred(tblitems.getItems().get(tblitems.getSelectionModel().getSelectedIndex()).getId(), cell.getItem());
-                        listAllTasks();                           
+                        listAllTasks();
                     });
 
-                    
                     return cell;
                 }
             };
@@ -629,6 +635,56 @@ public class MainController implements Initializable {
                 }
             });
              */
+            tblitems.setRowFactory(tv -> {
+                TableRow<TodoItem> row = new TableRow<>();
+
+                row.setOnDragDetected(event -> {
+                    if (!row.isEmpty()) {
+                        Integer index = row.getIndex();
+                        Dragboard db = row.startDragAndDrop(TransferMode.MOVE);
+                        db.setDragView(row.snapshot(null, null));
+                        ClipboardContent cc = new ClipboardContent();
+                        cc.put(SERIALIZED_MIME_TYPE, index);
+                        db.setContent(cc);
+                        event.consume();
+                    }
+                });
+
+                row.setOnDragOver(event -> {
+                    Dragboard db = event.getDragboard();
+                    if (db.hasContent(SERIALIZED_MIME_TYPE)) {
+                        if (row.getIndex() != ((Integer) db.getContent(SERIALIZED_MIME_TYPE)).intValue()) {
+                            event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+                            event.consume();
+                        }
+                    }
+                });
+
+                row.setOnDragDropped(event -> {
+                    Dragboard db = event.getDragboard();
+                    if (db.hasContent(SERIALIZED_MIME_TYPE)) {
+                        int draggedIndex = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
+                        TodoItem draggedTodoItem = tblitems.getItems().remove(draggedIndex);
+
+                        int dropIndex;
+
+                        if (row.isEmpty()) {
+                            dropIndex = tblitems.getItems().size();
+                        } else {
+                            dropIndex = row.getIndex();
+                        }
+
+                        tblitems.getItems().add(dropIndex, draggedTodoItem);
+
+                        event.setDropCompleted(true);
+                        tblitems.getSelectionModel().select(dropIndex);
+                        event.consume();
+                    }
+                });
+
+                return row;
+            });
+
             //populate tblitems (TableView<TodoItem>) to be displayed in App from ObservableList<TodoItem>            
             tblitems.setItems(tableItems);
             tblitems.getColumns().setAll(tblColStar, tblColId, tblColDesc, tblColDate, tblColStat);
@@ -641,27 +697,25 @@ public class MainController implements Initializable {
         } catch (SQLException sQLException) {
         }
     }
-    
-    private void dynamicContextMenu (int row) {
+
+    private void dynamicContextMenu(int row) {
         TodoItem currentRow = tblitems.getItems().get(row);
         if (currentRow.getStatus().equals("done")) {
             setDoneMenuItem.setDisable(true);
             setActiveItem.setDisable(false);
-        }
-        else {
+        } else {
             setDoneMenuItem.setDisable(false);
             setActiveItem.setDisable(true);
         }
-        
+
         if (currentRow.getStar() == 1) {
             starItem.setDisable(true);
             unstarItem.setDisable(false);
-        }
-        else {
+        } else {
             starItem.setDisable(false);
             unstarItem.setDisable(true);
-        }        
-        
+        }
+
     }
 
     @Override
