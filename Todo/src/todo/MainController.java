@@ -127,11 +127,10 @@ public class MainController implements Initializable {
             System.out.println(id + "\t" + index + "\t" + tblitems.getItems().get(index).getStar());
 
             //doubleclick sets to done
-            if (event.getClickCount() == 2) {
+            /*if (event.getClickCount() == 2) {
                 db.changeItemStatus(id, 0);
                 listAllTasks();
-            }
-
+            }*/
             //reset index
             index = -1;
         } else {
@@ -234,7 +233,7 @@ public class MainController implements Initializable {
         if (localDate != null) {
             System.out.println(localDate.toString());
             description.setPromptText("Add new todo task for selected date");
-            
+
         } else {
             //buttonShowDate.setText("Show All Dates");
         }
@@ -304,7 +303,7 @@ public class MainController implements Initializable {
         EventHandler<ActionEvent> actionSetDueDate = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                
+
                 localDate = menuDatePicker.getValue();
                 //menuDatePicker.getOnMouseClicked();
                 if (localDate == null) {
@@ -322,7 +321,7 @@ public class MainController implements Initializable {
 
             }
         };
-/*
+        /*
         EventHandler<ActionEvent> actionSetDueDateToday = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
@@ -348,7 +347,7 @@ public class MainController implements Initializable {
 
             }
         };
-*/
+         */
         //Edit description
         EventHandler<ActionEvent> actionEdit;
         actionEdit = new EventHandler<ActionEvent>() {
@@ -373,7 +372,7 @@ public class MainController implements Initializable {
         //setDueTomorrow.setOnAction(actionSetDueDateTomorrow);
         setDueDatePicker.setGraphic(menuDatePicker);
         setDueDatePicker.setOnAction(actionSetDueDate);
-        setDueDate.getItems().addAll(/*setDueToday, setDueTomorrow,*/ setDueDatePicker);
+        setDueDate.getItems().addAll(/*setDueToday, setDueTomorrow,*/setDueDatePicker);
         setDueDate.setGraphic(new ImageView("/todo/calendar.png"));
         editItem.setOnAction(actionEdit);
         editItem.setGraphic(new ImageView("/todo/edit.png"));
@@ -473,7 +472,7 @@ public class MainController implements Initializable {
                 String todayString = new SimpleDateFormat("yyyy-MM-dd").format(today);
                 //System.out.println(todayString + "\t" + dueDateString);
                 //if today is less than dueDate, change status to 'pending'
-                if (dueDateString.compareTo(todayString) > 0) {
+                if (dueDateString.compareTo(todayString) >= 0) {
                     outStatus = 1;
                 }
                 //if date was removed, cant be overdue, change to pending    
@@ -563,23 +562,13 @@ public class MainController implements Initializable {
             //tblColStat = new TableColumn("Status");
             tblColStar.setCellValueFactory(new PropertyValueFactory<TodoItem, Integer>("star"));
             //set tblColStar to button
-            Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>> cellFactory = new Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>>() {
+            Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>> cellFactory;
+            cellFactory = new Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>>() {
                 @Override
                 public TableCell<TodoItem, Integer> call(final TableColumn<TodoItem, Integer> param) {
                     final TableCell<TodoItem, Integer> cell = new TableCell<TodoItem, Integer>() {
 
-                        
-                        private Button starButton = new Button();
-
-                        {
-                            starButton.setOnAction((ActionEvent event) -> {
-                                if (getTableView().getItems().get(getIndex()).getStar() == 0) getTableView().getItems().get(getIndex()).setStar(1);
-                                else getTableView().getItems().get(getIndex()).setStar(0);
-                                db.changeStarred(getTableView().getItems().get(getIndex()).getId(), getTableView().getItems().get(getIndex()).getStar());
-                                listAllTasks();
-                                //System.out.println("Starred value = " + getTableView().getItems().get(getIndex()).getStar());
-                            });
-                        }
+                        private ImageView star = new ImageView();
 
                         @Override
                         public void updateItem(Integer item, boolean empty) {
@@ -587,23 +576,27 @@ public class MainController implements Initializable {
                             if (empty) {
                                 setGraphic(null);
                             } else {
-                                if(item == 1){
-                                    starButton.setGraphic(new ImageView("/todo/star.png"));
-                                    starButton.setOpacity(0.2);
-                                    
-                                    setGraphic(starButton);
-                                    //setGraphic(new ImageView("/todo/unstar.png"));
+                                if (item == 1) {
+                                    setGraphic(new ImageView("/todo/star.png"));
                                 } else {
-                                    //starButton.setText("Star");
-                                    starButton.setGraphic(new ImageView("/todo/unstar.png"));
-                                    starButton.setOpacity(0.2);
-                                    setGraphic(starButton);
-                                    
+                                    setGraphic(new ImageView("/todo/unstar.png"));
                                 }
-                                
                             }
                         }
                     };
+
+                    cell.setOnMouseClicked((event)->{
+                        if (cell.getItem() == 1) {
+                            cell.setItem(0);
+                        } else {
+                            cell.setItem(1);
+                        }
+
+                        db.changeStarred(tblitems.getItems().get(tblitems.getSelectionModel().getSelectedIndex()).getId(), cell.getItem());
+                        listAllTasks();                           
+                    });
+
+                    
                     return cell;
                 }
             };
