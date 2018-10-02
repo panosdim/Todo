@@ -37,7 +37,7 @@
                             <TableColumn fx:id="tblColDesc" minWidth="200.0" onEditCommit="#handleDescriptionEdit" prefWidth="400.0" text="Description" />
                               <TableColumn fx:id="tblColDate" minWidth="95.0" prefWidth="95.0" text="Due Date" />
                               <TableColumn fx:id="tblColStat" minWidth="120.0" prefWidth="120.0" text="Status" />
-                              <TableColumn fx:id="tblColStar" minWidth="50.0" prefWidth="50.0" />
+                              <TableColumn fx:id="tblColStar" minWidth="30.0" prefWidth="30.0" />
                           </columns>
                         </TableView>
                      </children>

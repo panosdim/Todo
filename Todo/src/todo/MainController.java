@@ -125,6 +125,9 @@ public class MainController implements Initializable {
             id = tblitems.getItems().get(index).getId();
             //terminal printout of both: list ID and DB's ID just for check
             System.out.println(id + "\t" + index + "\t" + tblitems.getItems().get(index).getStar());
+            
+            //dynamic context menu
+            dynamicContextMenu(index);
 
             //doubleclick sets to done
             /*if (event.getClickCount() == 2) {
@@ -637,6 +640,28 @@ public class MainController implements Initializable {
 
         } catch (SQLException sQLException) {
         }
+    }
+    
+    private void dynamicContextMenu (int row) {
+        TodoItem currentRow = tblitems.getItems().get(row);
+        if (currentRow.getStatus().equals("done")) {
+            setDoneMenuItem.setDisable(true);
+            setActiveItem.setDisable(false);
+        }
+        else {
+            setDoneMenuItem.setDisable(false);
+            setActiveItem.setDisable(true);
+        }
+        
+        if (currentRow.getStar() == 1) {
+            starItem.setDisable(true);
+            unstarItem.setDisable(false);
+        }
+        else {
+            starItem.setDisable(false);
+            unstarItem.setDisable(true);
+        }        
+        
     }
 
     @Override
