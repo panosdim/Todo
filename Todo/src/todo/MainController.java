@@ -132,7 +132,7 @@ public class MainController implements Initializable {
             System.out.println(id + "\t" + index + "\t" + tblitems.getItems().get(index).getStar());
 
             //dynamic context menu
-            dynamicContextMenu(index);
+            buildTableContextMenu(index);
 
             //doubleclick sets to done
             /*if (event.getClickCount() == 2) {
@@ -258,7 +258,7 @@ public class MainController implements Initializable {
     }
 
     //method to build context menu
-    private void buildTableContextMenu() {
+    private void buildTableContextMenu(int row) {
 
         //declarations of actions for Menu Items
         //Set Done
@@ -390,6 +390,24 @@ public class MainController implements Initializable {
         unstarItem.setGraphic(new ImageView("/todo/unstar.png"));
         //context menu for TableView
         ContextMenu tableContextMenu = new ContextMenu(editItem, starItem, unstarItem, setDueDate, setDoneMenuItem, setActiveItem, deleteMenuItem);
+
+        //disable options according to items parameters
+        TodoItem currentRow = tblitems.getItems().get(row);
+        if (currentRow.getStatus().equals("done")) {
+            setDoneMenuItem.setDisable(true);
+            setActiveItem.setDisable(false);
+        } else {
+            setDoneMenuItem.setDisable(false);
+            setActiveItem.setDisable(true);
+        }
+
+        if (currentRow.getStar() == 1) {
+            starItem.setDisable(true);
+            unstarItem.setDisable(false);
+        } else {
+            starItem.setDisable(false);
+            unstarItem.setDisable(true);
+        }
 
         //set context menu for tblitems TableView object
         tblitems.setContextMenu(tableContextMenu);
@@ -537,80 +555,94 @@ public class MainController implements Initializable {
                 }
             }
 
-            //set properties of cells
-            //tblColId = new TableColumn("Id");
-            tblColId.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("id"));
+            //populate tblitems (TableView<TodoItem>) to be displayed in App from ObservableList<TodoItem>            
+            tblitems.setItems(tableItems);
 
-            //tblColDesc = new TableColumn("Description");
-            tblColDesc.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("description"));
-            //tblColDesc.setStyle("-fx-alignment: LEFT;");
-            tblColDesc.setCellFactory(TextFieldTableCell.forTableColumn());
-            tblColDesc.setOnEditCommit(
-                    new EventHandler<CellEditEvent<TodoItem, String>>() {
-                @Override
-                public void handle(CellEditEvent<TodoItem, String> t) {
-                    ((TodoItem) t.getTableView().getItems().get(
-                            t.getTablePosition().getRow())).setDescription(t.getNewValue());
+            //build table's properties
+            buildTable();
 
-                    db.editDescription(tblitems.getItems().get(tblitems.getSelectionModel().getSelectedIndex()).getId(), tblitems.getItems().get(tblitems.getSelectionModel().getSelectedIndex()).getDescription());
-                    listAllTasks();
-                }
+        } catch (SQLException sQLException) {
+        }
+    }
+
+    //buildTable
+    //defines all properties for cells, rows, columns and table itself
+    //add any change here...
+    private void buildTable() {
+        //set properties of cells
+        //tblColId = new TableColumn("Id");
+        tblColId.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("id"));
+
+        //tblColDesc = new TableColumn("Description");
+        tblColDesc.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("description"));
+        //tblColDesc.setStyle("-fx-alignment: LEFT;");
+        tblColDesc.setCellFactory(TextFieldTableCell.forTableColumn());
+        tblColDesc.setOnEditCommit(
+                new EventHandler<CellEditEvent<TodoItem, String>>() {
+            @Override
+            public void handle(CellEditEvent<TodoItem, String> t) {
+                ((TodoItem) t.getTableView().getItems().get(
+                        t.getTablePosition().getRow())).setDescription(t.getNewValue());
+
+                db.editDescription(tblitems.getItems().get(tblitems.getSelectionModel().getSelectedIndex()).getId(), tblitems.getItems().get(tblitems.getSelectionModel().getSelectedIndex()).getDescription());
+                listAllTasks();
             }
-            );
-            //tblColDesc.isEditable();
+        }
+        );
+        //tblColDesc.isEditable();
 
-            //tblColDate = new TableColumn("Date");
-            tblColDate.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("date"));
-            //tblColDate.setStyle("-fx-alignment: CENTER;");
+        //tblColDate = new TableColumn("Date");
+        tblColDate.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("date"));
+        //tblColDate.setStyle("-fx-alignment: CENTER;");
 
-            //tblColStat = new TableColumn("Status");
-            tblColStat.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("status"));
-            //tblColStat.setStyle("-fx-alignment: CENTER;");
+        //tblColStat = new TableColumn("Status");
+        tblColStat.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("status"));
+        //tblColStat.setStyle("-fx-alignment: CENTER;");
 
-            //tblColStat = new TableColumn("Status");
-            tblColStar.setCellValueFactory(new PropertyValueFactory<TodoItem, Integer>("star"));
-            //set tblColStar to button
-            Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>> cellFactory;
-            cellFactory = new Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>>() {
-                @Override
-                public TableCell<TodoItem, Integer> call(final TableColumn<TodoItem, Integer> param) {
-                    final TableCell<TodoItem, Integer> cell = new TableCell<TodoItem, Integer>() {
+        //tblColStat = new TableColumn("Status");
+        tblColStar.setCellValueFactory(new PropertyValueFactory<TodoItem, Integer>("star"));
+        //set tblColStar to button
+        Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>> cellFactory;
+        cellFactory = new Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>>() {
+            @Override
+            public TableCell<TodoItem, Integer> call(final TableColumn<TodoItem, Integer> param) {
+                final TableCell<TodoItem, Integer> cell = new TableCell<TodoItem, Integer>() {
 
-                        private ImageView star = new ImageView();
+                    private ImageView star = new ImageView();
 
-                        @Override
-                        public void updateItem(Integer item, boolean empty) {
-                            super.updateItem(item, empty);
-                            if (empty) {
-                                setGraphic(null);
+                    @Override
+                    public void updateItem(Integer item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty) {
+                            setGraphic(null);
+                        } else {
+                            if (item == 1) {
+                                setGraphic(new ImageView("/todo/star.png"));
                             } else {
-                                if (item == 1) {
-                                    setGraphic(new ImageView("/todo/star.png"));
-                                } else {
-                                    setGraphic(new ImageView("/todo/unstar.png"));
-                                }
+                                setGraphic(new ImageView("/todo/unstar.png"));
                             }
                         }
-                    };
+                    }
+                };
 
-                    cell.setOnMouseClicked((event) -> {
-                        if (cell.getItem() == 1) {
-                            cell.setItem(0);
-                        } else {
-                            cell.setItem(1);
-                        }
+                cell.setOnMouseClicked((event) -> {
+                    if (cell.getItem() == 1) {
+                        cell.setItem(0);
+                    } else {
+                        cell.setItem(1);
+                    }
 
-                        db.changeStarred(tblitems.getItems().get(tblitems.getSelectionModel().getSelectedIndex()).getId(), cell.getItem());
-                        listAllTasks();
-                    });
+                    db.changeStarred(tblitems.getItems().get(tblitems.getSelectionModel().getSelectedIndex()).getId(), cell.getItem());
+                    listAllTasks();
+                });
 
-                    return cell;
-                }
-            };
+                return cell;
+            }
+        };
 
-            tblColStar.setCellFactory(cellFactory);
+        tblColStar.setCellFactory(cellFactory);
 
-            /*
+        /*
             //set text strike-through for Done items
             tblitems.setRowFactory(new Callback<TableView<TodoItem>, TableRow<TodoItem>>() {
                 @Override
@@ -632,93 +664,66 @@ public class MainController implements Initializable {
                     };
                 }
             });
-             */
-            tblitems.setRowFactory(tv -> {
-                TableRow<TodoItem> row = new TableRow<>();
+         */
+        tblitems.setRowFactory(tv -> {
+            TableRow<TodoItem> row = new TableRow<>();
 
-                row.setOnDragDetected(event -> {
-                    if (!row.isEmpty()) {
-                        Integer index = row.getIndex();
-                        Dragboard db = row.startDragAndDrop(TransferMode.MOVE);
-                        db.setDragView(row.snapshot(null, null));
-                        ClipboardContent cc = new ClipboardContent();
-                        cc.put(SERIALIZED_MIME_TYPE, index);
-                        db.setContent(cc);
-                        event.consume();
-                    }
-                });
-
-                row.setOnDragOver(event -> {
-                    Dragboard db = event.getDragboard();
-                    if (db.hasContent(SERIALIZED_MIME_TYPE)) {
-                        if (row.getIndex() != ((Integer) db.getContent(SERIALIZED_MIME_TYPE)).intValue()) {
-                            event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-                            event.consume();
-                        }
-                    }
-                });
-
-                row.setOnDragDropped(event -> {
-                    Dragboard db = event.getDragboard();
-                    if (db.hasContent(SERIALIZED_MIME_TYPE)) {
-                        int draggedIndex = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
-                        TodoItem draggedTodoItem = tblitems.getItems().remove(draggedIndex);
-
-                        int dropIndex;
-
-                        if (row.isEmpty()) {
-                            dropIndex = tblitems.getItems().size();
-                        } else {
-                            dropIndex = row.getIndex();
-                        }
-
-                        tblitems.getItems().add(dropIndex, draggedTodoItem);
-
-                        event.setDropCompleted(true);
-                        tblitems.getSelectionModel().select(dropIndex);
-                        event.consume();
-                    }
-                });
-
-                return row;
+            row.setOnDragDetected(event -> {
+                if (!row.isEmpty()) {
+                    Integer index = row.getIndex();
+                    Dragboard db = row.startDragAndDrop(TransferMode.MOVE);
+                    db.setDragView(row.snapshot(null, null));
+                    ClipboardContent cc = new ClipboardContent();
+                    cc.put(SERIALIZED_MIME_TYPE, index);
+                    db.setContent(cc);
+                    event.consume();
+                }
             });
 
-            //populate tblitems (TableView<TodoItem>) to be displayed in App from ObservableList<TodoItem>            
-            tblitems.setItems(tableItems);
-            tblitems.getColumns().setAll(tblColStar, tblColId, tblColDesc, tblColDate, tblColStat);
-            tblColDate.setSortType(TableColumn.SortType.ASCENDING);
-            //tblColStat.setSortType(TableColumn.SortType.DESCENDING);
-            tblitems.getSortOrder().setAll(tblColDate);
-            //tblitems.getStyleClass().add("strike");
-            tblitems.setEditable(true);
-            tblitems.setFixedCellSize(30);
-            tblitems.prefHeightProperty().bind(tblitems.fixedCellSizeProperty().multiply(tblitems.getItems().size()+1).add(1.01));
-            tblitems.minHeightProperty().bind(tblitems.prefHeightProperty());
-            tblitems.maxHeightProperty().bind(tblitems.prefHeightProperty());
-            //tblColDate.
+            row.setOnDragOver(event -> {
+                Dragboard db = event.getDragboard();
+                if (db.hasContent(SERIALIZED_MIME_TYPE)) {
+                    if (row.getIndex() != ((Integer) db.getContent(SERIALIZED_MIME_TYPE)).intValue()) {
+                        event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+                        event.consume();
+                    }
+                }
+            });
 
-        } catch (SQLException sQLException) {
-        }
-    }
+            row.setOnDragDropped(event -> {
+                Dragboard db = event.getDragboard();
+                if (db.hasContent(SERIALIZED_MIME_TYPE)) {
+                    int draggedIndex = (Integer) db.getContent(SERIALIZED_MIME_TYPE);
+                    TodoItem draggedTodoItem = tblitems.getItems().remove(draggedIndex);
 
-    private void dynamicContextMenu(int row) {
-        TodoItem currentRow = tblitems.getItems().get(row);
-        if (currentRow.getStatus().equals("done")) {
-            setDoneMenuItem.setDisable(true);
-            setActiveItem.setDisable(false);
-        } else {
-            setDoneMenuItem.setDisable(false);
-            setActiveItem.setDisable(true);
-        }
+                    int dropIndex;
 
-        if (currentRow.getStar() == 1) {
-            starItem.setDisable(true);
-            unstarItem.setDisable(false);
-        } else {
-            starItem.setDisable(false);
-            unstarItem.setDisable(true);
-        }
+                    if (row.isEmpty()) {
+                        dropIndex = tblitems.getItems().size();
+                    } else {
+                        dropIndex = row.getIndex();
+                    }
 
+                    tblitems.getItems().add(dropIndex, draggedTodoItem);
+
+                    event.setDropCompleted(true);
+                    tblitems.getSelectionModel().select(dropIndex);
+                    event.consume();
+                }
+            });
+
+            return row;
+        });
+        tblitems.getColumns().setAll(tblColStar, tblColId, tblColDesc, tblColDate, tblColStat);
+        tblColDate.setSortType(TableColumn.SortType.ASCENDING);
+        //tblColStat.setSortType(TableColumn.SortType.DESCENDING);
+        tblitems.getSortOrder().setAll(tblColDate);
+        //tblitems.getStyleClass().add("strike");
+        tblitems.setEditable(true);
+        tblitems.setFixedCellSize(30);
+        tblitems.prefHeightProperty().bind(tblitems.fixedCellSizeProperty().multiply(tblitems.getItems().size() + 1).add(1.01));
+        tblitems.minHeightProperty().bind(tblitems.prefHeightProperty());
+        tblitems.maxHeightProperty().bind(tblitems.prefHeightProperty());
     }
 
     @Override
@@ -726,8 +731,7 @@ public class MainController implements Initializable {
 
         //create new DBHandler object and establish connection to DB
         db = new DBHandler("tasks");
-        //build context menu
-        buildTableContextMenu();
+
         buildSideMenu();
         listAllTasks();
 
