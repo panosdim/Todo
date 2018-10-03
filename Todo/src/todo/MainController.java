@@ -133,7 +133,7 @@ public class MainController implements Initializable {
             System.out.println(id + "\t" + index + "\t" + tblitems.getItems().get(index).getStar());
 
             //dynamic context menu
-            buildTableContextMenu(index);
+            dynamicContextMenu(index);
 
             //doubleclick sets to done
             /*if (event.getClickCount() == 2) {
@@ -259,7 +259,7 @@ public class MainController implements Initializable {
     }
 
     //method to build context menu
-    private void buildTableContextMenu(int row) {
+    private void buildTableContextMenu() {
 
         //declarations of actions for Menu Items
         //Set Done
@@ -391,24 +391,6 @@ public class MainController implements Initializable {
         unstarItem.setGraphic(new ImageView("/todo/unstar.png"));
         //context menu for TableView
         ContextMenu tableContextMenu = new ContextMenu(editItem, starItem, unstarItem, setDueDate, setDoneMenuItem, setActiveItem, deleteMenuItem);
-
-        //disable options according to items parameters
-        TodoItem currentRow = tblitems.getItems().get(row);
-        if (currentRow.getStatus().equals("done")) {
-            setDoneMenuItem.setDisable(true);
-            setActiveItem.setDisable(false);
-        } else {
-            setDoneMenuItem.setDisable(false);
-            setActiveItem.setDisable(true);
-        }
-
-        if (currentRow.getStar() == 1) {
-            starItem.setDisable(true);
-            unstarItem.setDisable(false);
-        } else {
-            starItem.setDisable(false);
-            unstarItem.setDisable(true);
-        }
 
         //set context menu for tblitems TableView object
         tblitems.setContextMenu(tableContextMenu);
@@ -727,12 +709,34 @@ public class MainController implements Initializable {
         tblitems.maxHeightProperty().bind(tblitems.prefHeightProperty());
     }
 
+    //disable menu options based on items parameters
+    private void dynamicContextMenu(int row) {
+        //disable options according to items parameters
+        TodoItem currentRow = tblitems.getItems().get(row);
+        if (currentRow.getStatus().equals("done")) {
+            setDoneMenuItem.setDisable(true);
+            setActiveItem.setDisable(false);
+        } else {
+            setDoneMenuItem.setDisable(false);
+            setActiveItem.setDisable(true);
+        }
+
+        if (currentRow.getStar() == 1) {
+            starItem.setDisable(true);
+            unstarItem.setDisable(false);
+        } else {
+            starItem.setDisable(false);
+            unstarItem.setDisable(true);
+        }
+    }    
+    
+    
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
         //create new DBHandler object and establish connection to DB
         db = new DBHandler("tasks");
-
+        buildTableContextMenu();
         buildSideMenu();
         listAllTasks();
 
