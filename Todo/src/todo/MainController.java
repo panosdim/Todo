@@ -5,6 +5,7 @@
  */
 package todo;
 
+
 import java.awt.Graphics;
 import java.awt.Image;
 import static java.awt.SystemColor.control;
@@ -20,6 +21,7 @@ import java.time.temporal.ChronoUnit;
 import java.time.temporal.WeekFields;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -28,7 +30,10 @@ import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -53,6 +58,7 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.stage.Popup;
 import javafx.util.Callback;
+import javax.swing.*;   
 
 /**
  *
@@ -117,12 +123,58 @@ public class MainController implements Initializable {
 
     @FXML
     private ListView menuList = new ListView<String>();
-
+    
+    //method handling tooltip in the left list via mouse 
+    @FXML
+    private void toolTipList(MouseEvent event) {
+        //index from list of task is read via MouseEvent (any for now)
+        int index = menuList.getSelectionModel().getSelectedIndex();
+        System.out.println(index);
+        //if valid, it's used for menu actions (filtering items by dates)
+        switch (index) {
+            case -1:
+                break;
+            case 0:
+                menuList.tooltipProperty();
+                menuList.setTooltip(new Tooltip("khdfbjkdsfhb"));
+                //menuList.setToolTipText("Search...");
+                System.out.println("test0");
+                index = -1;
+                event.consume();
+                break;
+            case 1:
+                System.out.println("test1");
+                index = -1;
+                event.consume();
+                break;
+            case 2:
+                System.out.println("test2");
+                index = -1;
+                event.consume();
+                break;
+            case 3:
+                System.out.println("test3");
+                index = -1;
+                event.consume();
+                break;
+            case 4:
+                System.out.println("test4");
+                index = -1;
+                event.consume();
+                break;
+            case 5:
+                System.out.println("test5");
+                index = -1;
+                event.consume();
+                break;
+        }  
+    }
+    
     //method handling selection of single task via mouse click event
     @FXML
     private void selectTableItem(MouseEvent event) {
 
-        //index from list of taks is read via MouseEvent (any for now)
+        //index from list of task is read via MouseEvent (any for now)
         int index = tblitems.getSelectionModel().getSelectedIndex();
 
         //if valid, it's used to find DB's ID
@@ -152,7 +204,7 @@ public class MainController implements Initializable {
     @FXML
     private void selectMenuList(MouseEvent event) {
 
-        //index from list of taks is read via MouseEvent (any for now)
+        //index from list of task is read via MouseEvent (any for now)
         int index = menuList.getSelectionModel().getSelectedIndex();
 
         //if valid, it's used for menu actions (filtering items by dates)
@@ -210,12 +262,30 @@ public class MainController implements Initializable {
     //method handling action on 'Clear list' button
     @FXML
     private void handleButtonDeleteAllAction(ActionEvent event) {
+        //Dialog Box
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Warning");
+        alert.setHeaderText("Would You Like To Delete All?");
+        alert.setContentText("Please choose an option.");
 
-        //call deleteToDoItem without parameters to delete all
-        db.deleteToDoItem();
-        //refresh list of tasks
-        listAllTasks();
+        ButtonType yesButton = new ButtonType("Yes");
+        ButtonType noButton = new ButtonType("No");
+        ButtonType cancelButton = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
 
+        alert.getButtonTypes().setAll(yesButton, noButton, cancelButton);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if(result.get() == yesButton) {
+            db.deleteToDoItem();
+            //refresh list of tasks
+            listAllTasks();   
+        }
+        else if(result.get() == noButton) {
+            event.consume();
+        }
+        else if(result.get() == cancelButton) {
+            event.consume();
+        }  
     }
 
     //method handling action on 'Show All/Show active' button

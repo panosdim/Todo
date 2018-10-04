@@ -15,7 +15,7 @@
     <children>
       <HBox spacing="15.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
          <children>
-            <ListView fx:id="menuList" onMouseClicked="#selectMenuList" opacity="0.8" prefHeight="200.0" prefWidth="250.0" />
+            <ListView fx:id="menuList" onMouseClicked="#selectMenuList" onMouseMoved="#toolTipList" opacity="0.8" prefHeight="200.0" prefWidth="250.0" />
             <VBox prefHeight="649.0" prefWidth="865.0" spacing="15.0">
                <children>
                   <VBox prefHeight="686.0" prefWidth="866.0" spacing="15.0">
