@@ -127,7 +127,7 @@ public class MainController implements Initializable {
     private ListView menuList = new ListView<String>();
     @FXML
     private TilePane PaneEditItem;
-    
+
     @FXML
     private Label Descriptionlabel;
     @FXML
@@ -279,7 +279,7 @@ public class MainController implements Initializable {
     //method handling action on 'Clear list' button
     @FXML
     private void handleButtonDeleteAllAction(ActionEvent event) {
-        //Dialog Box
+        //Warning Dialog Box for delete all tasks 
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Warning");
         alert.setHeaderText("Would You Like To Delete All?");
@@ -303,19 +303,18 @@ public class MainController implements Initializable {
         }
     }
 
-     //method handling action on 'Help' button
+    //method handling action on 'Help' button
     @FXML
-    private void handleButtonHelpAction(ActionEvent event) {  
+    private void handleButtonHelpAction(ActionEvent event) {
 
         try {
             Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler" + " help.pdf");  //file path
-            
-            }
-        catch (IOException e) {
+
+        } catch (IOException e) {
         }
-         
-      
+
     }
+
     //method handling action on 'Show All/Show active' button
     @FXML
     private void handleButtonShowOptions(ActionEvent event) {
@@ -349,11 +348,9 @@ public class MainController implements Initializable {
 
     @FXML
     private void handleDescriptionEdit() {
-        
-        
+
         //TodoItem editedItem;
         //String newDesc = tblitems.;
-
         //db.editDescription(tblitems.getItems().get(tblitems.getSelectionModel().getSelectedIndex()).getId(), newDesc);
         //listAllTasks();
     }
@@ -403,8 +400,34 @@ public class MainController implements Initializable {
         EventHandler<ActionEvent> actionDelete = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                db.deleteToDoItem(id);
-                listAllTasks();
+                //Warning Dialog Box for delete one task 
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+
+                alert.setTitle("Warning");
+                alert.setHeaderText("Would You Like To Delete This Item?");
+                alert.setContentText("Please choose an option.");
+
+                ButtonType yesButton = new ButtonType("Yes");
+                ButtonType noButton = new ButtonType("No");
+                ButtonType cancelButton = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+
+                alert.getButtonTypes().setAll(yesButton, noButton, cancelButton);
+
+                Optional<ButtonType> result = alert.showAndWait();
+
+                if (result.get () == yesButton) {
+                    db.deleteToDoItem(id);
+                    //refresh list of tasks
+                    listAllTasks();
+                }
+
+                else if (result.get () == noButton) {
+                    event.consume();
+                }
+
+                else if (result.get () == cancelButton) {
+                    event.consume();
+                }
             }
         };
 
@@ -461,16 +484,15 @@ public class MainController implements Initializable {
         EventHandler<ActionEvent> actionEdit;
         actionEdit = new EventHandler<ActionEvent>() {
             @Override
-            
+
             public void handle(ActionEvent event) {
                 System.out.println("test1");
                 PaneEditItem.setVisible(true);
-                
+
                 int selectedRowIndex = tblitems.getSelectionModel().getSelectedIndex();
                 tblitems.edit(selectedRowIndex, tblitems.getColumns().get(1));
 
                 //tblitems.fireEvent(event);
-                
             }
         };
 
@@ -727,7 +749,7 @@ public class MainController implements Initializable {
                 return cell;
             }
         };
-        
+
         Callback<TableView<TodoItem>, TableRow<TodoItem>> cellFactoryRow;
         cellFactoryRow = new CallbackImpl();
         tblColStar.setCellFactory(cellFactory);
@@ -804,7 +826,7 @@ public class MainController implements Initializable {
 
             return row;
         });
-        tblitems.getColumns().setAll( tblColId, tblColDesc, tblColDate, tblColStat, tblColStar);
+        tblitems.getColumns().setAll(tblColId, tblColDesc, tblColDate, tblColStat, tblColStar);
         tblColDate.setSortType(TableColumn.SortType.ASCENDING);
         //tblColStat.setSortType(TableColumn.SortType.DESCENDING);
         tblitems.getSortOrder().setAll(tblColDate);
@@ -853,14 +875,13 @@ public class MainController implements Initializable {
         public CallbackImpl() {
         }
 
-       // @Override
+        // @Override
         public TableRow<TodoItem> call(final TableRow<TodoItem> param) {
-            final TableRow<TodoItem> row = new TableRow<TodoItem> () {
-                
+            final TableRow<TodoItem> row = new TableRow<TodoItem>() {
+
                 //private ImageView star = new ImageView();
-                
                 @Override
-                
+
                 public void updateItem(TodoItem item, boolean empty) {
                     super.updateItem(item, empty);
                     if (empty) {
@@ -873,7 +894,7 @@ public class MainController implements Initializable {
                     }
                 }
             };
-            
+
             return row;
         }
 
