@@ -308,7 +308,7 @@ public class MainController implements Initializable {
     private void handleButtonHelpAction(ActionEvent event) {  
 
         try {
-            Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler" + " C:\\Users\\ckok\\Downloads\\Todo\\Todo\\src\\todo\\help.pdf");  //file path
+            Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler" + " help.pdf");  //file path
             
             }
         catch (IOException e) {
