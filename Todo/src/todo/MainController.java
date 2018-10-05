@@ -10,6 +10,7 @@ import java.awt.Image;
 import static java.awt.SystemColor.control;
 import java.awt.image.ImageObserver;
 import java.awt.image.ImageProducer;
+import java.io.IOException;
 import javafx.scene.input.MouseEvent;
 import java.net.URL;
 import java.sql.ResultSet;
@@ -285,6 +286,19 @@ public class MainController implements Initializable {
         }
     }
 
+     //method handling action on 'Help' button
+    @FXML
+    private void handleButtonHelpAction(ActionEvent event) {  
+
+        try {
+            Runtime.getRuntime().exec("rundll32 url.dll,FileProtocolHandler" + " C:\\Users\\ckok\\Downloads\\Todo\\Todo\\src\\todo\\help.pdf");  //file path
+            
+            }
+        catch (IOException e) {
+        }
+         
+      
+    }
     //method handling action on 'Show All/Show active' button
     @FXML
     private void handleButtonShowOptions(ActionEvent event) {

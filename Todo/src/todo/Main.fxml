@@ -34,7 +34,13 @@
                         </HBox>
                         <HBox prefHeight="42.0" prefWidth="866.0" spacing="15.0">
                            <children>
+                                <Button fx:id="buttonHelp" mnemonicParsing="false" onAction="#handleButtonHelpAction" text="Help">
+                                    <tooltip>
+                                    <Tooltip text="Show help pdf" wrapText="true" />
+                                 </tooltip></Button>
                               <Button fx:id="buttonShowOptions" mnemonicParsing="false" onAction="#handleButtonShowOptions" text="Show Done">
+           
+                                  
                                  <tooltip>
                                     <Tooltip text="Show completed ToDo tasks" wrapText="true" />
                                  </tooltip></Button>
