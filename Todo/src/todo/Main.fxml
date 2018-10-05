@@ -17,7 +17,7 @@
     <children>
       <HBox spacing="15.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
          <children>
-            <ListView fx:id="menuList" onMouseClicked="#selectMenuList" opacity="0.8" prefHeight="200.0" prefWidth="250.0" />
+            <ListView fx:id="menuList" onMouseClicked="#selectMenuList" onMouseMoved="#toolTipList" opacity="0.8" prefHeight="200.0" prefWidth="250.0" />
             <VBox prefHeight="649.0" prefWidth="865.0" spacing="15.0">
                <children>
                   <VBox prefHeight="686.0" prefWidth="866.0" spacing="15.0">
@@ -36,7 +36,13 @@
                         </HBox>
                         <HBox prefHeight="42.0" prefWidth="866.0" spacing="15.0">
                            <children>
+                                <Button fx:id="buttonHelp" mnemonicParsing="false" onAction="#handleButtonHelpAction" text="Help">
+                                    <tooltip>
+                                    <Tooltip text="Show help pdf" wrapText="true" />
+                                 </tooltip></Button>
                               <Button fx:id="buttonShowOptions" mnemonicParsing="false" onAction="#handleButtonShowOptions" text="Show Done">
+           
+                                  
                                  <tooltip>
                                     <Tooltip text="Show completed ToDo tasks" wrapText="true" />
                                  </tooltip></Button>
@@ -50,10 +56,13 @@
                           <columns>
                             <TableColumn fx:id="tblColId" minWidth="40.0" prefWidth="40.0" text="ID" visible="false" />
                             <TableColumn fx:id="tblColDesc" minWidth="200.0" onEditCommit="#handleDescriptionEdit" prefWidth="400.0" text="Description" />
-                              <TableColumn fx:id="tblColDate" minWidth="95.0" prefWidth="95.0" text="Due Date" />
-                              <TableColumn fx:id="tblColStat" minWidth="120.0" prefWidth="120.0" text="Status" />
-                              <TableColumn fx:id="tblColStar" minWidth="30.0" prefWidth="30.0" />
+                              <TableColumn fx:id="tblColDate" maxWidth="95.0" minWidth="95.0" prefWidth="95.0" text="Due Date" />
+                              <TableColumn fx:id="tblColStat" maxWidth="95.0" minWidth="95.0" prefWidth="95.0" text="Status" />
+                              <TableColumn fx:id="tblColStar" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" />
                           </columns>
+                           <columnResizePolicy>
+                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                           </columnResizePolicy>
                         </TableView>
                         <TilePane fx:id="PaneEditItem" visible="false">
                            <children>
