@@ -42,6 +42,7 @@ import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -51,6 +52,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.TilePane;
 import javafx.stage.Popup;
 import javafx.util.Callback;
 
@@ -117,6 +119,21 @@ public class MainController implements Initializable {
 
     @FXML
     private ListView menuList = new ListView<String>();
+    @FXML
+    private TilePane PaneEditItem;
+    
+    @FXML
+    private Label Descriptionlabel;
+    @FXML
+    private Label Statuslabel;
+    @FXML
+    private Label Duedatelabel;
+    @FXML
+    private TextField descriptionEdit;
+    @FXML
+    private TextField StatusEdit;
+    @FXML
+    private DatePicker datePickerEdit = new DatePicker();
 
     //method handling selection of single task via mouse click event
     @FXML
@@ -251,6 +268,8 @@ public class MainController implements Initializable {
 
     @FXML
     private void handleDescriptionEdit() {
+        
+        
         //TodoItem editedItem;
         //String newDesc = tblitems.;
 
@@ -361,11 +380,16 @@ public class MainController implements Initializable {
         EventHandler<ActionEvent> actionEdit;
         actionEdit = new EventHandler<ActionEvent>() {
             @Override
+            
             public void handle(ActionEvent event) {
+                System.out.println("test1");
+                PaneEditItem.setVisible(true);
+                
                 int selectedRowIndex = tblitems.getSelectionModel().getSelectedIndex();
                 tblitems.edit(selectedRowIndex, tblitems.getColumns().get(1));
 
                 //tblitems.fireEvent(event);
+                
             }
         };
 
