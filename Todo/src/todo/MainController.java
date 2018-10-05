@@ -766,7 +766,7 @@ public class MainController implements Initializable {
 
             return row;
         });
-        tblitems.getColumns().setAll(tblColStar, tblColId, tblColDesc, tblColDate, tblColStat);
+        tblitems.getColumns().setAll( tblColId, tblColDesc, tblColDate, tblColStat, tblColStar);
         tblColDate.setSortType(TableColumn.SortType.ASCENDING);
         //tblColStat.setSortType(TableColumn.SortType.DESCENDING);
         tblitems.getSortOrder().setAll(tblColDate);
