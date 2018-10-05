@@ -5,7 +5,6 @@
  */
 package todo;
 
-
 import java.awt.Graphics;
 import java.awt.Image;
 import static java.awt.SystemColor.control;
@@ -58,7 +57,7 @@ import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.stage.Popup;
 import javafx.util.Callback;
-import javax.swing.*;   
+import javax.swing.*;
 
 /**
  *
@@ -123,7 +122,7 @@ public class MainController implements Initializable {
 
     @FXML
     private ListView menuList = new ListView<String>();
-    
+
     //method handling tooltip in the left list via mouse 
     @FXML
     private void toolTipList(MouseEvent event) {
@@ -167,9 +166,9 @@ public class MainController implements Initializable {
                 index = -1;
                 event.consume();
                 break;
-        }  
+        }
     }
-    
+
     //method handling selection of single task via mouse click event
     @FXML
     private void selectTableItem(MouseEvent event) {
@@ -275,17 +274,15 @@ public class MainController implements Initializable {
         alert.getButtonTypes().setAll(yesButton, noButton, cancelButton);
 
         Optional<ButtonType> result = alert.showAndWait();
-        if(result.get() == yesButton) {
+        if (result.get() == yesButton) {
             db.deleteToDoItem();
             //refresh list of tasks
-            listAllTasks();   
-        }
-        else if(result.get() == noButton) {
+            listAllTasks();
+        } else if (result.get() == noButton) {
+            event.consume();
+        } else if (result.get() == cancelButton) {
             event.consume();
         }
-        else if(result.get() == cancelButton) {
-            event.consume();
-        }  
     }
 
     //method handling action on 'Show All/Show active' button
@@ -692,7 +689,9 @@ public class MainController implements Initializable {
                 return cell;
             }
         };
-
+        
+        Callback<TableView<TodoItem>, TableRow<TodoItem>> cellFactoryRow;
+        cellFactoryRow = new CallbackImpl();
         tblColStar.setCellFactory(cellFactory);
 
         /*
@@ -798,9 +797,8 @@ public class MainController implements Initializable {
             starItem.setDisable(false);
             unstarItem.setDisable(true);
         }
-    }    
-    
-    
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
@@ -810,5 +808,40 @@ public class MainController implements Initializable {
         buildSideMenu();
         listAllTasks();
 
+    }
+
+    private class CallbackImpl implements Callback<TableView<TodoItem>, TableRow<TodoItem>> {
+
+        public CallbackImpl() {
+        }
+
+       // @Override
+        public TableRow<TodoItem> call(final TableRow<TodoItem> param) {
+            final TableRow<TodoItem> row = new TableRow<TodoItem> () {
+                
+                //private ImageView star = new ImageView();
+                
+                @Override
+                
+                public void updateItem(TodoItem item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        //setGraphic(null);
+                    } else {
+                        if (item.getStatus().equals("overdue")) {
+                            //getStyleClass().add("redcolor");
+                            getStyleClass().add("table-row");
+                        }
+                    }
+                }
+            };
+            
+            return row;
+        }
+
+        @Override
+        public TableRow<TodoItem> call(TableView<TodoItem> param) {
+            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        }
     }
 }

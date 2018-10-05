@@ -7,7 +7,7 @@ and open the template in the editor.
     Created on : Sep 26, 2018, 3:14:30 PM
     Author     : aled
 */
-#strike { text-decoration: line-through red; }
+.table-row { text-color:  red; }
 
 .root {
     -fx-background-image: url("bridge.jpg");
