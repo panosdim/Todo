@@ -5,8 +5,11 @@
  */
 package todo;
 
+import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import javafx.scene.input.MouseEvent;
 import java.net.URL;
 import java.text.SimpleDateFormat;
@@ -18,6 +21,8 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -85,6 +90,7 @@ public class MainController implements Initializable {
     MenuItem editItem = new MenuItem("Edit");
     MenuItem starItem = new MenuItem("Set Favorite");
     MenuItem unstarItem = new MenuItem("Unfavor");
+    MenuItem emailItem = new MenuItem("Send email");
 
     //
     //private final String strikeThrough = getClass().getResource("sceneCSS.css").toExternalForm();
@@ -558,6 +564,37 @@ public class MainController implements Initializable {
             }
         };
 
+        //Edit description
+        EventHandler<ActionEvent> actionEmail;
+        actionEmail = new EventHandler<ActionEvent>() {
+            @Override
+
+            public void handle(ActionEvent event) {
+                if (Desktop.isDesktopSupported()) {
+                    Desktop desktop = Desktop.getDesktop();
+                    if (desktop.isSupported(Desktop.Action.MAIL)) {
+
+                        try {
+                            int selectedRowIndex = activeItemsTable.getSelectionModel().getSelectedIndex();
+                            String email = "javagroupc@intracom-telecom.com";
+                            String subject = "Todo%20item%20info";
+                            String body = "Todo%20Item%20'" + activeItemsTable.getItems().get(selectedRowIndex).getDescription() + "'%20is%20due%20on%20" + activeItemsTable.getItems().get(selectedRowIndex).getDate();
+                            body = body.replaceAll(" ","%20");
+                            URI mailto;
+                            mailto = new URI("mailto:" + email + "?subject=" + subject + "&body=" + body);
+                            desktop.mail(mailto);
+                        } catch (URISyntaxException ex) {
+                            Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
+                        } catch (IOException ex) {
+                            Logger.getLogger(MainController.class.getName()).log(Level.SEVERE, null, ex);
+                        }
+
+                    }
+                }
+
+            }
+        };
+
         //Assignment of actions to Menu Items
         setDoneMenuItem.setOnAction(actionSetDone);
         setDoneMenuItem.setGraphic(new ImageView("/todo/done.png"));
@@ -578,8 +615,10 @@ public class MainController implements Initializable {
         starItem.setGraphic(new ImageView("/todo/star.png"));
         unstarItem.setOnAction(actionResetStarred);
         unstarItem.setGraphic(new ImageView("/todo/unstar.png"));
+        emailItem.setOnAction(actionEmail);
+        emailItem.setGraphic(new ImageView("/todo/unstar.png"));
         //context menu for TableView
-        ContextMenu tableContextMenu = new ContextMenu(editItem, starItem, unstarItem, setDueDate, setDoneMenuItem, setActiveItem, deleteMenuItem);
+        ContextMenu tableContextMenu = new ContextMenu(editItem, emailItem, starItem, unstarItem, setDueDate, setDoneMenuItem, setActiveItem, deleteMenuItem);
 
         //set context menu for tblitems TableView object
         activeItemsTable.setContextMenu(tableContextMenu);
@@ -689,12 +728,12 @@ public class MainController implements Initializable {
     //build side menu
     private void buildSideMenu(int active, int favs, int today, int tomorrow, int week, int month) {
         menuItems.clear();
-        menuItems.add("Show All \r" + active);
-        menuItems.add("Show Favorites \r" + favs);
-        menuItems.add("Show Today \r" + today);
-        menuItems.add("Show Tomorrow \r" + tomorrow);
-        menuItems.add("Show Week \r" + week);
-        menuItems.add("Show Month \r" + month);
+        menuItems.add("Show All \t\t" + active);
+        menuItems.add("Show Favorites \t\t" + favs);
+        menuItems.add("Show Today \t\t" + today);
+        menuItems.add("Show Tomorrow \t\t" + tomorrow);
+        menuItems.add("Show Week \t\t" + week);
+        menuItems.add("Show Month \t\t" + month);
 
         menuList.setItems(menuItems);
     }
@@ -1249,9 +1288,11 @@ public class MainController implements Initializable {
         TodoItem currentRow = activeItemsTable.getItems().get(row);
         if (currentRow.getStatus() == 0) {
             setDoneMenuItem.setDisable(true);
+            emailItem.setDisable(true);
             setActiveItem.setDisable(false);
         } else {
             setDoneMenuItem.setDisable(false);
+            emailItem.setDisable(false);
             setActiveItem.setDisable(true);
         }
 
@@ -1270,9 +1311,11 @@ public class MainController implements Initializable {
         TodoItem currentRow = doneItemsTable.getItems().get(row);
         if (currentRow.getStatus() == 0) {
             setDoneMenuItem.setDisable(true);
+            emailItem.setDisable(true);
             setActiveItem.setDisable(false);
         } else {
             setDoneMenuItem.setDisable(false);
+            emailItem.setDisable(false);
             setActiveItem.setDisable(true);
         }
 
