@@ -13,6 +13,7 @@
 <?import javafx.scene.layout.TilePane?>
 <?import javafx.scene.layout.VBox?>
 
+<AnchorPane id="AnchorPane" prefHeight="700.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="todo.MainController">
     <children>
       <HBox spacing="15.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
          <children>
@@ -37,7 +38,9 @@
                            <children>
                                 <Button fx:id="buttonHelp" mnemonicParsing="false" onAction="#handleButtonHelpAction" text="Help">
                                     <tooltip>
+                                    <Tooltip text="Shows help pdf" wrapText="true" />
                                  </tooltip></Button>
+
                               <Button fx:id="buttonDeleteAll" onAction="#handleButtonDeleteAllAction" text="Clear List">
                                  <tooltip>
                                     <Tooltip text="Delete all Todo tasks" wrapText="true" />

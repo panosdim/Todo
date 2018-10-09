@@ -273,13 +273,16 @@ public class MainController implements Initializable {
                 showDateStart = null;
                 onlyStarred = false;
                 description.setPromptText("Add new todo task");
+                //set visibility of show done button
+                buttonShowOptions.setVisible(true);
                 listTasks(onlyActive, onlyStarred);
                 index = -1;
                 break;
             case 1:
                 showDateStart = null;
                 onlyStarred = true;
-                //onlyActive = true;
+                //set visibility of show done button
+                buttonShowOptions.setVisible(false);
                 description.setPromptText("Add new favorite todo task");
                 listTasks(true, onlyStarred);
                 index = -1;
@@ -287,36 +290,47 @@ public class MainController implements Initializable {
             case 2:
                 showDateStart = showDateEnd = LocalDate.now();
                 onlyStarred = false;
+                //set visibility of show done button
+                buttonShowOptions.setVisible(false);
                 description.setPromptText("Add new todo task for today");
-                listTasks(onlyActive, onlyStarred);
+                listTasks(true, onlyStarred);
                 index = -1;
                 break;
             case 3:
                 showDateStart = showDateEnd = LocalDate.now().plus(1, ChronoUnit.DAYS);
                 onlyStarred = false;
+                //set visibility of show done button
+                buttonShowOptions.setVisible(false);
                 description.setPromptText("Add new todo task for tomorrow");
-                listTasks(onlyActive, onlyStarred);
+                listTasks(true, onlyStarred);
                 index = -1;
                 break;
             case 4:
-                showDateStart = LocalDate.now().with(WeekFields.of(Locale.FRANCE).dayOfWeek(), 1);
-                showDateEnd = LocalDate.now().with(WeekFields.of(Locale.FRANCE).dayOfWeek(), 7);
+                //showDateStart = LocalDate.now().with(WeekFields.of(Locale.FRANCE).dayOfWeek(), 1);
+                //showDateEnd = LocalDate.now().with(WeekFields.of(Locale.FRANCE).dayOfWeek(), 7);
+                showDateStart = showDateEnd = LocalDate.now();
+                showDateEnd = LocalDate.now().plus(7, ChronoUnit.DAYS);
                 onlyStarred = false;
+                //set visibility of show done button
+                buttonShowOptions.setVisible(false);
                 description.setPromptText("Add new todo task for today");
-                listTasks(onlyActive, onlyStarred);
+                listTasks(true, onlyStarred);
                 index = -1;
                 break;
             case 5:
-                showDateStart = LocalDate.now().withDayOfMonth(1);
-                showDateEnd = LocalDate.now().withDayOfMonth(showDateStart.lengthOfMonth());
+                //showDateStart = LocalDate.now().withDayOfMonth(1);
+                //showDateEnd = LocalDate.now().withDayOfMonth(showDateStart.lengthOfMonth());
+                showDateStart = LocalDate.now();
+                showDateEnd = LocalDate.now().plus(showDateStart.lengthOfMonth(), ChronoUnit.DAYS);
                 onlyStarred = false;
+                //set visibility of show done button
+                buttonShowOptions.setVisible(false);
                 description.setPromptText("Add new todo task for today");
-                listTasks(onlyActive, onlyStarred);
+                listTasks(true, onlyStarred);
                 index = -1;
                 break;
         }
-        //set visibility of show done button
-        buttonShowOptions.setVisible(!onlyStarred);
+
     }
 
     //method handling action on 'Clear list' button
@@ -451,7 +465,6 @@ public class MainController implements Initializable {
 
                 //db.deleteToDoItem(id);
                 //listTasks(onlyActive, onlyStarred);
-
                 //Warning Dialog Box for delete one task 
                 Alert alert = new Alert(Alert.AlertType.WARNING);
 
@@ -467,17 +480,13 @@ public class MainController implements Initializable {
 
                 Optional<ButtonType> result = alert.showAndWait();
 
-                if (result.get () == yesButton) {
+                if (result.get() == yesButton) {
                     db.deleteToDoItem(id);
                     //refresh list of tasks
                     listTasks(onlyActive, onlyStarred);
-                }
-
-                else if (result.get () == noButton) {
+                } else if (result.get() == noButton) {
                     event.consume();
-                }
-
-                else if (result.get () == cancelButton) {
+                } else if (result.get() == cancelButton) {
                     event.consume();
                 }
 
@@ -542,10 +551,8 @@ public class MainController implements Initializable {
                 System.out.println("test1");
                 PaneEditItem.setVisible(true);
 
-
                 int selectedRowIndex = activeItemsTable.getSelectionModel().getSelectedIndex();
                 activeItemsTable.edit(selectedRowIndex, activeItemsTable.getColumns().get(1));
-
 
                 //tblitems.fireEvent(event);
             }
@@ -680,13 +687,14 @@ public class MainController implements Initializable {
     }
 
     //build side menu
-    private void buildSideMenu() {
-        menuItems.add("Show All");
-        menuItems.add("Show Favorites");
-        menuItems.add("Show Today");
-        menuItems.add("Show Tomorrow");
-        menuItems.add("Show Week");
-        menuItems.add("Show Month");
+    private void buildSideMenu(int active, int favs, int today, int tomorrow, int week, int month) {
+        menuItems.clear();
+        menuItems.add("Show All \r" + active);
+        menuItems.add("Show Favorites \r" + favs);
+        menuItems.add("Show Today \r" + today);
+        menuItems.add("Show Tomorrow \r" + tomorrow);
+        menuItems.add("Show Week \r" + week);
+        menuItems.add("Show Month \r" + month);
 
         menuList.setItems(menuItems);
     }
@@ -701,16 +709,38 @@ public class MainController implements Initializable {
         activeItems.clear();
         doneItems.clear();
 
+        //declare counters
+        int active = 0, favs = 0, today = 0, tomorrow = 0, week = 0, month = 0;
+        LocalDate todayDate = LocalDate.now(); //.plus(1, ChronoUnit.DAYS);
+
         //scan all 'activetoDoList'
         for (int i = 0; i < allItems.size(); i++) {
 
             int intStatus = checkOverDue(allItems.get(i).getStatus(), allItems.get(i).getDate(), allItems.get(i).getId());
             //only active items
             if (intStatus != 0) {
+                //update counters
+                active++;
+                if (allItems.get(i).getStar() == 1) {
+                    favs++;
+                }
+                if (allItems.get(i).getDate().compareTo(todayDate.toString()) == 0) {
+                    today++;
+                }
+                if (allItems.get(i).getDate().compareTo(todayDate.plus(1, ChronoUnit.DAYS).toString()) == 0) {
+                    tomorrow++;
+                }
+                if (allItems.get(i).getDate().compareTo(todayDate.toString()) >= 0 && allItems.get(i).getDate().compareTo(todayDate.plus(7, ChronoUnit.DAYS).toString()) <= 0) {
+                    week++;
+                }
+                if (allItems.get(i).getDate().compareTo(todayDate.toString()) >= 0 && allItems.get(i).getDate().compareTo(todayDate.plus(todayDate.lengthOfMonth(), ChronoUnit.DAYS).toString()) <= 0) {
+                    month++;
+                }
                 //check if only favorites
                 if (onlyStarred) {
                     //check star
                     if (allItems.get(i).getStar() == 1) {
+                        favs++;
                         activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank()));
                     }
                     //otherwise, check dates
@@ -726,6 +756,7 @@ public class MainController implements Initializable {
                                 activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank()));
                             }
                         }
+
                     }
                 }
 
@@ -756,6 +787,7 @@ public class MainController implements Initializable {
         //build table's properties
         buildTable();
         buildDoneTable();
+        buildSideMenu(active, favs, today, tomorrow, week, month);
     }
 
     //buildTable
@@ -772,13 +804,11 @@ public class MainController implements Initializable {
 
         //activeItemsTableColDesc.setCellFactory(TextFieldTableCell.forTableColumn());
         //activeItemsTableColDesc.setOnEditCommit(
-
         activeItemsTableColDesc.setCellFactory(TextFieldTableCell.forTableColumn());
         Label tblColDescLabel = new Label("Description");
         tblColDescLabel.setTooltip(new Tooltip("This column shows the decription of the ToDo tasks."));
         activeItemsTableColDesc.setGraphic(tblColDescLabel);
         activeItemsTableColDesc.setOnEditCommit(
-
                 new EventHandler<CellEditEvent<TodoItem, String>>() {
             @Override
             public void handle(CellEditEvent<TodoItem, String> t) {
@@ -800,7 +830,6 @@ public class MainController implements Initializable {
         activeItemsTableColDate.setGraphic(tblColDateLabel);
 
         //tblColStat = new TableColumn("Status");
-
         activeItemsTableColStat.setCellValueFactory(new PropertyValueFactory<TodoItem, Integer>("status"));
         //set tblColStar to button
         Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>> cellDoneFactory;
@@ -904,9 +933,7 @@ public class MainController implements Initializable {
             }
         };
 
-
         activeItemsTableColStar.setCellFactory(cellFactory);
-
 
         //allow drag and drop only for full view of all active items
         //not favorites, not period => show all
@@ -1264,10 +1291,9 @@ public class MainController implements Initializable {
         //create new DBHandler object and establish connection to DB
         db = new DBHandler("tasks");
         buildTableContextMenu();
-        buildSideMenu();
+
         listTasks(onlyActive, onlyStarred);
 
     }
-
 
 }
