@@ -5,17 +5,10 @@
  */
 package todo;
 
-import java.awt.Graphics;
-import java.awt.Image;
-import static java.awt.SystemColor.control;
-import java.awt.image.ImageObserver;
-import java.awt.image.ImageProducer;
 import java.io.File;
 import java.io.IOException;
 import javafx.scene.input.MouseEvent;
 import java.net.URL;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -28,7 +21,6 @@ import java.util.ResourceBundle;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -45,13 +37,10 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
-import javafx.scene.control.TablePosition;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.TitledPane;
 import javafx.scene.control.Tooltip;
-import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.ImageView;
@@ -62,9 +51,7 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.TilePane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import javafx.stage.Popup;
 import javafx.util.Callback;
-import javax.swing.*;
 
 /**
  *
@@ -335,7 +322,7 @@ public class MainController implements Initializable {
     //method handling action on 'Clear list' button
     @FXML
     private void handleButtonDeleteAllAction(ActionEvent event) {
-        //Dialog Box
+        //Warning Dialog Box for delete all tasks 
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Warning");
         alert.setHeaderText("Would You Like To Delete All?");
@@ -461,8 +448,39 @@ public class MainController implements Initializable {
         EventHandler<ActionEvent> actionDelete = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                db.deleteToDoItem(id);
-                listTasks(onlyActive, onlyStarred);
+
+                //db.deleteToDoItem(id);
+                //listTasks(onlyActive, onlyStarred);
+
+                //Warning Dialog Box for delete one task 
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+
+                alert.setTitle("Warning");
+                alert.setHeaderText("Would You Like To Delete This Item?");
+                alert.setContentText("Please choose an option.");
+
+                ButtonType yesButton = new ButtonType("Yes");
+                ButtonType noButton = new ButtonType("No");
+                ButtonType cancelButton = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+
+                alert.getButtonTypes().setAll(yesButton, noButton, cancelButton);
+
+                Optional<ButtonType> result = alert.showAndWait();
+
+                if (result.get () == yesButton) {
+                    db.deleteToDoItem(id);
+                    //refresh list of tasks
+                    listTasks(onlyActive, onlyStarred);
+                }
+
+                else if (result.get () == noButton) {
+                    event.consume();
+                }
+
+                else if (result.get () == cancelButton) {
+                    event.consume();
+                }
+
             }
         };
 
@@ -524,8 +542,10 @@ public class MainController implements Initializable {
                 System.out.println("test1");
                 PaneEditItem.setVisible(true);
 
+
                 int selectedRowIndex = activeItemsTable.getSelectionModel().getSelectedIndex();
                 activeItemsTable.edit(selectedRowIndex, activeItemsTable.getColumns().get(1));
+
 
                 //tblitems.fireEvent(event);
             }
@@ -749,8 +769,16 @@ public class MainController implements Initializable {
         //tblColDesc = new TableColumn("Description");
         activeItemsTableColDesc.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("description"));
         //tblColDesc.setStyle("-fx-alignment: LEFT;");
+
+        //activeItemsTableColDesc.setCellFactory(TextFieldTableCell.forTableColumn());
+        //activeItemsTableColDesc.setOnEditCommit(
+
         activeItemsTableColDesc.setCellFactory(TextFieldTableCell.forTableColumn());
+        Label tblColDescLabel = new Label("Description");
+        tblColDescLabel.setTooltip(new Tooltip("This column shows the decription of the ToDo tasks."));
+        activeItemsTableColDesc.setGraphic(tblColDescLabel);
         activeItemsTableColDesc.setOnEditCommit(
+
                 new EventHandler<CellEditEvent<TodoItem, String>>() {
             @Override
             public void handle(CellEditEvent<TodoItem, String> t) {
@@ -767,8 +795,12 @@ public class MainController implements Initializable {
         //tblColDate = new TableColumn("Date");
         activeItemsTableColDate.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("date"));
         //tblColDate.setStyle("-fx-alignment: CENTER;");
+        Label tblColDateLabel = new Label("Due Date");
+        tblColDateLabel.setTooltip(new Tooltip("This column shows the due date of the ToDo tasks."));
+        activeItemsTableColDate.setGraphic(tblColDateLabel);
 
         //tblColStat = new TableColumn("Status");
+
         activeItemsTableColStat.setCellValueFactory(new PropertyValueFactory<TodoItem, Integer>("status"));
         //set tblColStar to button
         Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>> cellDoneFactory;
@@ -820,6 +852,19 @@ public class MainController implements Initializable {
         activeItemsTableColRank.setCellValueFactory(new PropertyValueFactory<TodoItem, Integer>("rank"));
         //tblColStat = new TableColumn("Star");
         activeItemsTableColStar.setCellValueFactory(new PropertyValueFactory<TodoItem, Integer>("star"));
+
+        activeItemsTableColStat.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("status"));
+        //tblColStat.setStyle("-fx-alignment: CENTER;");
+        Label tblColStatLabel = new Label("Status");
+        tblColStatLabel.setTooltip(new Tooltip("This column shows the status of the ToDo tasks. Types of status: Completed, Pending & Overdue"));
+        activeItemsTableColStat.setGraphic(tblColStatLabel);
+
+        //tblColStat = new TableColumn("Status");
+        activeItemsTableColStar.setCellValueFactory(new PropertyValueFactory<TodoItem, Integer>("star"));
+        Label tblColStarLabel = new Label("");
+        tblColStarLabel.setTooltip(new Tooltip("This column shows the favourites ToDo tasks."));
+        activeItemsTableColStar.setGraphic(tblColStarLabel);
+
         //set tblColStar to button
         Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>> cellFactory;
         cellFactory = new Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>>() {
@@ -859,31 +904,10 @@ public class MainController implements Initializable {
             }
         };
 
+
         activeItemsTableColStar.setCellFactory(cellFactory);
 
-        /*
-            //set text strike-through for Done items
-            tblitems.setRowFactory(new Callback<TableView<TodoItem>, TableRow<TodoItem>>() {
-                @Override
-                public TableRow<TodoItem> call(TableView<TodoItem> tblitemsView) {
-                    return new TableRow<TodoItem>() {
-                        @Override
-                        protected void updateItem(TodoItem todoItem, boolean b) {
-                            super.updateItem(todoItem, b);
 
-                            if (todoItem == null) {
-                                return;
-                            }
-
-                            if (todoItem.getStatus().equals("Done")) // Example requirement
-                            {
-                                getStyleClass().add("strike");
-                            }
-                        }
-                    };
-                }
-            });
-         */
         //allow drag and drop only for full view of all active items
         //not favorites, not period => show all
         if (!onlyStarred && showDateStart == null) {
@@ -1178,6 +1202,7 @@ public class MainController implements Initializable {
         
             return row;
         });
+<<<<<<< HEAD
          */
         doneItemsTable.getColumns().setAll(doneItemsTableColStat, doneItemsTableColId, doneItemsTableColDesc, doneItemsTableColDate, doneItemsTableColStar, doneItemsTableColRank);
         doneItemsTableColRank.setSortType(TableColumn.SortType.ASCENDING);
@@ -1243,5 +1268,6 @@ public class MainController implements Initializable {
         listTasks(onlyActive, onlyStarred);
 
     }
+
 
 }
