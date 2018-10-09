@@ -687,6 +687,9 @@ public class MainController implements Initializable {
         tblColDesc.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("description"));
         //tblColDesc.setStyle("-fx-alignment: LEFT;");
         tblColDesc.setCellFactory(TextFieldTableCell.forTableColumn());
+        Label tblColDescLabel = new Label("Description");
+        tblColDescLabel.setTooltip(new Tooltip("This column shows the decription of the ToDo tasks."));
+        tblColDesc.setGraphic(tblColDescLabel);
         tblColDesc.setOnEditCommit(
                 new EventHandler<CellEditEvent<TodoItem, String>>() {
             @Override
@@ -704,13 +707,22 @@ public class MainController implements Initializable {
         //tblColDate = new TableColumn("Date");
         tblColDate.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("date"));
         //tblColDate.setStyle("-fx-alignment: CENTER;");
+        Label tblColDateLabel = new Label("Due Date");
+        tblColDateLabel.setTooltip(new Tooltip("This column shows the due date of the ToDo tasks."));
+        tblColDate.setGraphic(tblColDateLabel);
 
         //tblColStat = new TableColumn("Status");
         tblColStat.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("status"));
         //tblColStat.setStyle("-fx-alignment: CENTER;");
+        Label tblColStatLabel = new Label("Status");
+        tblColStatLabel.setTooltip(new Tooltip("This column shows the status of the ToDo tasks. Types of status: Completed, Pending & Overdue"));
+        tblColStat.setGraphic(tblColStatLabel);
 
         //tblColStat = new TableColumn("Status");
         tblColStar.setCellValueFactory(new PropertyValueFactory<TodoItem, Integer>("star"));
+        Label tblColStarLabel = new Label("");
+        tblColStarLabel.setTooltip(new Tooltip("This column shows the favourites ToDo tasks."));
+        tblColStar.setGraphic(tblColStarLabel);
         //set tblColStar to button
         Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>> cellFactory;
         cellFactory = new Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>>() {
