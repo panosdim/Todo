@@ -40,30 +40,44 @@
                                     <tooltip>
                                     <Tooltip text="Show help pdf" wrapText="true" />
                                  </tooltip></Button>
-                              <Button fx:id="buttonShowOptions" mnemonicParsing="false" onAction="#handleButtonShowOptions" text="Show Done">
-           
-                                  
-                                 <tooltip>
-                                    <Tooltip text="Show completed ToDo tasks" wrapText="true" />
-                                 </tooltip></Button>
+                              
                               <Button fx:id="buttonDeleteAll" onAction="#handleButtonDeleteAllAction" text="Clear List">
                                  <tooltip>
                                     <Tooltip text="Delete all Todo tasks" wrapText="true" />
                                  </tooltip></Button>
                            </children>
                         </HBox>
-                        <TableView fx:id="tblitems" onMouseClicked="#selectTableItem" opacity="0.8" prefHeight="560.0" prefWidth="735.0">
+                        <TableView fx:id="activeItemsTable" onMouseClicked="#selectTableItem" opacity="0.8" prefHeight="560.0" prefWidth="735.0">
                           <columns>
-                            <TableColumn fx:id="tblColId" minWidth="40.0" prefWidth="40.0" text="ID" visible="false" />
-                            <TableColumn fx:id="tblColDesc" minWidth="200.0" onEditCommit="#handleDescriptionEdit" prefWidth="400.0" text="Description" />
-                              <TableColumn fx:id="tblColDate" maxWidth="95.0" minWidth="95.0" prefWidth="95.0" text="Due Date" />
-                              <TableColumn fx:id="tblColStat" maxWidth="95.0" minWidth="95.0" prefWidth="95.0" text="Status" />
-                              <TableColumn fx:id="tblColStar" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" />
+                            <TableColumn fx:id="activeItemsTableColId" minWidth="40.0" prefWidth="40.0" text="ID"  visible="false" />
+                            <TableColumn fx:id="activeItemsTableColDesc" minWidth="200.0" onEditCommit="#handleDescriptionEdit" prefWidth="400.0" text="Description" />
+                              <TableColumn fx:id="activeItemsTableColDate" maxWidth="95.0" minWidth="95.0" prefWidth="95.0" text="Due Date" />
+                              <TableColumn fx:id="activeItemsTableColStat" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" />
+                              <TableColumn fx:id="activeItemsTableColStar" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" />
+                              <TableColumn fx:id="activeItemsTableColRank" maxWidth="30.0" minWidth="30.0" prefWidth="30.0"  visible="false"/>
                           </columns>
                            <columnResizePolicy>
                               <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                            </columnResizePolicy>
                         </TableView>
+                        <Button fx:id="buttonShowOptions" mnemonicParsing="false" onAction="#handleButtonShowOptions" text="Show Done">
+                           <tooltip>
+                              <Tooltip text="Show completed ToDo tasks" wrapText="true" />
+                           </tooltip>
+                        </Button>
+                        <TableView fx:id="doneItemsTable" onMouseClicked="#selectDoneTableItem" opacity="0.8" prefHeight="560.0" prefWidth="735.0">
+                          <columns>
+                            <TableColumn fx:id="doneItemsTableColId" minWidth="40.0" prefWidth="40.0" text="ID" visible="false" />
+                            <TableColumn fx:id="doneItemsTableColDesc" minWidth="200.0" onEditCommit="#handleDescriptionEdit" prefWidth="400.0" text="Description" />
+                              <TableColumn fx:id="doneItemsTableColDate" maxWidth="95.0" minWidth="95.0" prefWidth="95.0" text="Due Date" />
+                              <TableColumn fx:id="doneItemsTableColStat" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" />
+                              <TableColumn fx:id="doneItemsTableColStar" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" visible="false"/>
+                              <TableColumn fx:id="doneItemsTableColRank" maxWidth="30.0" minWidth="30.0" prefWidth="30.0"  visible="false"/>
+                          </columns>
+                           <columnResizePolicy>
+                              <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                           </columnResizePolicy>
+                        </TableView>                        
                         <TilePane fx:id="PaneEditItem" visible="false">
                            <children>
                               <Label fx:id="Descriptionlabel" text="Description" textFill="WHITE" />

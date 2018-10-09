@@ -63,7 +63,7 @@ public class DBHandler {
     //with description and status from parameter list
     //and current date
     //DB handles ID on it's own
-    public void insertToDoItem(String Description, int Status, String date, int star) {
+    public void insertToDoItem(String Description, int Status, String date, int star, int rank) {
 
         try {
             Statement statement = con.createStatement();
@@ -75,8 +75,8 @@ public class DBHandler {
             //INSERT query with description and status from parameters
             //and current date
             //no id is provided, DB handles on it's own
-            String query = "INSERT INTO " + dbName + " (Description, Date, Status, Starred) "
-                    + "VALUES ('" + Description + "', '" + date + "', '" + Integer.toString(Status) + "', " + star + ")";
+            String query = "INSERT INTO " + dbName + " (Description, Date, Status, Starred, rank) "
+                    + "VALUES ('" + Description + "', '" + date + "', '" + Integer.toString(Status) + "', " + star + ", " + rank + ")";
             System.out.println(query);
             statement.executeQuery(query);
 
@@ -193,11 +193,30 @@ public class DBHandler {
         } catch (SQLException sQLException) {
         }
     }
+    
+    //changeItemRank
+    //This method changes rank of one entry from DB
+    //based on parameter id and rank
+    public void changeItemRank(long id, int rank) {
+
+        try {
+            Statement statement = con.createStatement();
+
+            statement.setQueryTimeout(30);  // set timeout to 30 sec.
+
+            //UPDATE query is created WHERE id matches given id
+            //SET Status = 1 (active)
+            String query = "UPDATE " + dbName + " SET Rank = " + rank + " WHERE id=" + id;
+            System.out.println(query);
+            statement.executeQuery(query);
+        } catch (SQLException sQLException) {
+        }
+    }    
 
     // This method outputs the contents of the table Tasks
     // In the method, con is a Connection object and dbName is the name of 
     // the database in which you are creating the table.
-    public ResultSet viewTable(boolean onlyActive, boolean onlyStarred) {
+    public ArrayList<TodoItem> viewTable(/*boolean onlyActive, boolean onlyStarred*/) {
         //choice
         //0 - all
         //1 - skipp finished
@@ -208,17 +227,21 @@ public class DBHandler {
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
             
             String query = "SELECT * FROM " + dbName;;
-            
+            /*
             if(onlyStarred) {
                 if(onlyActive) query = "SELECT * FROM " + dbName + " WHERE (Starred = 1 AND Status <> 0)";
                 else query = "SELECT * FROM " + dbName + " WHERE Starred = 1";
             } else {
                 if(onlyActive) query = "SELECT * FROM " + dbName + " WHERE Status <> 0";
             }
-            
+            */
             System.out.println(query);
-            return statement.executeQuery(query);
-            
+            ResultSet rs = statement.executeQuery(query);
+            ArrayList<TodoItem> allItems = new ArrayList<TodoItem>();
+            while(rs.next()) {
+                allItems.add(new TodoItem(rs.getInt("id"), rs.getString("description"), rs.getString("date"), rs.getInt("status"), rs.getInt("starred"), rs.getInt("rank")));
+            }
+            return allItems;
         } catch (SQLException sQLException) {
         }
         return null;

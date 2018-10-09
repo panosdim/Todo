@@ -14,16 +14,26 @@ public class TodoItem {
     private long id;
     private String description;
     private String date;
-    private String status;
+    private int status;
     private int star;
+    private int rank;
 
 
-    public TodoItem(long id, String description, String date, String status, int star) {
+    public TodoItem(long id, String description, String date, int status, int star, int rank) {
         this.id = id;
         this.description = description;
         this.date = date;
         this.status = status;
         this.star = star;
+        this.rank = rank;
+    }
+
+    public int getRank() {
+        return rank;
+    }
+
+    public void setRank(int rank) {
+        this.rank = rank;
     }
 
     public long getId() {
@@ -50,11 +60,11 @@ public class TodoItem {
         this.date = date;
     }
 
-    public String getStatus() {
+    public int getStatus() {
         return status;
     }
 
-    public void setStatus(String status) {
+    public void setStatus(int status) {
         this.status = status;
     }
 
