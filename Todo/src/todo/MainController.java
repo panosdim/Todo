@@ -59,6 +59,7 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.media.Media;
@@ -136,8 +137,8 @@ public class MainController implements Initializable {
 
     //
     //private final String strikeThrough = getClass().getResource("sceneCSS.css").toExternalForm();
-    //@FXML
-    //private Label label;
+    @FXML
+    private Label tableLabel;
     @FXML
     private Button buttonShowOptions;
     //@FXML
@@ -322,6 +323,7 @@ public class MainController implements Initializable {
             case 0:
                 showDateStart = null;
                 onlyStarred = false;
+                tableLabel.setText("Todo Items");
                 description.setPromptText("Add new todo task");
                 //set visibility of show done button
                 buttonShowOptions.setVisible(true);
@@ -331,6 +333,7 @@ public class MainController implements Initializable {
             case 1:
                 showDateStart = null;
                 onlyStarred = true;
+                tableLabel.setText("Favorite Items");
                 //set visibility of show done button
                 buttonShowOptions.setVisible(false);
                 description.setPromptText("Add new favorite todo task");
@@ -340,6 +343,7 @@ public class MainController implements Initializable {
             case 2:
                 showDateStart = showDateEnd = LocalDate.now();
                 onlyStarred = false;
+                tableLabel.setText("Todo Items for today");
                 //set visibility of show done button
                 buttonShowOptions.setVisible(false);
                 description.setPromptText("Add new todo task for today");
@@ -349,6 +353,7 @@ public class MainController implements Initializable {
             case 3:
                 showDateStart = showDateEnd = LocalDate.now().plus(1, ChronoUnit.DAYS);
                 onlyStarred = false;
+                tableLabel.setText("Todo Items for tomorrow");
                 //set visibility of show done button
                 buttonShowOptions.setVisible(false);
                 description.setPromptText("Add new todo task for tomorrow");
@@ -361,6 +366,7 @@ public class MainController implements Initializable {
                 showDateStart = showDateEnd = LocalDate.now();
                 showDateEnd = LocalDate.now().plus(7, ChronoUnit.DAYS);
                 onlyStarred = false;
+                tableLabel.setText("Todo Items for upcoming week");
                 //set visibility of show done button
                 buttonShowOptions.setVisible(false);
                 description.setPromptText("Add new todo task for today");
@@ -373,6 +379,7 @@ public class MainController implements Initializable {
                 showDateStart = LocalDate.now();
                 showDateEnd = LocalDate.now().plus(showDateStart.lengthOfMonth(), ChronoUnit.DAYS);
                 onlyStarred = false;
+                tableLabel.setText("Todo Items for upcoming month");
                 //set visibility of show done button
                 buttonShowOptions.setVisible(false);
                 description.setPromptText("Add new todo task for today");
@@ -685,7 +692,7 @@ public class MainController implements Initializable {
         unstarItem.setOnAction(actionResetStarred);
         unstarItem.setGraphic(new ImageView("/todo/unstar.png"));
         emailItem.setOnAction(actionEmail);
-        emailItem.setGraphic(new ImageView("/todo/unstar.png"));
+        emailItem.setGraphic(new ImageView("/todo/email.png"));
         setAlarmSpinner.setGraphic(alarmSpinner);
         //setAlarmSpinner.
         //setAlarmSpinner.setOnAction(actionSetAlarm);
@@ -806,14 +813,18 @@ public class MainController implements Initializable {
     //build side menu
     private void buildSideMenu(int active, int favs, int today, int tomorrow, int week, int month) {
         menuItems.clear();
-        menuItems.add("Show All \t\t" + active);
+        menuItems.add("Show All \t\t\t\t" + active);
         menuItems.add("Show Favorites \t\t" + favs);
-        menuItems.add("Show Today \t\t" + today);
+        menuItems.add("Show Today \t\t\t" + today);
         menuItems.add("Show Tomorrow \t\t" + tomorrow);
-        menuItems.add("Show Week \t\t" + week);
-        menuItems.add("Show Month \t\t" + month);
+        menuItems.add("Show Week \t\t\t" + week);
+        menuItems.add("Show Month \t\t\t" + month);
 
         menuList.setItems(menuItems);
+        menuList.setFixedCellSize(30);
+        menuList.prefHeightProperty().bind(menuList.fixedCellSizeProperty().multiply(menuList.getItems().size()).add(1.01));
+        menuList.minHeightProperty().bind(menuList.prefHeightProperty());
+        menuList.maxHeightProperty().bind(menuList.prefHeightProperty());
     }
 
 //private method for refreshing list of tasks
@@ -857,7 +868,7 @@ public class MainController implements Initializable {
                 if (onlyStarred) {
                     //check star
                     if (allItems.get(i).getStar() == 1) {
-                        favs++;
+                        
                         activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm()));
                     }
                     //otherwise, check dates
@@ -1026,11 +1037,13 @@ public class MainController implements Initializable {
                         if (empty) {
                             setGraphic(null);
                         } else {
-                            if (item == 1) {
+                            if (item == 1) //{
+                            {
                                 setGraphic(new ImageView("/todo/star.png"));
-                            } else {
-                                setGraphic(new ImageView("/todo/unstar.png"));
                             }
+                            //} else {
+                            //    setGraphic(new ImageView("/todo/unstar.png"));
+                            //}
                         }
                     }
                 };
@@ -1177,7 +1190,11 @@ public class MainController implements Initializable {
         //tblitems.getStyleClass().add("strike");
         activeItemsTable.setEditable(true);
         activeItemsTable.setFixedCellSize(30);
-        activeItemsTable.prefHeightProperty().bind(activeItemsTable.fixedCellSizeProperty().multiply(activeItemsTable.getItems().size()).add(1.01));
+        if (activeItemsTable.getItems().size() == 0) {
+            activeItemsTable.prefHeightProperty().bind(activeItemsTable.fixedCellSizeProperty().multiply(activeItemsTable.getItems().size()));
+        } else {
+            activeItemsTable.prefHeightProperty().bind(activeItemsTable.fixedCellSizeProperty().multiply(activeItemsTable.getItems().size()).add(1.01));
+        }
         activeItemsTable.minHeightProperty().bind(activeItemsTable.prefHeightProperty());
         activeItemsTable.maxHeightProperty().bind(activeItemsTable.prefHeightProperty());
         activeItemsTable.widthProperty().addListener(new ChangeListener<Number>() {
@@ -1194,6 +1211,7 @@ public class MainController implements Initializable {
                 }
             }
         });
+        //activeItemsTable.setStyle("-fx-background-color: transparent; ");
     }
 
     //buildDoneTable

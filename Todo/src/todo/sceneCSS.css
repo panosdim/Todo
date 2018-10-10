@@ -7,11 +7,30 @@ and open the template in the editor.
     Created on : Sep 26, 2018, 3:14:30 PM
     Author     : aled
 */
-.table-row { text-color:  red; }
+.list-view { -fx-background-color: transparent; }
+.list-cell { -fx-background-color: transparent; 
+             -fx-text-fill: white}
+.list-cell:filled:selected:focused { -fx-text-fill: blue }
+
+
+#activeItemsTable {
+    -fx-background-color: transparent;
+}
+
+#tableLabel {
+    -fx-text-fill : white;
+    -fx-font-size: 20px;
+}
+
+
+#doneItemsTable .text {
+    -fx-strikethrough: true;
+}
 
 .root {
     -fx-background-image: url("bridge.jpg");
-    -fx-background-repeat: stretch;   
+    -fx-background-repeat: stretch;
+    -fx-opacity: 0.9;
     -fx-background-position: center center;
     -fx-background-size: cover;
 }

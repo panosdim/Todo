@@ -187,7 +187,8 @@ public class DBHandler {
 
             //UPDATE query is created WHERE id matches given id
             //SET Status = 1 (active)
-            String query = "UPDATE " + dbName + " SET Status = " + status + " WHERE id=" + id;
+            String query = "UPDATE " + dbName + " SET Status = " + status + ", alarm = null, Starred = 0 WHERE id=" + id;
+            
             System.out.println(query);
             statement.executeQuery(query);
         } catch (SQLException sQLException) {
