@@ -13,6 +13,7 @@ import java.net.URISyntaxException;
 import javafx.scene.input.MouseEvent;
 import java.net.URL;
 import static java.sql.JDBCType.NULL;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -20,11 +21,15 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -201,6 +206,10 @@ public class MainController implements Initializable {
     private TextField StatusEdit;
     @FXML
     private DatePicker datePickerEdit = new DatePicker();
+    @FXML
+    private Label clock;
+    final DateFormat format = DateFormat.getInstance();
+    Timeline timeline;
 
     //method handling tooltip in the left list via mouse 
     @FXML
@@ -522,8 +531,9 @@ public class MainController implements Initializable {
                 if (alarmSpinner.getValue() == null) {
                     //do nothing
                 } else {
-                    String spinnerTime = alarmSpinner.getValue().getHour() + ":" + alarmSpinner.getValue().getMinute();
+                    String spinnerTime = alarmSpinner.getValue().format(DateTimeFormatter.ofPattern("HH:mm"));
                     db.setAlarm(id, spinnerTime);
+
                     listTasks(onlyActive, onlyStarred);
                 }
 
@@ -868,7 +878,7 @@ public class MainController implements Initializable {
                 if (onlyStarred) {
                     //check star
                     if (allItems.get(i).getStar() == 1) {
-                        
+
                         activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm()));
                     }
                     //otherwise, check dates
@@ -1491,6 +1501,8 @@ public class MainController implements Initializable {
         setAlarm.setDisable(true);
     }
 
+
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
@@ -1499,6 +1511,28 @@ public class MainController implements Initializable {
         buildTableContextMenu();
 
         listTasks(onlyActive, onlyStarred);
+
+        timeline = new Timeline(new KeyFrame(Duration.seconds(1), (ActionEvent event) -> {
+            //final Calendar cal = Calendar.getInstance();
+            final String currentTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")).toString();
+            clock.setText(currentTime);
+            for (int i = 0; i < allItems.size(); i++) {
+                if (allItems.get(i).getAlarm() != null && allItems.get(i).getAlarm().equals(currentTime)) {
+                    String musicFile = "button-done.mp3";
+
+                    Media sound = new Media(new File(musicFile).toURI().toString());
+                    MediaPlayer mediaPlayer = new MediaPlayer(sound);
+                    mediaPlayer.play();
+                    db.setAlarm(allItems.get(i).getId(), null);
+                    listTasks(onlyActive, onlyStarred);
+
+                }
+            }
+        }));
+
+        timeline.setCycleCount(Animation.INDEFINITE);
+
+        timeline.play();
 
     }
 

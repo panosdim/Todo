@@ -17,14 +17,19 @@
     <children>
       <HBox spacing="15.0" AnchorPane.bottomAnchor="15.0" AnchorPane.leftAnchor="15.0" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="15.0">
          <children>
-            <ListView fx:id="menuList" onMouseClicked="#selectMenuList" onMouseMoved="#toolTipList" prefHeight="200.0" prefWidth="400.0" />
+            <VBox>
+               <children>
+                     <Label fx:id="clock" alignment="CENTER" contentDisplay="CENTER" text="clock" textAlignment="CENTER" />
+                  <ListView fx:id="menuList" onMouseClicked="#selectMenuList" onMouseMoved="#toolTipList" prefHeight="200.0" prefWidth="400.0" />
+               </children>
+            </VBox>
             <VBox prefHeight="649.0" prefWidth="865.0" spacing="15.0">
                <children>
                   <VBox prefHeight="686.0" prefWidth="866.0" spacing="15.0">
                      <children>
                         <HBox spacing="15.0">
                            <children>
-                              <TextField fx:id="description" onAction="#insertTextField" prefHeight="26.0" prefWidth="504.0" promptText="Add todo task">
+                              <TextField fx:id="description" onAction="#insertTextField" prefHeight="26.0" prefWidth="350.0" promptText="Add todo task">
                                  <tooltip>
                                     <Tooltip text="Add a new ToDo task" />
                                  </tooltip></TextField>
@@ -48,11 +53,11 @@
                            </children>
                         </HBox>
                         <Label fx:id="tableLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="150.0" text="Todo Items" textAlignment="CENTER" />
-                        <TableView fx:id="activeItemsTable" onMouseClicked="#selectTableItem" opacity="0.8"  prefHeight="560.0" prefWidth="735.0" >
+                        <TableView fx:id="activeItemsTable" onMouseClicked="#selectTableItem" opacity="0.8" prefHeight="560.0" prefWidth="735.0">
                           <columns>
 
                             <TableColumn fx:id="activeItemsTableColId" minWidth="40.0" prefWidth="40.0" text="ID" visible="false" />
-                            <TableColumn fx:id="activeItemsTableColDesc" minWidth="200.0" onEditCommit="#handleDescriptionEdit" prefWidth="400.0" text="Description"/>
+                            <TableColumn fx:id="activeItemsTableColDesc" minWidth="200.0" onEditCommit="#handleDescriptionEdit" prefWidth="400.0" text="Description" />
                               <TableColumn fx:id="activeItemsTableColDate" maxWidth="95.0" minWidth="95.0" prefWidth="95.0" text="Due Date" />
                               <TableColumn fx:id="activeItemsTableColStat" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" />
                               <TableColumn fx:id="activeItemsTableColStar" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" />
