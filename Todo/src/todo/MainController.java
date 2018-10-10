@@ -460,9 +460,26 @@ public class MainController implements Initializable {
     private void handleDatePicker() {
         localDate = datePicker.getValue();
         if (localDate != null) {
-            System.out.println(localDate.toString());
-            description.setPromptText("Add new todo task for selected date");
+            if (descriptionText != null) {
+                //create new item
+                db.insertToDoItem(descriptionText, 1, localDate.toString(), onlyStarred ? 1 : 0, allItems.size());
+                
+                //clear description field, ready for next task
+                description.clear();
 
+                //reset prompt text of textField
+                if (onlyStarred) description.setPromptText("Add new todo task...");
+                else description.setPromptText("Add new favorite todo task...");
+
+                //reset date in DatePicker
+                datePicker.setValue(null);
+
+                //refresh list of tasks after every task
+                listTasks(onlyActive, onlyStarred);
+            } else {
+                System.out.println(localDate.toString());
+                description.setPromptText("Add new todo task for selected date");
+            }
         } else {
             //buttonShowDate.setText("Show All Dates");
         }
@@ -729,37 +746,60 @@ public class MainController implements Initializable {
         //get description from textField
         descriptionText = description.getText();
         //save previous prompt text
-        String prevPromptText = description.getPromptText();
+        //String prevPromptText = description.getPromptText();
 
         if (localDate == null) {
 
             if (showDateStart == null) {
                 //insert new task with description and status=1 and date=today by default
-                db.insertToDoItem(descriptionText, 1, LocalDate.now().toString(), onlyStarred ? 1 : 0, allItems.size());
+                //db.insertToDoItem(descriptionText, 1, LocalDate.now().toString(), onlyStarred ? 1 : 0, allItems.size());
+                //datePicker.show();
+                datePicker.requestFocus();
             } else if (showDateStart == showDateEnd) {
                 //insert new task with description and status=1 and date=showDateStart (today or tomorrow only)
                 db.insertToDoItem(descriptionText, 1, showDateStart.toString(), onlyStarred ? 1 : 0, allItems.size());
+                //clear description field, ready for next task
+                description.clear();
+
+                //reset prompt text of textField
+                description.setPromptText("Add new todo task for today");
+
+                //reset date in DatePicker
+                datePicker.setValue(null);
+
+                //refresh list of tasks after every task
+                listTasks(onlyActive, onlyStarred);
             } else {
                 //insert new task with description and status=1 and date=today by default
                 db.insertToDoItem(descriptionText, 1, LocalDate.now().toString(), onlyStarred ? 1 : 0, allItems.size());
+                //clear description field, ready for next task
+                description.clear();
+
+                //reset prompt text of textField
+                description.setPromptText("Add new todo task...");
+
+                //reset date in DatePicker
+                datePicker.setValue(null);
+
+                //refresh list of tasks after every task
+                listTasks(onlyActive, onlyStarred);
             }
 
         } else {
             //insert new task with description and status=1 and set date
             db.insertToDoItem(descriptionText, 1, localDate.toString(), onlyStarred ? 1 : 0, allItems.size());
+            //clear description field, ready for next task
+            description.clear();
+
+            //reset prompt text of textField
+            description.setPromptText("Add a new Todo task...");
+
+            //reset date in DatePicker
+            datePicker.setValue(null);
+
+            //refresh list of tasks after every task
+            listTasks(onlyActive, onlyStarred);
         }
-
-        //clear description field, ready for next task
-        description.clear();
-
-        //reset prompt text of textField
-        description.setPromptText(prevPromptText);
-
-        //reset date in DatePicker
-        datePicker.setValue(null);
-
-        //refresh list of tasks after every task
-        listTasks(onlyActive, onlyStarred);
 
     }
 
@@ -1500,8 +1540,6 @@ public class MainController implements Initializable {
         removeAlarm.setDisable(true);
         setAlarm.setDisable(true);
     }
-
-
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
