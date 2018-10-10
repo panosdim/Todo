@@ -211,7 +211,34 @@ public class DBHandler {
             statement.executeQuery(query);
         } catch (SQLException sQLException) {
         }
-    }    
+    }   
+    
+    
+    //setAlarm
+    //This method changes rank of one entry from DB
+    //based on parameter id and rank
+    public void setAlarm(long id, String alarm) {
+
+        try {
+            Statement statement = con.createStatement();
+
+            statement.setQueryTimeout(30);  // set timeout to 30 sec.
+
+            //UPDATE query is created WHERE id matches given id
+            //SET Status = 1 (active)
+            String query;
+            if (alarm == null) {
+                query = "UPDATE " + dbName + " SET alarm = " + alarm + " WHERE id=" + id;
+            } else {
+                query = "UPDATE " + dbName + " SET alarm = '" + alarm + "' WHERE id=" + id;
+            }
+            
+            System.out.println(query);
+            statement.executeQuery(query);
+        } catch (SQLException sQLException) {
+        }
+    }      
+    
 
     // This method outputs the contents of the table Tasks
     // In the method, con is a Connection object and dbName is the name of 
@@ -239,7 +266,7 @@ public class DBHandler {
             ResultSet rs = statement.executeQuery(query);
             ArrayList<TodoItem> allItems = new ArrayList<TodoItem>();
             while(rs.next()) {
-                allItems.add(new TodoItem(rs.getInt("id"), rs.getString("description"), rs.getString("date"), rs.getInt("status"), rs.getInt("starred"), rs.getInt("rank")));
+                allItems.add(new TodoItem(rs.getInt("id"), rs.getString("description"), rs.getString("date"), rs.getInt("status"), rs.getInt("starred"), rs.getInt("rank"), rs.getString("alarm")));
             }
             return allItems;
         } catch (SQLException sQLException) {

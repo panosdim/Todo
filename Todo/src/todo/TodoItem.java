@@ -17,15 +17,16 @@ public class TodoItem {
     private int status;
     private int star;
     private int rank;
+    private String alarm;
 
-
-    public TodoItem(long id, String description, String date, int status, int star, int rank) {
+    public TodoItem(long id, String description, String date, int status, int star, int rank, String alarm) {
         this.id = id;
         this.description = description;
         this.date = date;
         this.status = status;
         this.star = star;
         this.rank = rank;
+        this.alarm = alarm;
     }
 
     public int getRank() {
@@ -75,4 +76,13 @@ public class TodoItem {
     public void setStar(int star) {
         this.star = star;
     }
+
+    public String getAlarm() {
+        return alarm;
+    }
+
+    public void setAlarm(String alarm) {
+        this.alarm = alarm;
+    }
+
 }

@@ -12,17 +12,21 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import javafx.scene.input.MouseEvent;
 import java.net.URL;
+import static java.sql.JDBCType.NULL;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.WeekFields;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -39,6 +43,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableColumn.CellEditEvent;
@@ -53,10 +59,13 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.Pane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.util.Callback;
+import javafx.util.Duration;
+import javafx.util.converter.LocalTimeStringConverter;
 
 /**
  *
@@ -91,6 +100,39 @@ public class MainController implements Initializable {
     MenuItem starItem = new MenuItem("Set Favorite");
     MenuItem unstarItem = new MenuItem("Unfavor");
     MenuItem emailItem = new MenuItem("Send email");
+    Menu setAlarm = new Menu("Set Alarm");
+    Spinner<LocalTime> alarmSpinner = new Spinner(new SpinnerValueFactory() {
+
+        {
+            setConverter(new LocalTimeStringConverter(DateTimeFormatter.ofPattern("HH:mm"), DateTimeFormatter.ofPattern("HH:mm")));
+        }
+
+        @Override
+        public void decrement(int steps) {
+            if (getValue() == null) {
+                setValue(LocalTime.now());
+            } else {
+                LocalTime time = (LocalTime) getValue();
+                setValue(time.minusMinutes(steps));
+            }
+        }
+
+        @Override
+        public void increment(int steps) {
+            if (this.getValue() == null) {
+                setValue(LocalTime.now());
+            } else {
+                LocalTime time = (LocalTime) getValue();
+                setValue(time.plusMinutes(steps));
+            }
+        }
+    });
+    //spinner.setEditable(true);
+    //Spinner minuteSpinner = new Spinner();
+    MenuItem setAlarmSpinner = new MenuItem();
+    MenuItem confirmAlarmSpinner = new MenuItem();
+    Button confirmAlarm = new Button("Set Alarm");
+    MenuItem removeAlarm = new MenuItem("Remove Alarm");
 
     //
     //private final String strikeThrough = getClass().getResource("sceneCSS.css").toExternalForm();
@@ -123,6 +165,8 @@ public class MainController implements Initializable {
     private TableColumn activeItemsTableColStar;
     @FXML
     private TableColumn activeItemsTableColRank;
+    @FXML
+    private TableColumn activeItemsTableColAlarm;
 
     @FXML
     private TableView<TodoItem> doneItemsTable = new TableView<TodoItem>();
@@ -464,6 +508,31 @@ public class MainController implements Initializable {
             }
         };
 
+        //Set Alarm
+        EventHandler<ActionEvent> actionSetAlarm = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                if (alarmSpinner.getValue() == null) {
+                    //do nothing
+                } else {
+                    String spinnerTime = alarmSpinner.getValue().getHour() + ":" + alarmSpinner.getValue().getMinute();
+                    db.setAlarm(id, spinnerTime);
+                    listTasks(onlyActive, onlyStarred);
+                }
+
+            }
+        };
+
+        //Delete Alarm
+        EventHandler<ActionEvent> actionRemoveAlarm = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                db.setAlarm(id, null);
+                listTasks(onlyActive, onlyStarred);
+
+            }
+        };
+
         //Delete
         EventHandler<ActionEvent> actionDelete = new EventHandler<ActionEvent>() {
             @Override
@@ -579,7 +648,7 @@ public class MainController implements Initializable {
                             String email = "javagroupc@intracom-telecom.com";
                             String subject = "Todo%20item%20info";
                             String body = "Todo%20Item%20'" + activeItemsTable.getItems().get(selectedRowIndex).getDescription() + "'%20is%20due%20on%20" + activeItemsTable.getItems().get(selectedRowIndex).getDate();
-                            body = body.replaceAll(" ","%20");
+                            body = body.replaceAll(" ", "%20");
                             URI mailto;
                             mailto = new URI("mailto:" + email + "?subject=" + subject + "&body=" + body);
                             desktop.mail(mailto);
@@ -617,8 +686,17 @@ public class MainController implements Initializable {
         unstarItem.setGraphic(new ImageView("/todo/unstar.png"));
         emailItem.setOnAction(actionEmail);
         emailItem.setGraphic(new ImageView("/todo/unstar.png"));
+        setAlarmSpinner.setGraphic(alarmSpinner);
+        //setAlarmSpinner.
+        //setAlarmSpinner.setOnAction(actionSetAlarm);
+        confirmAlarmSpinner.setGraphic(confirmAlarm);
+        confirmAlarmSpinner.setOnAction(actionSetAlarm);
+        setAlarm.getItems().addAll(setAlarmSpinner, confirmAlarmSpinner);
+        setAlarm.setGraphic(new ImageView("/todo/alarm-on.png"));
+        removeAlarm.setOnAction(actionRemoveAlarm);
+        removeAlarm.setGraphic(new ImageView("/todo/alarm-off.png"));
         //context menu for TableView
-        ContextMenu tableContextMenu = new ContextMenu(editItem, emailItem, starItem, unstarItem, setDueDate, setDoneMenuItem, setActiveItem, deleteMenuItem);
+        ContextMenu tableContextMenu = new ContextMenu(editItem, setAlarm, removeAlarm, emailItem, starItem, unstarItem, setDueDate, setDoneMenuItem, setActiveItem, deleteMenuItem);
 
         //set context menu for tblitems TableView object
         activeItemsTable.setContextMenu(tableContextMenu);
@@ -780,19 +858,19 @@ public class MainController implements Initializable {
                     //check star
                     if (allItems.get(i).getStar() == 1) {
                         favs++;
-                        activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank()));
+                        activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm()));
                     }
                     //otherwise, check dates
                 } else {
                     //check if showDate is set
                     if (showDateStart == null) {
                         //show all
-                        activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank()));
+                        activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm()));
                     } else {
                         //show only for selected date
                         if (showDateStart.toString().compareTo(allItems.get(i).getDate()) <= 0) {
                             if (showDateEnd.toString().compareTo(allItems.get(i).getDate()) >= 0) {
-                                activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank()));
+                                activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm()));
                             }
                         }
 
@@ -804,12 +882,12 @@ public class MainController implements Initializable {
                 //check if showDateStart is set
                 if (showDateStart == null) {
                     //show all
-                    doneItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank()));
+                    doneItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm()));
                 } else {
                     //show only for selected date
                     if (showDateStart.toString().compareTo(allItems.get(i).getDate()) <= 0) {
                         if (showDateEnd.toString().compareTo(allItems.get(i).getDate()) >= 0) {
-                            doneItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank()));
+                            doneItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm()));
                         }
                     }
                 }
@@ -1059,16 +1137,63 @@ public class MainController implements Initializable {
                 return row;
             });
         }
-        activeItemsTable.getColumns().setAll(activeItemsTableColStat, activeItemsTableColId, activeItemsTableColDesc, activeItemsTableColDate, activeItemsTableColStar, activeItemsTableColRank);
+
+        //tblColStat = new TableColumn("Status");
+        activeItemsTableColAlarm.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("alarm"));
+        //set tblColStar to button
+        Callback<TableColumn<TodoItem, String>, TableCell<TodoItem, String>> cellAlarmFactory;
+        cellAlarmFactory = new Callback<TableColumn<TodoItem, String>, TableCell<TodoItem, String>>() {
+            @Override
+            public TableCell<TodoItem, String> call(final TableColumn<TodoItem, String> param) {
+                final TableCell<TodoItem, String> cell = new TableCell<TodoItem, String>() {
+
+                    private ImageView star = new ImageView();
+
+                    @Override
+                    public void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty) {
+                            setGraphic(null);
+                        } else {
+                            if (item == null) {
+                                setGraphic(null);
+                            } else {
+                                setGraphic(new ImageView("/todo/alarm-on.png"));
+                            }
+                        }
+                    }
+                };
+
+                return cell;
+            }
+        };
+
+        activeItemsTableColAlarm.setCellFactory(cellAlarmFactory);
+
+        activeItemsTable.getColumns().setAll(activeItemsTableColStat, activeItemsTableColId, activeItemsTableColDesc, activeItemsTableColDate, activeItemsTableColStar, activeItemsTableColRank, activeItemsTableColAlarm);
         activeItemsTableColRank.setSortType(TableColumn.SortType.ASCENDING);
         //tblColStat.setSortType(TableColumn.SortType.DESCENDING);
         activeItemsTable.getSortOrder().setAll(activeItemsTableColRank);
         //tblitems.getStyleClass().add("strike");
         activeItemsTable.setEditable(true);
         activeItemsTable.setFixedCellSize(30);
-        activeItemsTable.prefHeightProperty().bind(activeItemsTable.fixedCellSizeProperty().multiply(activeItemsTable.getItems().size() + 1).add(1.01));
+        activeItemsTable.prefHeightProperty().bind(activeItemsTable.fixedCellSizeProperty().multiply(activeItemsTable.getItems().size()).add(1.01));
         activeItemsTable.minHeightProperty().bind(activeItemsTable.prefHeightProperty());
         activeItemsTable.maxHeightProperty().bind(activeItemsTable.prefHeightProperty());
+        activeItemsTable.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> source, Number oldWidth, Number newWidth) {
+
+                //Don't show header
+                Pane header = (Pane) activeItemsTable.lookup("TableHeaderRow");
+                if (header.isVisible()) {
+                    header.setMaxHeight(0);
+                    header.setMinHeight(0);
+                    header.setPrefHeight(0);
+                    header.setVisible(false);
+                }
+            }
+        });
     }
 
     //buildDoneTable
@@ -1277,9 +1402,24 @@ public class MainController implements Initializable {
         //tblitems.getStyleClass().add("strike");
         doneItemsTable.setEditable(true);
         doneItemsTable.setFixedCellSize(30);
-        doneItemsTable.prefHeightProperty().bind(doneItemsTable.fixedCellSizeProperty().multiply(doneItemsTable.getItems().size() + 1).add(1.01));
+        doneItemsTable.prefHeightProperty().bind(doneItemsTable.fixedCellSizeProperty().multiply(doneItemsTable.getItems().size()).add(1.01));
         doneItemsTable.minHeightProperty().bind(doneItemsTable.prefHeightProperty());
         doneItemsTable.maxHeightProperty().bind(doneItemsTable.prefHeightProperty());
+
+        doneItemsTable.widthProperty().addListener(new ChangeListener<Number>() {
+            @Override
+            public void changed(ObservableValue<? extends Number> source, Number oldWidth, Number newWidth) {
+
+                //Don't show header
+                Pane header = (Pane) doneItemsTable.lookup("TableHeaderRow");
+                if (header.isVisible()) {
+                    header.setMaxHeight(0);
+                    header.setMinHeight(0);
+                    header.setPrefHeight(0);
+                    header.setVisible(false);
+                }
+            }
+        });
     }
 
     //disable menu options based on items parameters
@@ -1303,6 +1443,14 @@ public class MainController implements Initializable {
             starItem.setDisable(false);
             unstarItem.setDisable(true);
         }
+
+        if (currentRow.getAlarm() == null) {
+            removeAlarm.setDisable(true);
+            setAlarm.setDisable(false);
+        } else {
+            removeAlarm.setDisable(false);
+            setAlarm.setDisable(true);
+        }
     }
 
     //disable menu options based on items parameters
@@ -1318,14 +1466,11 @@ public class MainController implements Initializable {
             emailItem.setDisable(false);
             setActiveItem.setDisable(true);
         }
-
-        if (currentRow.getStar() == 1) {
-            starItem.setDisable(true);
-            unstarItem.setDisable(false);
-        } else {
-            starItem.setDisable(false);
-            unstarItem.setDisable(true);
-        }
+        setDueDate.setDisable(true);
+        starItem.setDisable(true);
+        unstarItem.setDisable(true);
+        removeAlarm.setDisable(true);
+        setAlarm.setDisable(true);
     }
 
     @Override

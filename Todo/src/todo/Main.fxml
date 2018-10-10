@@ -47,7 +47,7 @@
                                  </tooltip></Button>
                            </children>
                         </HBox>
-                        <TableView fx:id="activeItemsTable" onMouseClicked="#selectTableItem" opacity="0.8" prefHeight="560.0" prefWidth="735.0">
+                        <TableView fx:id="activeItemsTable" onMouseClicked="#selectTableItem" opacity="0.8" prefHeight="560.0" prefWidth="735.0" >
                           <columns>
 
                             <TableColumn fx:id="activeItemsTableColId" minWidth="40.0" prefWidth="40.0" text="ID"  visible="false" />
@@ -55,6 +55,7 @@
                               <TableColumn fx:id="activeItemsTableColDate" maxWidth="95.0" minWidth="95.0" prefWidth="95.0" text="Due Date" />
                               <TableColumn fx:id="activeItemsTableColStat" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" />
                               <TableColumn fx:id="activeItemsTableColStar" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" />
+                              <TableColumn fx:id="activeItemsTableColAlarm" maxWidth="30.0" minWidth="30.0" prefWidth="30.0" />
                               <TableColumn fx:id="activeItemsTableColRank" maxWidth="30.0" minWidth="30.0" prefWidth="30.0"  visible="false"/>
 
                           </columns>
