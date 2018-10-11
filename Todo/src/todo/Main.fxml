@@ -48,7 +48,7 @@
                            <children>
                                 <Button fx:id="buttonHelp" mnemonicParsing="false" onAction="#handleButtonHelpAction" text="Help">
                                     <tooltip>
-                                    <Tooltip text="Shows help pdf" wrapText="true" />
+                                    <Tooltip text="Show help pdf" wrapText="true" />
                                  </tooltip></Button>
 
                               <Button fx:id="buttonDeleteAll" onAction="#handleButtonDeleteAllAction" text="Clear List">
@@ -75,9 +75,9 @@
                            </columnResizePolicy>
                         </TableView>
                         <Button fx:id="buttonShowOptions" mnemonicParsing="false" onAction="#handleButtonShowOptions" text="Show Done">
-                           <tooltip>
+                            <tooltip>
                               <Tooltip text="Show completed ToDo tasks" wrapText="true" />
-                           </tooltip>
+                            </tooltip>
                         </Button>
                         <TableView fx:id="doneItemsTable" onMouseClicked="#selectDoneTableItem" opacity="0.8" prefHeight="560.0" prefWidth="735.0">
                           <columns>
