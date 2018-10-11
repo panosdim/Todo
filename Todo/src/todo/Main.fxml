@@ -19,8 +19,13 @@
          <children>
             <VBox>
                <children>
-                     <Label fx:id="clock" alignment="CENTER" contentDisplay="CENTER" text="clock" textAlignment="CENTER" />
-                  <ListView fx:id="menuList" onMouseClicked="#selectMenuList" onMouseMoved="#toolTipList" prefHeight="200.0" prefWidth="420.0" />
+                  <HBox>
+                     <children>
+                           <Label fx:id="clock" alignment="CENTER" contentDisplay="CENTER" opacity="0.8" text="clock" textAlignment="CENTER" />
+                           <Label fx:id="seconds" alignment="CENTER" contentDisplay="CENTER" opacity="0.7" text="clock" textAlignment="CENTER" />
+                     </children>
+                  </HBox>
+                  <ListView fx:id="menuList" onMouseClicked="#selectMenuList" onMouseMoved="#toolTipList" opacity="0.8" prefHeight="200.0" prefWidth="420.0" />
                </children>
             </VBox>
             <VBox prefHeight="649.0" prefWidth="865.0" spacing="15.0">
@@ -52,7 +57,7 @@
                                  </tooltip></Button>
                            </children>
                         </HBox>
-                        <Label fx:id="tableLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="150.0" text="Todo Items" textAlignment="CENTER" />
+                        <Label fx:id="tableLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="150.0" opacity="0.8" text="Todo Items" textAlignment="CENTER" />
                         <TableView fx:id="activeItemsTable" onMouseClicked="#selectTableItem" opacity="0.8" prefHeight="560.0" prefWidth="735.0">
                           <columns>
 

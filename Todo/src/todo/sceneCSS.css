@@ -9,7 +9,8 @@ and open the template in the editor.
 */
 .list-view { -fx-background-color: transparent; }
 .list-cell { -fx-background-color: transparent; 
-             -fx-text-fill: white}
+             
+             -fx-font-weight: bold }
 .list-cell:filled:selected:focused { -fx-text-fill: blue }
 
 
@@ -18,21 +19,21 @@ and open the template in the editor.
 }
 
 #tableLabel {
-    -fx-text-fill : white;
+   -fx-font-weight: bold;
     -fx-font-size: 20px;
 }
 
 #clock {
-    -fx-text-fill : white;
+    -fx-font-weight: bold;
     -fx-font-size: 40px;
 }
 
-#doneItemsTable .text {
-    -fx-strikethrough: true;
+#seconds {
+    -fx-font-size: 20px;
 }
 
 .root {
-    -fx-background-image: url("bridge.jpg");
+    -fx-background-image: url("todo_background.jpg");
     -fx-background-repeat: stretch;
     -fx-opacity: 0.9;
     -fx-background-position: center center;

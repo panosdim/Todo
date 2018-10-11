@@ -69,6 +69,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaPlayer.Status;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import javafx.util.converter.LocalTimeStringConverter;
@@ -92,6 +93,8 @@ public class MainController implements Initializable {
     private LocalDate showDateEnd = null;
     private DataFormat SERIALIZED_MIME_TYPE = new DataFormat("application/x-java-serialized-object");
     private ArrayList<TodoItem> allItems; //stores all DB in ArrayList of TodoItem type
+    private long playAlarm = -1;
+    private String alarmDesc = null;
 
     //declarations of Menu Items
     MenuItem deleteMenuItem = new MenuItem("Delete Item");
@@ -208,6 +211,8 @@ public class MainController implements Initializable {
     private DatePicker datePickerEdit = new DatePicker();
     @FXML
     private Label clock;
+    @FXML
+    private Label seconds;
     final DateFormat format = DateFormat.getInstance();
     Timeline timeline;
 
@@ -474,6 +479,7 @@ public class MainController implements Initializable {
 
                 //clear description field, ready for next task
                 description.clear();
+                descriptionText = null;
 
                 //reset prompt text of textField
                 description.setPromptText("Add new todo task...");
@@ -482,7 +488,11 @@ public class MainController implements Initializable {
                 datePicker.setValue(null);
 
                 //refresh list of tasks after every task
-                listTasks(onlyActive, onlyStarred);
+                if (onlyStarred || showDateStart != null) {
+                    listTasks(true, onlyStarred);
+                } else {
+                    listTasks(onlyActive, onlyStarred);
+                }
             } else {
                 System.out.println(localDate.toString());
                 description.setPromptText("Add new todo task for selected date");
@@ -516,7 +526,11 @@ public class MainController implements Initializable {
                 Media sound = new Media(new File(musicFile).toURI().toString());
                 MediaPlayer mediaPlayer = new MediaPlayer(sound);
                 mediaPlayer.play();
-                listTasks(onlyActive, onlyStarred);
+                if (onlyStarred || showDateStart != null) {
+                    listTasks(true, onlyStarred);
+                } else {
+                    listTasks(onlyActive, onlyStarred);
+                }
 
             }
         };
@@ -535,7 +549,11 @@ public class MainController implements Initializable {
             @Override
             public void handle(ActionEvent event) {
                 db.changeStarred(id, 1);
-                listTasks(onlyActive, onlyStarred);
+                if (onlyStarred || showDateStart != null) {
+                    listTasks(true, onlyStarred);
+                } else {
+                    listTasks(onlyActive, onlyStarred);
+                }
             }
         };
 
@@ -544,7 +562,11 @@ public class MainController implements Initializable {
             @Override
             public void handle(ActionEvent event) {
                 db.changeStarred(id, 0);
-                listTasks(onlyActive, onlyStarred);
+                if (onlyStarred || showDateStart != null) {
+                    listTasks(true, onlyStarred);
+                } else {
+                    listTasks(onlyActive, onlyStarred);
+                }
             }
         };
 
@@ -558,7 +580,11 @@ public class MainController implements Initializable {
                     String spinnerTime = alarmSpinner.getValue().format(DateTimeFormatter.ofPattern("HH:mm"));
                     db.setAlarm(id, spinnerTime);
 
-                    listTasks(onlyActive, onlyStarred);
+                    if (onlyStarred || showDateStart != null) {
+                        listTasks(true, onlyStarred);
+                    } else {
+                        listTasks(onlyActive, onlyStarred);
+                    }
                 }
 
             }
@@ -569,7 +595,11 @@ public class MainController implements Initializable {
             @Override
             public void handle(ActionEvent event) {
                 db.setAlarm(id, null);
-                listTasks(onlyActive, onlyStarred);
+                if (onlyStarred || showDateStart != null) {
+                    listTasks(true, onlyStarred);
+                } else {
+                    listTasks(onlyActive, onlyStarred);
+                }
 
             }
         };
@@ -599,7 +629,11 @@ public class MainController implements Initializable {
                 if (result.get() == yesButton) {
                     db.deleteToDoItem(id);
                     //refresh list of tasks
-                    listTasks(onlyActive, onlyStarred);
+                    if (onlyStarred || showDateStart != null) {
+                        listTasks(true, onlyStarred);
+                    } else {
+                        listTasks(onlyActive, onlyStarred);
+                    }
                 } else if (result.get() == noButton) {
                     event.consume();
                 } else if (result.get() == cancelButton) {
@@ -627,7 +661,11 @@ public class MainController implements Initializable {
                 }
                 //reset date in DatePicker
                 menuDatePicker.setValue(null);
-                listTasks(onlyActive, onlyStarred);
+                if (onlyStarred || showDateStart != null) {
+                    listTasks(true, onlyStarred);
+                } else {
+                    listTasks(onlyActive, onlyStarred);
+                }
 
             }
         };
@@ -757,13 +795,13 @@ public class MainController implements Initializable {
             //if DatePicker is empty (no date seleceted)
             //set focus on DatePicker to choose one
             datePicker.requestFocus();
-            
 
         } else {
             //insert new task with description and status=1 and set date
             db.insertToDoItem(descriptionText, 1, localDate.toString(), onlyStarred ? 1 : 0, allItems.size());
             //clear description field, ready for next task
             description.clear();
+            descriptionText = null;
 
             //reset prompt text of textField
             description.setPromptText("Add a new Todo task...");
@@ -772,7 +810,11 @@ public class MainController implements Initializable {
             datePicker.setValue(null);
 
             //refresh list of tasks after every task
-            listTasks(onlyActive, onlyStarred);
+            if (onlyStarred || showDateStart != null) {
+                listTasks(true, onlyStarred);
+            } else {
+                listTasks(onlyActive, onlyStarred);
+            }
         }
 
     }
@@ -852,7 +894,7 @@ public class MainController implements Initializable {
     }
 
 //private method for refreshing list of tasks
-    private void listTasks(boolean onlyActive, boolean onlyStarred) {
+    private void listTasks(boolean showOnlyActive, boolean showOnlyStarred) {
 
         //read all DB and save to local variable 'toDoList'
         allItems = db.viewTable(/*onlyActive, onlyStarred*/);
@@ -889,7 +931,7 @@ public class MainController implements Initializable {
                     month++;
                 }
                 //check if only favorites
-                if (onlyStarred) {
+                if (showOnlyStarred) {
                     //check star
                     if (allItems.get(i).getStar() == 1) {
 
@@ -934,7 +976,7 @@ public class MainController implements Initializable {
         activeItemsTable.setItems(activeItems);
         doneItemsTable.setItems(doneItems);
 
-        doneItemsTable.setVisible(!onlyActive);
+        doneItemsTable.setVisible(!showOnlyActive);
 
         //build table's properties
         buildTable();
@@ -998,11 +1040,13 @@ public class MainController implements Initializable {
                         if (empty) {
                             setGraphic(null);
                         } else {
-                            if (item == 0) {
-                                setGraphic(new ImageView("/todo/checkbox-done.png"));
-                            } else {
-                                setGraphic(new ImageView("/todo/checkbox-empty.png"));
-                            }
+                            //if (item == 0) {
+                            //    setGraphic(new ImageView("/todo/checkbox-done.png"));
+                            //    setTooltip(new Tooltip("Press to put item to active again"));
+                            //} else {
+                            setGraphic(new ImageView("/todo/checkbox-empty.png"));
+                            setTooltip(new Tooltip("Press to put item to done"));
+                            //}
                         }
                     }
                 };
@@ -1064,24 +1108,32 @@ public class MainController implements Initializable {
                             if (item == 1) //{
                             {
                                 setGraphic(new ImageView("/todo/star.png"));
+                                setTooltip(new Tooltip("Press to remove from favorites"));
+
+                            } else {
+                                //setGraphic(new ImageView("/todo/unstar.png"));
+                                setTooltip(new Tooltip("Press to add to favorites"));
                             }
-                            //} else {
-                            //    setGraphic(new ImageView("/todo/unstar.png"));
-                            //}
                         }
                     }
                 };
 
-                cell.setOnMouseClicked((event) -> {
-                    if (cell.getItem() == 1) {
-                        cell.setItem(0);
-                    } else {
-                        cell.setItem(1);
-                    }
+                cell.setOnMouseClicked(
+                        (event) -> {
+                            if (cell.getItem() == 1) {
+                                cell.setItem(0);
+                            } else {
+                                cell.setItem(1);
+                            }
 
-                    db.changeStarred(activeItemsTable.getItems().get(activeItemsTable.getSelectionModel().getSelectedIndex()).getId(), cell.getItem());
-                    listTasks(onlyActive, onlyStarred);
-                });
+                            db.changeStarred(activeItemsTable.getItems().get(activeItemsTable.getSelectionModel().getSelectedIndex()).getId(), cell.getItem());
+                            if (onlyStarred || showDateStart != null) {
+                                listTasks(true, onlyStarred);
+                            } else {
+                                listTasks(onlyActive, onlyStarred);
+                            }
+                        }
+                );
 
                 return cell;
             }
@@ -1091,7 +1143,8 @@ public class MainController implements Initializable {
 
         //allow drag and drop only for full view of all active items
         //not favorites, not period => show all
-        if (!onlyStarred && showDateStart == null) {
+        if (!onlyStarred && showDateStart
+                == null) {
             activeItemsTable.setRowFactory(tv -> {
                 TableRow<TodoItem> row = new TableRow<>();
 
@@ -1166,7 +1219,11 @@ public class MainController implements Initializable {
                             }
                         }
 
-                        listTasks(onlyActive, onlyStarred);
+                        if (onlyStarred || showDateStart != null) {
+                            listTasks(true, onlyStarred);
+                        } else {
+                            listTasks(onlyActive, onlyStarred);
+                        }
                         event.consume();
                     }
                 });
@@ -1176,7 +1233,8 @@ public class MainController implements Initializable {
         }
 
         //tblColStat = new TableColumn("Status");
-        activeItemsTableColAlarm.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("alarm"));
+        activeItemsTableColAlarm.setCellValueFactory(
+                new PropertyValueFactory<TodoItem, String>("alarm"));
         //set tblColStar to button
         Callback<TableColumn<TodoItem, String>, TableCell<TodoItem, String>> cellAlarmFactory;
         cellAlarmFactory = new Callback<TableColumn<TodoItem, String>, TableCell<TodoItem, String>>() {
@@ -1188,6 +1246,7 @@ public class MainController implements Initializable {
 
                     @Override
                     public void updateItem(String item, boolean empty) {
+
                         super.updateItem(item, empty);
                         if (empty) {
                             setGraphic(null);
@@ -1196,6 +1255,7 @@ public class MainController implements Initializable {
                                 setGraphic(null);
                             } else {
                                 setGraphic(new ImageView("/todo/alarm-on.png"));
+                                setTooltip(new Tooltip(item));
                             }
                         }
                     }
@@ -1207,34 +1267,47 @@ public class MainController implements Initializable {
 
         activeItemsTableColAlarm.setCellFactory(cellAlarmFactory);
 
-        activeItemsTable.getColumns().setAll(activeItemsTableColStat, activeItemsTableColId, activeItemsTableColDesc, activeItemsTableColDate, activeItemsTableColStar, activeItemsTableColRank, activeItemsTableColAlarm);
+        activeItemsTable.getColumns()
+                .setAll(activeItemsTableColStat, activeItemsTableColId, activeItemsTableColDesc, activeItemsTableColDate, activeItemsTableColStar, activeItemsTableColRank, activeItemsTableColAlarm);
         activeItemsTableColRank.setSortType(TableColumn.SortType.ASCENDING);
         //tblColStat.setSortType(TableColumn.SortType.DESCENDING);
-        activeItemsTable.getSortOrder().setAll(activeItemsTableColRank);
+
+        activeItemsTable.getSortOrder()
+                .setAll(activeItemsTableColRank);
         //tblitems.getStyleClass().add("strike");
-        activeItemsTable.setEditable(true);
-        activeItemsTable.setFixedCellSize(30);
-        if (activeItemsTable.getItems().size() == 0) {
+        activeItemsTable.setEditable(
+                true);
+        activeItemsTable.setFixedCellSize(
+                30);
+        if (activeItemsTable.getItems()
+                .size() == 0) {
             activeItemsTable.prefHeightProperty().bind(activeItemsTable.fixedCellSizeProperty().multiply(activeItemsTable.getItems().size()));
         } else {
             activeItemsTable.prefHeightProperty().bind(activeItemsTable.fixedCellSizeProperty().multiply(activeItemsTable.getItems().size()).add(1.01));
         }
-        activeItemsTable.minHeightProperty().bind(activeItemsTable.prefHeightProperty());
-        activeItemsTable.maxHeightProperty().bind(activeItemsTable.prefHeightProperty());
-        activeItemsTable.widthProperty().addListener(new ChangeListener<Number>() {
-            @Override
-            public void changed(ObservableValue<? extends Number> source, Number oldWidth, Number newWidth) {
 
-                //Don't show header
-                Pane header = (Pane) activeItemsTable.lookup("TableHeaderRow");
-                if (header.isVisible()) {
-                    header.setMaxHeight(0);
-                    header.setMinHeight(0);
-                    header.setPrefHeight(0);
-                    header.setVisible(false);
+        activeItemsTable.minHeightProperty()
+                .bind(activeItemsTable.prefHeightProperty());
+        activeItemsTable.maxHeightProperty()
+                .bind(activeItemsTable.prefHeightProperty());
+        activeItemsTable.widthProperty()
+                .addListener(new ChangeListener<Number>() {
+                    @Override
+                    public void changed(ObservableValue<? extends Number> source, Number oldWidth,
+                            Number newWidth
+                    ) {
+
+                        //Don't show header
+                        Pane header = (Pane) activeItemsTable.lookup("TableHeaderRow");
+                        if (header.isVisible()) {
+                            header.setMaxHeight(0);
+                            header.setMinHeight(0);
+                            header.setPrefHeight(0);
+                            header.setVisible(false);
+                        }
+                    }
                 }
-            }
-        });
+                );
         //activeItemsTable.setStyle("-fx-background-color: transparent; ");
     }
 
@@ -1284,11 +1357,13 @@ public class MainController implements Initializable {
                         if (empty) {
                             setGraphic(null);
                         } else {
-                            if (item == 0) {
-                                setGraphic(new ImageView("/todo/checkbox-done.png"));
-                            } else {
-                                setGraphic(new ImageView("/todo/checkbox-empty.png"));
-                            }
+                            //if (item == 0) {
+                            setGraphic(new ImageView("/todo/checkbox-done.png"));
+                            setTooltip(new Tooltip("Press to put item to active again"));
+                            //} else {
+                            //    setGraphic(new ImageView("/todo/checkbox-empty.png"));
+                            //    setTooltip(new Tooltip("Press to put item to done"));
+                            //}
                         }
                     }
                 };
@@ -1515,6 +1590,46 @@ public class MainController implements Initializable {
         setAlarm.setDisable(true);
     }
 
+    private void executePlayAlarm(long itemId, String text) {
+
+        //reset alarm in DB
+        db.setAlarm(itemId, null);
+
+        //refresh list of tasks
+        if (onlyStarred || showDateStart != null) {
+            listTasks(true, onlyStarred);
+        } else {
+            listTasks(onlyActive, onlyStarred);
+        }
+
+        //play alarm
+        String musicFile = "alarm.mp3";
+        Media sound = new Media(new File(musicFile).toURI().toString());
+        MediaPlayer mediaPlayer = new MediaPlayer(sound);
+        if (!mediaPlayer.getStatus().equals(Status.PLAYING)) {
+            mediaPlayer.play();
+        }
+
+        //popup alert window
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setHeaderText("Todo item's: \"" + text + "\" reminder!");
+
+        Button okButton = new Button("Ok");
+
+        EventHandler<ActionEvent> okButtonPressed = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                alert.hide();
+
+            }
+        };
+
+        okButton.setOnAction(okButtonPressed);
+        //alert.setGraphic(okButton);
+        alert.show();
+
+    }
+
     @Override
     public void initialize(URL url, ResourceBundle rb) {
 
@@ -1523,20 +1638,18 @@ public class MainController implements Initializable {
         buildTableContextMenu();
 
         listTasks(onlyActive, onlyStarred);
-
+        
         timeline = new Timeline(new KeyFrame(Duration.seconds(1), (ActionEvent event) -> {
             //final Calendar cal = Calendar.getInstance();
+
             final String currentTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")).toString();
             clock.setText(currentTime);
+            final String secondsTime = LocalTime.now().format(DateTimeFormatter.ofPattern("ss")).toString();
+            seconds.setText(secondsTime);
             for (int i = 0; i < allItems.size(); i++) {
                 if (allItems.get(i).getAlarm() != null && allItems.get(i).getAlarm().equals(currentTime)) {
-                    String musicFile = "alarm.mp3";
-
-                    Media sound = new Media(new File(musicFile).toURI().toString());
-                    MediaPlayer mediaPlayer = new MediaPlayer(sound);
-                    mediaPlayer.play();
-                    db.setAlarm(allItems.get(i).getId(), null);
-                    listTasks(onlyActive, onlyStarred);
+                    //play alarm and continue scanning
+                    executePlayAlarm(allItems.get(i).getId(), allItems.get(i).getDescription());
 
                 }
             }
