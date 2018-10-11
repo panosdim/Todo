@@ -216,41 +216,42 @@ public class MainController implements Initializable {
     private void toolTipList(MouseEvent event) {
         //index from list of task is read via MouseEvent (any for now)
         int index = menuList.getSelectionModel().getSelectedIndex();
-        System.out.println(index);
+        //System.out.println(index);
         //if valid, it's used for menu actions (filtering items by dates)
         switch (index) {
             case -1:
                 break;
             case 0:
                 menuList.tooltipProperty();
-                menuList.setTooltip(new Tooltip("khdfbjkdsfhb"));
-                //menuList.setToolTipText("Search...");
-                System.out.println("test0");
+                menuList.setTooltip(new Tooltip("Show all active Todo tasks"));
+                //System.out.println("test0");
                 index = -1;
                 event.consume();
                 break;
             case 1:
-                System.out.println("test1");
+                menuList.tooltipProperty();
+                menuList.setTooltip(new Tooltip("Show all favourite Todo tasks"));
+                //System.out.println("test1");
                 index = -1;
                 event.consume();
                 break;
             case 2:
-                System.out.println("test2");
+                System.out.println("Show the active ToDo tasks for today");
                 index = -1;
                 event.consume();
                 break;
             case 3:
-                System.out.println("test3");
+                System.out.println("Show the active ToDo tasks for tomorrow");
                 index = -1;
                 event.consume();
                 break;
             case 4:
-                System.out.println("test4");
+                System.out.println("Show the active ToDo tasks for the upcoming week");
                 index = -1;
                 event.consume();
                 break;
             case 5:
-                System.out.println("test5");
+                System.out.println("Show the active ToDo tasks for the current month");
                 index = -1;
                 event.consume();
                 break;
@@ -446,9 +447,11 @@ public class MainController implements Initializable {
         if (onlyActive == true) {
             onlyActive = false;
             buttonShowOptions.setText("Hide Done");
+            buttonShowOptions.setTooltip(new Tooltip("Hide completed ToDo tasks"));
         } else {
             onlyActive = true;
             buttonShowOptions.setText("Show Done");
+            buttonShowOptions.setTooltip(new Tooltip("Show completed ToDo tasks"));
         }
 
         //refresh list of tasks
