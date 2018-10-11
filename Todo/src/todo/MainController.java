@@ -38,6 +38,7 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
@@ -56,6 +57,7 @@ import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -64,7 +66,9 @@ import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.media.Media;
@@ -192,7 +196,6 @@ public class MainController implements Initializable {
     @FXML
     private TableColumn doneItemsTableColRank;
 
-    @FXML
     private ListView menuList = new ListView<String>();
     @FXML
     private TilePane PaneEditItem;
@@ -213,8 +216,19 @@ public class MainController implements Initializable {
     private Label clock;
     @FXML
     private Label seconds;
+    @FXML
+    private BorderPane borderPane;
+    @FXML
+    private AnchorPane anchorPane;
+
     final DateFormat format = DateFormat.getInstance();
     Timeline timeline;
+    
+    //@FXML
+    private Label leftMenu = new Label("<<");
+
+    private BorderSlideBar leftFlapBar = new BorderSlideBar(220, leftMenu, Pos.BASELINE_LEFT, menuList);
+    private ToolBar toolbar = new ToolBar();
 
     //method handling tooltip in the left list via mouse 
     @FXML
@@ -323,94 +337,6 @@ public class MainController implements Initializable {
             id = -1;
 
         }
-    }
-
-    @FXML
-    private void selectMenuList(MouseEvent event) {
-
-        //index from list of task is read via MouseEvent (any for now)
-        int index = menuList.getSelectionModel().getSelectedIndex();
-
-        //if valid, it's used for menu actions (filtering items by dates)
-        switch (index) {
-            case -1:
-                break;
-            case 0:
-                showDateStart = null;
-                onlyStarred = false;
-                datePicker.setValue(null);
-                tableLabel.setText("Todo Items");
-                description.setPromptText("Add new todo task...");
-                //set visibility of show done button
-                buttonShowOptions.setVisible(true);
-                listTasks(onlyActive, onlyStarred);
-                index = -1;
-                break;
-            case 1:
-                showDateStart = null;
-                onlyStarred = true;
-                datePicker.setValue(null);
-                tableLabel.setText("Favorite Items");
-                //set visibility of show done button
-                buttonShowOptions.setVisible(false);
-                description.setPromptText("Add new todo task...");
-                listTasks(true, onlyStarred);
-                index = -1;
-                break;
-            case 2:
-                showDateStart = showDateEnd = LocalDate.now();
-                //preset DatePicker to current view date
-                datePicker.setValue(showDateStart);
-                onlyStarred = false;
-                tableLabel.setText("Todo Items for today");
-                //set visibility of show done button
-                buttonShowOptions.setVisible(false);
-                description.setPromptText("Add new todo task...");
-                listTasks(true, onlyStarred);
-                index = -1;
-                break;
-            case 3:
-                showDateStart = showDateEnd = LocalDate.now().plus(1, ChronoUnit.DAYS);
-                //preset DatePicker to current view date
-                datePicker.setValue(showDateStart);
-                onlyStarred = false;
-                tableLabel.setText("Todo Items for tomorrow");
-                //set visibility of show done button
-                buttonShowOptions.setVisible(false);
-                description.setPromptText("Add new todo task...");
-                listTasks(true, onlyStarred);
-                index = -1;
-                break;
-            case 4:
-                //showDateStart = LocalDate.now().with(WeekFields.of(Locale.FRANCE).dayOfWeek(), 1);
-                //showDateEnd = LocalDate.now().with(WeekFields.of(Locale.FRANCE).dayOfWeek(), 7);
-                showDateStart = LocalDate.now();
-                showDateEnd = LocalDate.now().plus(7, ChronoUnit.DAYS);
-                datePicker.setValue(null);
-                onlyStarred = false;
-                tableLabel.setText("Todo Items for upcoming week");
-                //set visibility of show done button
-                buttonShowOptions.setVisible(false);
-                description.setPromptText("Add new todo task...");
-                listTasks(true, onlyStarred);
-                index = -1;
-                break;
-            case 5:
-                //showDateStart = LocalDate.now().withDayOfMonth(1);
-                //showDateEnd = LocalDate.now().withDayOfMonth(showDateStart.lengthOfMonth());
-                showDateStart = LocalDate.now();
-                showDateEnd = LocalDate.now().plus(showDateStart.lengthOfMonth(), ChronoUnit.DAYS);
-                datePicker.setValue(null);
-                onlyStarred = false;
-                tableLabel.setText("Todo Items for upcoming month");
-                //set visibility of show done button
-                buttonShowOptions.setVisible(false);
-                description.setPromptText("Add new todo task...");
-                listTasks(true, onlyStarred);
-                index = -1;
-                break;
-        }
-
     }
 
     //method handling action on 'Clear list' button
@@ -890,7 +816,7 @@ public class MainController implements Initializable {
         menuItems.add("Show Month \t\t\t" + month);
 
         menuList.setItems(menuItems);
-        menuList.setFixedCellSize(30);
+        menuList.setFixedCellSize(40);
         menuList.prefHeightProperty().bind(menuList.fixedCellSizeProperty().multiply(menuList.getItems().size()).add(1.01));
         menuList.minHeightProperty().bind(menuList.prefHeightProperty());
         menuList.maxHeightProperty().bind(menuList.prefHeightProperty());
@@ -1640,8 +1566,100 @@ public class MainController implements Initializable {
         db = new DBHandler("tasks");
         buildTableContextMenu();
 
+        borderPane.setLeft(leftFlapBar);
+        toolbar.getItems().addAll(leftMenu);
+        anchorPane.getChildren().add(0,toolbar);
+        //description.setLayoutX(75);
+
+        menuList.setOnMouseClicked((event) -> {
+
+            //index from list of task is read via MouseEvent (any for now)
+            int index = menuList.getSelectionModel().getSelectedIndex();
+
+            //if valid, it's used for menu actions (filtering items by dates)
+            switch (index) {
+                case -1:
+                    break;
+                case 0:
+                    showDateStart = null;
+                    onlyStarred = false;
+                    datePicker.setValue(null);
+                    tableLabel.setText("Todo Items");
+                    description.setPromptText("Add new todo task...");
+                    //set visibility of show done button
+                    buttonShowOptions.setVisible(true);
+                    listTasks(onlyActive, onlyStarred);
+                    index = -1;
+                    break;
+                case 1:
+                    showDateStart = null;
+                    onlyStarred = true;
+                    datePicker.setValue(null);
+                    tableLabel.setText("Favorite Items");
+                    //set visibility of show done button
+                    buttonShowOptions.setVisible(false);
+                    description.setPromptText("Add new todo task...");
+                    listTasks(true, onlyStarred);
+                    index = -1;
+                    break;
+                case 2:
+                    showDateStart = showDateEnd = LocalDate.now();
+                    //preset DatePicker to current view date
+                    datePicker.setValue(showDateStart);
+                    onlyStarred = false;
+                    tableLabel.setText("Todo Items for today");
+                    //set visibility of show done button
+                    buttonShowOptions.setVisible(false);
+                    description.setPromptText("Add new todo task...");
+                    listTasks(true, onlyStarred);
+                    index = -1;
+                    break;
+                case 3:
+                    showDateStart = showDateEnd = LocalDate.now().plus(1, ChronoUnit.DAYS);
+                    //preset DatePicker to current view date
+                    datePicker.setValue(showDateStart);
+                    onlyStarred = false;
+                    tableLabel.setText("Todo Items for tomorrow");
+                    //set visibility of show done button
+                    buttonShowOptions.setVisible(false);
+                    description.setPromptText("Add new todo task...");
+                    listTasks(true, onlyStarred);
+                    index = -1;
+                    break;
+                case 4:
+                    //showDateStart = LocalDate.now().with(WeekFields.of(Locale.FRANCE).dayOfWeek(), 1);
+                    //showDateEnd = LocalDate.now().with(WeekFields.of(Locale.FRANCE).dayOfWeek(), 7);
+                    showDateStart = LocalDate.now();
+                    showDateEnd = LocalDate.now().plus(7, ChronoUnit.DAYS);
+                    datePicker.setValue(null);
+                    onlyStarred = false;
+                    tableLabel.setText("Todo Items for upcoming week");
+                    //set visibility of show done button
+                    buttonShowOptions.setVisible(false);
+                    description.setPromptText("Add new todo task...");
+                    listTasks(true, onlyStarred);
+                    index = -1;
+                    break;
+                case 5:
+                    //showDateStart = LocalDate.now().withDayOfMonth(1);
+                    //showDateEnd = LocalDate.now().withDayOfMonth(showDateStart.lengthOfMonth());
+                    showDateStart = LocalDate.now();
+                    showDateEnd = LocalDate.now().plus(showDateStart.lengthOfMonth(), ChronoUnit.DAYS);
+                    datePicker.setValue(null);
+                    onlyStarred = false;
+                    tableLabel.setText("Todo Items for upcoming month");
+                    //set visibility of show done button
+                    buttonShowOptions.setVisible(false);
+                    description.setPromptText("Add new todo task...");
+                    listTasks(true, onlyStarred);
+                    index = -1;
+                    break;
+            }
+
+        });
+
         listTasks(onlyActive, onlyStarred);
-        
+
         timeline = new Timeline(new KeyFrame(Duration.seconds(1), (ActionEvent event) -> {
             //final Calendar cal = Calendar.getInstance();
 
