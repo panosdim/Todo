@@ -20,7 +20,7 @@
             <VBox>
                <children>
                      <Label fx:id="clock" alignment="CENTER" contentDisplay="CENTER" text="clock" textAlignment="CENTER" />
-                  <ListView fx:id="menuList" onMouseClicked="#selectMenuList" onMouseMoved="#toolTipList" prefHeight="200.0" prefWidth="400.0" />
+                  <ListView fx:id="menuList" onMouseClicked="#selectMenuList" onMouseMoved="#toolTipList" prefHeight="200.0" prefWidth="420.0" />
                </children>
             </VBox>
             <VBox prefHeight="649.0" prefWidth="865.0" spacing="15.0">

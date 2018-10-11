@@ -333,8 +333,9 @@ public class MainController implements Initializable {
             case 0:
                 showDateStart = null;
                 onlyStarred = false;
+                datePicker.setValue(null);
                 tableLabel.setText("Todo Items");
-                description.setPromptText("Add new todo task");
+                description.setPromptText("Add new todo task...");
                 //set visibility of show done button
                 buttonShowOptions.setVisible(true);
                 listTasks(onlyActive, onlyStarred);
@@ -343,43 +344,49 @@ public class MainController implements Initializable {
             case 1:
                 showDateStart = null;
                 onlyStarred = true;
+                datePicker.setValue(null);
                 tableLabel.setText("Favorite Items");
                 //set visibility of show done button
                 buttonShowOptions.setVisible(false);
-                description.setPromptText("Add new favorite todo task");
+                description.setPromptText("Add new todo task...");
                 listTasks(true, onlyStarred);
                 index = -1;
                 break;
             case 2:
                 showDateStart = showDateEnd = LocalDate.now();
+                //preset DatePicker to current view date
+                datePicker.setValue(showDateStart);
                 onlyStarred = false;
                 tableLabel.setText("Todo Items for today");
                 //set visibility of show done button
                 buttonShowOptions.setVisible(false);
-                description.setPromptText("Add new todo task for today");
+                description.setPromptText("Add new todo task...");
                 listTasks(true, onlyStarred);
                 index = -1;
                 break;
             case 3:
                 showDateStart = showDateEnd = LocalDate.now().plus(1, ChronoUnit.DAYS);
+                //preset DatePicker to current view date
+                datePicker.setValue(showDateStart);
                 onlyStarred = false;
                 tableLabel.setText("Todo Items for tomorrow");
                 //set visibility of show done button
                 buttonShowOptions.setVisible(false);
-                description.setPromptText("Add new todo task for tomorrow");
+                description.setPromptText("Add new todo task...");
                 listTasks(true, onlyStarred);
                 index = -1;
                 break;
             case 4:
                 //showDateStart = LocalDate.now().with(WeekFields.of(Locale.FRANCE).dayOfWeek(), 1);
                 //showDateEnd = LocalDate.now().with(WeekFields.of(Locale.FRANCE).dayOfWeek(), 7);
-                showDateStart = showDateEnd = LocalDate.now();
+                showDateStart = LocalDate.now();
                 showDateEnd = LocalDate.now().plus(7, ChronoUnit.DAYS);
+                datePicker.setValue(null);
                 onlyStarred = false;
                 tableLabel.setText("Todo Items for upcoming week");
                 //set visibility of show done button
                 buttonShowOptions.setVisible(false);
-                description.setPromptText("Add new todo task for today");
+                description.setPromptText("Add new todo task...");
                 listTasks(true, onlyStarred);
                 index = -1;
                 break;
@@ -388,11 +395,12 @@ public class MainController implements Initializable {
                 //showDateEnd = LocalDate.now().withDayOfMonth(showDateStart.lengthOfMonth());
                 showDateStart = LocalDate.now();
                 showDateEnd = LocalDate.now().plus(showDateStart.lengthOfMonth(), ChronoUnit.DAYS);
+                datePicker.setValue(null);
                 onlyStarred = false;
                 tableLabel.setText("Todo Items for upcoming month");
                 //set visibility of show done button
                 buttonShowOptions.setVisible(false);
-                description.setPromptText("Add new todo task for today");
+                description.setPromptText("Add new todo task...");
                 listTasks(true, onlyStarred);
                 index = -1;
                 break;
@@ -466,13 +474,12 @@ public class MainController implements Initializable {
             if (descriptionText != null) {
                 //create new item
                 db.insertToDoItem(descriptionText, 1, localDate.toString(), onlyStarred ? 1 : 0, allItems.size());
-                
+
                 //clear description field, ready for next task
                 description.clear();
 
                 //reset prompt text of textField
-                if (onlyStarred) description.setPromptText("Add new todo task...");
-                else description.setPromptText("Add new favorite todo task...");
+                description.setPromptText("Add new todo task...");
 
                 //reset date in DatePicker
                 datePicker.setValue(null);
@@ -748,45 +755,12 @@ public class MainController implements Initializable {
 
         //get description from textField
         descriptionText = description.getText();
-        //save previous prompt text
-        //String prevPromptText = description.getPromptText();
 
         if (localDate == null) {
-
-            if (showDateStart == null) {
-                //insert new task with description and status=1 and date=today by default
-                //db.insertToDoItem(descriptionText, 1, LocalDate.now().toString(), onlyStarred ? 1 : 0, allItems.size());
-                //datePicker.show();
-                datePicker.requestFocus();
-            } else if (showDateStart == showDateEnd) {
-                //insert new task with description and status=1 and date=showDateStart (today or tomorrow only)
-                db.insertToDoItem(descriptionText, 1, showDateStart.toString(), onlyStarred ? 1 : 0, allItems.size());
-                //clear description field, ready for next task
-                description.clear();
-
-                //reset prompt text of textField
-                description.setPromptText("Add new todo task for today");
-
-                //reset date in DatePicker
-                datePicker.setValue(null);
-
-                //refresh list of tasks after every task
-                listTasks(onlyActive, onlyStarred);
-            } else {
-                //insert new task with description and status=1 and date=today by default
-                db.insertToDoItem(descriptionText, 1, LocalDate.now().toString(), onlyStarred ? 1 : 0, allItems.size());
-                //clear description field, ready for next task
-                description.clear();
-
-                //reset prompt text of textField
-                description.setPromptText("Add new todo task...");
-
-                //reset date in DatePicker
-                datePicker.setValue(null);
-
-                //refresh list of tasks after every task
-                listTasks(onlyActive, onlyStarred);
-            }
+            //if DatePicker is empty (no date seleceted)
+            //set focus on DatePicker to choose one
+            datePicker.requestFocus();
+            
 
         } else {
             //insert new task with description and status=1 and set date
@@ -1559,7 +1533,7 @@ public class MainController implements Initializable {
             clock.setText(currentTime);
             for (int i = 0; i < allItems.size(); i++) {
                 if (allItems.get(i).getAlarm() != null && allItems.get(i).getAlarm().equals(currentTime)) {
-                    String musicFile = "button-done.mp3";
+                    String musicFile = "alarm.mp3";
 
                     Media sound = new Media(new File(musicFile).toURI().toString());
                     MediaPlayer mediaPlayer = new MediaPlayer(sound);
