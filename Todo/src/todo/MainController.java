@@ -228,7 +228,7 @@ public class MainController implements Initializable {
     private Label leftMenu = new Label("<<");
 
     private BorderSlideBar leftFlapBar = new BorderSlideBar(220, leftMenu, Pos.BASELINE_LEFT, menuList);
-    private ToolBar toolbar = new ToolBar();
+    //private ToolBar toolbar = new ToolBar();
 
     //method handling tooltip in the left list via mouse 
     @FXML
@@ -817,7 +817,7 @@ public class MainController implements Initializable {
 
         menuList.setItems(menuItems);
         menuList.setFixedCellSize(40);
-        menuList.prefHeightProperty().bind(menuList.fixedCellSizeProperty().multiply(menuList.getItems().size()).add(1.01));
+        menuList.prefHeightProperty().bind(menuList.fixedCellSizeProperty().multiply(menuList.getItems().size()).add(1.02));
         menuList.minHeightProperty().bind(menuList.prefHeightProperty());
         menuList.maxHeightProperty().bind(menuList.prefHeightProperty());
     }
@@ -1567,8 +1567,8 @@ public class MainController implements Initializable {
         buildTableContextMenu();
 
         borderPane.setLeft(leftFlapBar);
-        toolbar.getItems().addAll(leftMenu);
-        anchorPane.getChildren().add(0,toolbar);
+        //toolbar.getItems().addAll(leftMenu);
+        anchorPane.getChildren().add(0,leftMenu);
         //description.setLayoutX(75);
 
         menuList.setOnMouseClicked((event) -> {

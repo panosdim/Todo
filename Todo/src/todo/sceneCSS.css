@@ -32,8 +32,14 @@ and open the template in the editor.
     -fx-font-size: 20px;
 }
 
-#controlLabel {
+.toolbar {
     -fx-background-color: transparent;
+}
+
+#leftMenu {
+    -background-color: transparent;
+    -font-weight: bold;
+    -font-size: 30px;
 }
 
 .root {

@@ -12,6 +12,7 @@ import javafx.event.EventHandler;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
@@ -39,6 +40,7 @@ public class BorderSlideBar extends VBox {
      * </pre>
      *
      * @param expandedSize The size of the panel.
+     * @param controlLabel
      * @param controlButton The button responsible to open/close slide bar.
      * @param location The location of the panel (TOP_LEFT, BOTTOM_LEFT,
      * BASELINE_RIGHT, BASELINE_LEFT).
@@ -63,8 +65,67 @@ public class BorderSlideBar extends VBox {
 
         // Add nodes in the vbox
         getChildren().addAll(nodes);
-
+        
+        
+        //controlLabel.setGraphic(new ImageView("/todo/left_menu.png"));
         controlLabel.setOnMouseClicked((event) -> {
+
+                // Create an animation to hide the panel.
+          /*      final Animation hidePanel = new Transition() {
+                    {
+                        setCycleDuration(Duration.millis(250));
+                    }
+
+                    @Override
+                    protected void interpolate(double frac) {
+                        final double size = getExpandedSize() * (1.0 - frac);
+                        translateByPos(size);
+                    }
+                };
+
+                hidePanel.onFinishedProperty().set(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent actionEvent) {
+                        setVisible(false);
+                    }
+                });
+*/
+                // Create an animation to show the panel.
+                final Animation showPanel = new Transition() {
+                    {
+                        setCycleDuration(Duration.millis(250));
+                    }
+
+                    @Override
+                    protected void interpolate(double frac) {
+                        final double size = getExpandedSize() * frac;
+                        translateByPos(size);
+                    }
+                };
+
+                showPanel.onFinishedProperty().set(new EventHandler<ActionEvent>() {
+                    @Override
+                    public void handle(ActionEvent actionEvent) {
+                    }
+                });
+
+           //     if (showPanel.statusProperty().get() == Animation.Status.STOPPED
+                       // && hidePanel.statusProperty().get() == Animation.Status.STOPPED*/) {
+
+                 /*   if (isVisible()) {
+                        hidePanel.play();
+
+                    } else {*/
+                        setVisible(true);
+                        showPanel.play();
+                        controlLabel.setVisible(false);
+                        
+             //       }
+            //    }
+            
+        });
+        
+        setOnMouseExited((event) -> {
 
                 // Create an animation to hide the panel.
                 final Animation hidePanel = new Transition() {
@@ -85,7 +146,7 @@ public class BorderSlideBar extends VBox {
                         setVisible(false);
                     }
                 });
-
+/*
                 // Create an animation to show the panel.
                 final Animation showPanel = new Transition() {
                     {
@@ -108,16 +169,19 @@ public class BorderSlideBar extends VBox {
                 if (showPanel.statusProperty().get() == Animation.Status.STOPPED
                         && hidePanel.statusProperty().get() == Animation.Status.STOPPED) {
 
-                    if (isVisible()) {
+                    if (isVisible()) {*/
                         hidePanel.play();
-
+                        controlLabel.setVisible(true);
+/*
                     } else {
                         setVisible(true);
                         showPanel.play();
                     }
                 }
-            
-        });
+  */          
+        });        
+        
+        
     }
 
     /**
