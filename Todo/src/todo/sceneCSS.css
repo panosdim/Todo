@@ -25,7 +25,7 @@ and open the template in the editor.
 
 #clock {
     -fx-font-weight: bold;
-    -fx-font-size: 30px;
+    -fx-font-size: 20px;
 }
 
 #seconds {

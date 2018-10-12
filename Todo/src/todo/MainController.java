@@ -89,7 +89,7 @@ public class MainController implements Initializable {
     private long id = -1; //id read from DB used to delete single task
     private ObservableList<TodoItem> activeItems = FXCollections.observableArrayList(); //ObservableList of active items
     private ObservableList<TodoItem> doneItems = FXCollections.observableArrayList(); //ObservableList of done items
-    private ObservableList<String> menuItems = FXCollections.observableArrayList(); //ObservableList of items
+    private ObservableList<Label> menuItems = FXCollections.observableArrayList(); //ObservableList of items
     private boolean onlyActive = true; //used to view all items or only active ones, default=true
     private boolean onlyStarred = false;
     private LocalDate localDate = null; //used to read from DatePicker 
@@ -196,7 +196,7 @@ public class MainController implements Initializable {
     @FXML
     private TableColumn doneItemsTableColRank;
 
-    private ListView menuList = new ListView<String>();
+    private ListView menuList = new ListView<Label>();
     @FXML
     private TilePane PaneEditItem;
 
@@ -221,12 +221,12 @@ public class MainController implements Initializable {
 
     final DateFormat format = DateFormat.getInstance();
     Timeline timeline;
-    
+
     //@FXML
     private Label leftMenu = new Label("<<");
     private BorderSlideBar leftFlapBar = new BorderSlideBar(220, leftMenu, Pos.BASELINE_LEFT, menuList);
     //private ToolBar toolbar = new ToolBar();
-    
+
     //Nodes to appear in new right pane
     private Label descLabel = new Label("Description");
     private Label statusLabel = new Label("Status");
@@ -235,9 +235,9 @@ public class MainController implements Initializable {
     private TextField statusEdit = new TextField();
     private DatePicker dateEdit = new DatePicker();
     private Button updateButton = new Button("Update");
-    
+
     //control MenuItem is editItem from context menu
-    private BorderSlideBar2 rightFlapBar = new BorderSlideBar2(220, editItem, Pos.BASELINE_RIGHT, descLabel, descEdit, statusLabel, statusEdit, dueDateLabel, dateEdit, updateButton);    
+    private BorderSlideBar2 rightFlapBar = new BorderSlideBar2(220, editItem, Pos.BASELINE_RIGHT, descLabel, descEdit, statusLabel, statusEdit, dueDateLabel, dateEdit, updateButton);
 
     //method handling tooltip in the left list via mouse 
     @FXML
@@ -697,7 +697,7 @@ public class MainController implements Initializable {
         setDueDate.setGraphic(new ImageView("/todo/calendar.png"));
         //editItem.setOnAction(actionEdit);
         editItem.setGraphic(new ImageView("/todo/edit.png"));
-        
+
         starItem.setOnAction(actionSetStarred);
         starItem.setGraphic(new ImageView("/todo/star.png"));
         unstarItem.setOnAction(actionResetStarred);
@@ -818,19 +818,31 @@ public class MainController implements Initializable {
     //build side menu
     private void buildSideMenu(int active, int favs, int today, int tomorrow, int week, int month) {
         menuItems.clear();
-        menuItems.add("Show All \t\t\t\t" + active);
-        
-        menuItems.add("Show Favorites \t\t" + favs);
-        menuItems.add("Show Today \t\t\t" + today);
-        menuItems.add("Show Tomorrow \t\t" + tomorrow);
-        menuItems.add("Show Week \t\t\t" + week);
-        menuItems.add("Show Month \t\t\t" + month);
+        Label inboxList = new Label("Show All \t\t\t" + active);
+        inboxList.setGraphic(new ImageView("/todo/todo1_small.png"));
+        menuItems.add(inboxList);
+        Label favsList = new Label("Show Favorites \t" + favs);
+        favsList.setGraphic(new ImageView("/todo/star.png"));
+        menuItems.add(favsList);
+        Label todayList = new Label("Show Today \t\t" + today);
+        todayList.setGraphic(new ImageView("/todo/today.png"));
+        menuItems.add(todayList);
+        Label tomorrowList = new Label("Show Tomorrow \t" + tomorrow);
+        tomorrowList.setGraphic(new ImageView("/todo/tomorrow.jpg"));
+        menuItems.add(tomorrowList);
+        Label weekList = new Label("Show Week \t\t" + week);
+        weekList.setGraphic(new ImageView("/todo/week.png"));
+        menuItems.add(weekList);
+        Label monthList = new Label("Show Month \t\t" + month);
+        monthList.setGraphic(new ImageView("/todo/month.png"));
+        menuItems.add(monthList);
+        //menuItems.add("Show Month \t\t\t" + month);
 
         menuList.setItems(menuItems);
-        menuList.setFixedCellSize(40);
-        menuList.prefHeightProperty().bind(menuList.fixedCellSizeProperty().multiply(menuList.getItems().size()).add(1.02));
-        menuList.minHeightProperty().bind(menuList.prefHeightProperty());
-        menuList.maxHeightProperty().bind(menuList.prefHeightProperty());
+        menuList.setFixedCellSize(35);
+        //menuList.prefHeightProperty().bind(menuList.fixedCellSizeProperty().multiply(menuList.getItems().size()).add(1.02));
+        //menuList.minHeightProperty().bind(menuList.prefHeightProperty());
+        //menuList.maxHeightProperty().bind(menuList.prefHeightProperty());
     }
 
 //private method for refreshing list of tasks
@@ -1580,11 +1592,12 @@ public class MainController implements Initializable {
         borderPane.setLeft(leftFlapBar);
         borderPane.setRight(rightFlapBar);
         //toolbar.getItems().addAll(leftMenu);
-        anchorPane.getChildren().add(0,leftMenu);
+        anchorPane.getChildren().add(0, leftMenu);
+        //anchorPane.setH
         //description.setLayoutX(75);
         //rightEdit.setGraphic(new ImageView("/todo/edit.png"));
         //editItem.setGraphic(rightEdit);
-        
+
         menuList.setOnMouseClicked((event) -> {
 
             //index from list of task is read via MouseEvent (any for now)
