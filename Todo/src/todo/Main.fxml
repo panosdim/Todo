@@ -35,10 +35,9 @@
                                        </tooltip>
                                     </DatePicker>
                                        <Label fx:id="clock" alignment="CENTER" contentDisplay="CENTER" opacity="0.8" text="clock" textAlignment="CENTER" />
-                                       <Label fx:id="seconds" alignment="CENTER" contentDisplay="CENTER" opacity="0.7" text="clock" textAlignment="CENTER" />
                                  </children>
                               </HBox>
-                              <HBox spacing="15.0" VBox.vgrow="ALWAYS">
+                              <HBox maxHeight="50.0" prefHeight="50.0" spacing="15.0" VBox.vgrow="ALWAYS">
                                  <children>
                                       <Button fx:id="buttonHelp" mnemonicParsing="false" onAction="#handleButtonHelpAction" text="Help" HBox.hgrow="ALWAYS">
                                           <tooltip>

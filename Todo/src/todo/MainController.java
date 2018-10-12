@@ -215,8 +215,6 @@ public class MainController implements Initializable {
     @FXML
     private Label clock;
     @FXML
-    private Label seconds;
-    @FXML
     private BorderPane borderPane;
     @FXML
     private AnchorPane anchorPane;
@@ -1681,8 +1679,6 @@ public class MainController implements Initializable {
 
             final String currentTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")).toString();
             clock.setText(currentTime);
-            final String secondsTime = LocalTime.now().format(DateTimeFormatter.ofPattern("ss")).toString();
-            seconds.setText(secondsTime);
             for (int i = 0; i < allItems.size(); i++) {
                 if (allItems.get(i).getAlarm() != null && allItems.get(i).getAlarm().equals(currentTime)) {
                     //play alarm and continue scanning
