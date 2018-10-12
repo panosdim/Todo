@@ -821,6 +821,7 @@ public class MainController implements Initializable {
     private void buildSideMenu(int active, int favs, int today, int tomorrow, int week, int month) {
         menuItems.clear();
         menuItems.add("Show All \t\t\t\t" + active);
+        
         menuItems.add("Show Favorites \t\t" + favs);
         menuItems.add("Show Today \t\t\t" + today);
         menuItems.add("Show Tomorrow \t\t" + tomorrow);
