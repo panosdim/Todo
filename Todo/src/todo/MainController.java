@@ -226,9 +226,20 @@ public class MainController implements Initializable {
     
     //@FXML
     private Label leftMenu = new Label("<<");
-
     private BorderSlideBar leftFlapBar = new BorderSlideBar(220, leftMenu, Pos.BASELINE_LEFT, menuList);
     //private ToolBar toolbar = new ToolBar();
+    
+    //Nodes to appear in new right pane
+    private Label descLabel = new Label("Description");
+    private Label statusLabel = new Label("Status");
+    private Label dueDateLabel = new Label("Due Date");
+    private TextField descEdit = new TextField();
+    private TextField statusEdit = new TextField();
+    private DatePicker dateEdit = new DatePicker();
+    private Button updateButton = new Button("Update");
+    
+    //control MenuItem is editItem from context menu
+    private BorderSlideBar2 rightFlapBar = new BorderSlideBar2(220, editItem, Pos.BASELINE_RIGHT, descLabel, descEdit, statusLabel, statusEdit, dueDateLabel, dateEdit, updateButton);    
 
     //method handling tooltip in the left list via mouse 
     @FXML
@@ -686,8 +697,9 @@ public class MainController implements Initializable {
         setDueDatePicker.setOnAction(actionSetDueDate);
         setDueDate.getItems().addAll(/*setDueToday, setDueTomorrow,*/setDueDatePicker);
         setDueDate.setGraphic(new ImageView("/todo/calendar.png"));
-        editItem.setOnAction(actionEdit);
+        //editItem.setOnAction(actionEdit);
         editItem.setGraphic(new ImageView("/todo/edit.png"));
+        
         starItem.setOnAction(actionSetStarred);
         starItem.setGraphic(new ImageView("/todo/star.png"));
         unstarItem.setOnAction(actionResetStarred);
@@ -1567,10 +1579,13 @@ public class MainController implements Initializable {
         buildTableContextMenu();
 
         borderPane.setLeft(leftFlapBar);
+        borderPane.setRight(rightFlapBar);
         //toolbar.getItems().addAll(leftMenu);
         anchorPane.getChildren().add(0,leftMenu);
         //description.setLayoutX(75);
-
+        //rightEdit.setGraphic(new ImageView("/todo/edit.png"));
+        //editItem.setGraphic(rightEdit);
+        
         menuList.setOnMouseClicked((event) -> {
 
             //index from list of task is read via MouseEvent (any for now)

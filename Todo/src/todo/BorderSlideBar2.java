@@ -5,6 +5,7 @@
  */
 package todo;
 
+
 import javafx.animation.Animation;
 import javafx.animation.Transition;
 import javafx.event.ActionEvent;
@@ -13,6 +14,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuItem;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
@@ -20,7 +22,7 @@ import javafx.util.Duration;
 /**
  * Animates a node on and off screen to the top, right, bottom or left side.
  */
-public class BorderSlideBar extends VBox {
+public class BorderSlideBar2 extends VBox {
 
     //private final String CSS = "/" + this.getClass().getSimpleName() + ".css";
     private double expandedSize;
@@ -47,8 +49,8 @@ public class BorderSlideBar extends VBox {
      * BASELINE_RIGHT, BASELINE_LEFT).
      * @param nodes Nodes inside the panel.
      */
-    public BorderSlideBar(double expandedSize,
-            Label controlLabel, Pos location, Node... nodes) {
+    public BorderSlideBar2(double expandedSize,
+            MenuItem controlItem, Pos location, Node... nodes) {
 
         //getStyleClass().add("sidebar");
         //getStylesheets().add(CSS);        
@@ -67,8 +69,9 @@ public class BorderSlideBar extends VBox {
         // Add nodes in the vbox
         getChildren().addAll(nodes);
         
+        setSpacing(10);
         //controlLabel.setGraphic(new ImageView("/todo/left_menu.png"));
-        controlLabel.setOnMouseClicked((event) -> {
+        controlItem.setOnAction((event) -> {
 
                 // Create an animation to hide the panel.
           /*      final Animation hidePanel = new Transition() {
@@ -118,14 +121,14 @@ public class BorderSlideBar extends VBox {
                     } else {*/
                         setVisible(true);
                         showPanel.play();
-                        controlLabel.setVisible(false);
+                        
                         
              //       }
             //    }
             
         });
-        
-        setOnMouseExited((event) -> {
+        //Update button has to be always last element of vbox
+        getChildren().get(getChildren().size()-1).setOnMouseClicked((event) -> {
 
                 // Create an animation to hide the panel.
                 final Animation hidePanel = new Transition() {
@@ -171,7 +174,7 @@ public class BorderSlideBar extends VBox {
 
                     if (isVisible()) {*/
                         hidePanel.play();
-                        controlLabel.setVisible(true);
+                        
 /*
                     } else {
                         setVisible(true);
@@ -246,3 +249,4 @@ public class BorderSlideBar extends VBox {
     }
 
 }
+

@@ -89,16 +89,7 @@
                                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                                  </columnResizePolicy>
                               </TableView>                        
-                              <TilePane fx:id="PaneEditItem" visible="false">
-                                 <children>
-                                    <Label fx:id="Descriptionlabel" text="Description" textFill="WHITE" />
-                                    <TextField fx:id="descriptionEdit" />
-                                    <Label fx:id="Statuslabel" text="Status" textFill="WHITE" />
-                                    <TextField fx:id="StatusEdit" />
-                                    <Label fx:id="Duedatelabel" text="Due Date" textFill="WHITE" />
-                                    <DatePicker fx:id="datePickerEdit" />
-                                 </children>
-                              </TilePane>
+
                            </children>
                         </VBox>
                      </children>
