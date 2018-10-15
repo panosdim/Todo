@@ -65,6 +65,9 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Background;
@@ -99,6 +102,23 @@ public class MainController implements Initializable {
     private ArrayList<TodoItem> allItems; //stores all DB in ArrayList of TodoItem type
     private long playAlarm = -1;
     private String alarmDesc = null;
+    //shortcut ctrl+F to mark selected item as favorite, ctrl+U unfavor
+    private KeyCombination cntrlF = new KeyCodeCombination(KeyCode.F, KeyCodeCombination.CONTROL_DOWN);
+    private KeyCombination cntrlU = new KeyCodeCombination(KeyCode.U, KeyCodeCombination.CONTROL_DOWN);
+    
+    //shortcut ctrl+DEL to delete selected item
+    private KeyCombination buttonDelete = new KeyCodeCombination(KeyCode.DELETE);//, KeyCodeCombination.CONTROL_DOWN);
+    
+    //shortcut ctrl+D to set selected item to done, ctrl+A back to active
+    private KeyCombination cntrlD = new KeyCodeCombination(KeyCode.D, KeyCodeCombination.CONTROL_DOWN);
+    private KeyCombination cntrlA = new KeyCodeCombination(KeyCode.A, KeyCodeCombination.CONTROL_DOWN);
+    
+    //shortcut ctrl+E to edit selected item
+    private KeyCombination cntrlE = new KeyCodeCombination(KeyCode.E, KeyCodeCombination.CONTROL_DOWN);
+    
+    //shortcut ctrl+M to email selected item
+    private KeyCombination cntrlM = new KeyCodeCombination(KeyCode.M, KeyCodeCombination.CONTROL_DOWN);
+    
 
     //declarations of Menu Items
     MenuItem deleteMenuItem = new MenuItem("Delete Item");
@@ -684,10 +704,13 @@ public class MainController implements Initializable {
         //Assignment of actions to Menu Items
         setDoneMenuItem.setOnAction(actionSetDone);
         setDoneMenuItem.setGraphic(new ImageView("/todo/done.png"));
+        setDoneMenuItem.setAccelerator(cntrlD);
         setActiveItem.setOnAction(actionSetActive);
         setActiveItem.setGraphic(new ImageView("/todo/undo.png"));
+        setActiveItem.setAccelerator(cntrlA);
         deleteMenuItem.setOnAction(actionDelete);
         deleteMenuItem.setGraphic(new ImageView("/todo/delete.png"));
+        deleteMenuItem.setAccelerator(buttonDelete);
         //setDueDate.setOnAction(actionSetDueDate);
         //setDueToday.setOnAction(actionSetDueDateToday);
         //setDueTomorrow.setOnAction(actionSetDueDateTomorrow);
@@ -697,13 +720,17 @@ public class MainController implements Initializable {
         setDueDate.setGraphic(new ImageView("/todo/calendar.png"));
         //editItem.setOnAction(actionEdit);
         editItem.setGraphic(new ImageView("/todo/edit.png"));
+        editItem.setAccelerator(cntrlE);
 
         starItem.setOnAction(actionSetStarred);
         starItem.setGraphic(new ImageView("/todo/star.png"));
+        starItem.setAccelerator(cntrlF);
         unstarItem.setOnAction(actionResetStarred);
         unstarItem.setGraphic(new ImageView("/todo/unstar.png"));
+        unstarItem.setAccelerator(cntrlU);
         emailItem.setOnAction(actionEmail);
         emailItem.setGraphic(new ImageView("/todo/email.png"));
+        emailItem.setAccelerator(cntrlM);
         setAlarmSpinner.setGraphic(alarmSpinner);
         //setAlarmSpinner.
         //setAlarmSpinner.setOnAction(actionSetAlarm);
@@ -711,6 +738,7 @@ public class MainController implements Initializable {
         confirmAlarmSpinner.setOnAction(actionSetAlarm);
         setAlarm.getItems().addAll(setAlarmSpinner, confirmAlarmSpinner);
         setAlarm.setGraphic(new ImageView("/todo/alarm-on.png"));
+        
         removeAlarm.setOnAction(actionRemoveAlarm);
         removeAlarm.setGraphic(new ImageView("/todo/alarm-off.png"));
         //context menu for TableView
