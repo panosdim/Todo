@@ -28,8 +28,8 @@ and open the template in the editor.
     -fx-font-size: 20px;
 }
 
-#seconds {
-    -fx-font-size: 20px;
+#doneItemsTable .text {
+    -fx-strikethrough: true;
 }
 
 .toolbar {

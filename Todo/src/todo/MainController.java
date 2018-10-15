@@ -6,6 +6,7 @@
 package todo;
 
 import java.awt.Desktop;
+import javafx.scene.paint.Color;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -105,20 +106,19 @@ public class MainController implements Initializable {
     //shortcut ctrl+F to mark selected item as favorite, ctrl+U unfavor
     private KeyCombination cntrlF = new KeyCodeCombination(KeyCode.F, KeyCodeCombination.CONTROL_DOWN);
     private KeyCombination cntrlU = new KeyCodeCombination(KeyCode.U, KeyCodeCombination.CONTROL_DOWN);
-    
+
     //shortcut ctrl+DEL to delete selected item
     private KeyCombination buttonDelete = new KeyCodeCombination(KeyCode.DELETE);//, KeyCodeCombination.CONTROL_DOWN);
-    
+
     //shortcut ctrl+D to set selected item to done, ctrl+A back to active
     private KeyCombination cntrlD = new KeyCodeCombination(KeyCode.D, KeyCodeCombination.CONTROL_DOWN);
     private KeyCombination cntrlA = new KeyCodeCombination(KeyCode.A, KeyCodeCombination.CONTROL_DOWN);
-    
+
     //shortcut ctrl+E to edit selected item
     private KeyCombination cntrlE = new KeyCodeCombination(KeyCode.E, KeyCodeCombination.CONTROL_DOWN);
-    
+
     //shortcut ctrl+M to email selected item
     private KeyCombination cntrlM = new KeyCodeCombination(KeyCode.M, KeyCodeCombination.CONTROL_DOWN);
-    
 
     //declarations of Menu Items
     MenuItem deleteMenuItem = new MenuItem("Delete Item");
@@ -738,7 +738,7 @@ public class MainController implements Initializable {
         confirmAlarmSpinner.setOnAction(actionSetAlarm);
         setAlarm.getItems().addAll(setAlarmSpinner, confirmAlarmSpinner);
         setAlarm.setGraphic(new ImageView("/todo/alarm-on.png"));
-        
+
         removeAlarm.setOnAction(actionRemoveAlarm);
         removeAlarm.setGraphic(new ImageView("/todo/alarm-off.png"));
         //context menu for TableView
@@ -757,12 +757,12 @@ public class MainController implements Initializable {
 
         //get description from textField
         descriptionText = description.getText();
-
+        descriptionText = descriptionText.replaceAll("'", "''");
         if (localDate == null) {
             //if DatePicker is empty (no date seleceted)
             //set focus on DatePicker to choose one
             datePicker.requestFocus();
-
+            //datePicker.show();
         } else {
             //insert new task with description and status=1 and set date
             db.insertToDoItem(descriptionText, 1, localDate.toString(), onlyStarred ? 1 : 0, allItems.size());
@@ -848,21 +848,27 @@ public class MainController implements Initializable {
         menuItems.clear();
         Label inboxList = new Label("Show All \t\t\t" + active);
         inboxList.setGraphic(new ImageView("/todo/todo1_small.png"));
+        inboxList.setTooltip(new Tooltip("Show all items"));
         menuItems.add(inboxList);
         Label favsList = new Label("Show Favorites \t" + favs);
         favsList.setGraphic(new ImageView("/todo/star.png"));
+        favsList.setTooltip(new Tooltip("Show all favorite items"));
         menuItems.add(favsList);
         Label todayList = new Label("Show Today \t\t" + today);
         todayList.setGraphic(new ImageView("/todo/today.png"));
+        todayList.setTooltip(new Tooltip("Show all items for today"));
         menuItems.add(todayList);
         Label tomorrowList = new Label("Show Tomorrow \t" + tomorrow);
         tomorrowList.setGraphic(new ImageView("/todo/tomorrow.jpg"));
+        tomorrowList.setTooltip(new Tooltip("Show all items for tomorrow"));
         menuItems.add(tomorrowList);
         Label weekList = new Label("Show Week \t\t" + week);
         weekList.setGraphic(new ImageView("/todo/week.png"));
+        weekList.setTooltip(new Tooltip("Show all items for upcoming week"));
         menuItems.add(weekList);
         Label monthList = new Label("Show Month \t\t" + month);
         monthList.setGraphic(new ImageView("/todo/month.png"));
+        monthList.setTooltip(new Tooltip("Show all items for upcoming month"));
         menuItems.add(monthList);
         //menuItems.add("Show Month \t\t\t" + month);
 
@@ -982,6 +988,7 @@ public class MainController implements Initializable {
         Label tblColDescLabel = new Label("Description");
         tblColDescLabel.setTooltip(new Tooltip("This column shows the decription of the ToDo tasks."));
         activeItemsTableColDesc.setGraphic(tblColDescLabel);
+        /*
         activeItemsTableColDesc.setOnEditCommit(
                 new EventHandler<CellEditEvent<TodoItem, String>>() {
             @Override
@@ -994,6 +1001,7 @@ public class MainController implements Initializable {
             }
         }
         );
+        */
         //tblColDesc.isEditable();
 
         //tblColDate = new TableColumn("Date");
@@ -1003,8 +1011,45 @@ public class MainController implements Initializable {
         tblColDateLabel.setTooltip(new Tooltip("This column shows the due date of the ToDo tasks."));
         activeItemsTableColDate.setGraphic(tblColDateLabel);
 
+        Callback<TableColumn<TodoItem, String>, TableCell<TodoItem, String>> cellDateFactory;
+        cellDateFactory = new Callback<TableColumn<TodoItem, String>, TableCell<TodoItem, String>>() {
+            @Override
+            public TableCell<TodoItem, String> call(final TableColumn<TodoItem, String> param) {
+                final TableCell<TodoItem, String> cell = new TableCell<TodoItem, String>() {
+
+                    //private ImageView star = new ImageView();
+                    @Override
+                    public void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (!empty) {
+                            Date today = new Date();
+                            String todayString = new SimpleDateFormat("yyyy-MM-dd").format(today);
+
+                            //if today is more than dueDate, status is 'overdue', set text color to red
+                            if (todayString.compareTo(item) > 0) {
+                                this.setTextFill(Color.RED);
+                                this.setText(item);
+                                this.setTooltip(new Tooltip("this item is overdue!!!"));
+                                //System.out.println(item);
+                            } else {
+                                this.setTextFill(Color.BLACK);
+                                this.setTooltip(new Tooltip("due date"));
+                                this.setText(item);
+                                //System.out.println(item);
+
+                            }
+                        }
+                    }
+                };
+
+                return cell;
+            }
+        };
+        activeItemsTableColDate.setCellFactory(cellDateFactory);
+
         //tblColStat = new TableColumn("Status");
-        activeItemsTableColStat.setCellValueFactory(new PropertyValueFactory<TodoItem, Integer>("status"));
+        activeItemsTableColStat.setCellValueFactory(
+                new PropertyValueFactory<TodoItem, Integer>("status"));
         //set tblColStar to button
         Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>> cellDoneFactory;
         cellDoneFactory = new Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>>() {
@@ -1025,7 +1070,7 @@ public class MainController implements Initializable {
                             //    setTooltip(new Tooltip("Press to put item to active again"));
                             //} else {
                             setGraphic(new ImageView("/todo/checkbox-empty.png"));
-                            setTooltip(new Tooltip("Press to put item to done"));
+                            setTooltip(new Tooltip("Press to put item to done (ctrl+D)"));
                             //}
                         }
                     }
@@ -1054,20 +1099,28 @@ public class MainController implements Initializable {
 
         //tblColStat.setStyle("-fx-alignment: CENTER;");
         //tblColStat = new TableColumn("Rank");
-        activeItemsTableColRank.setCellValueFactory(new PropertyValueFactory<TodoItem, Integer>("rank"));
+        activeItemsTableColRank.setCellValueFactory(
+                new PropertyValueFactory<TodoItem, Integer>("rank"));
         //tblColStat = new TableColumn("Star");
-        activeItemsTableColStar.setCellValueFactory(new PropertyValueFactory<TodoItem, Integer>("star"));
+        activeItemsTableColStar.setCellValueFactory(
+                new PropertyValueFactory<TodoItem, Integer>("star"));
 
-        activeItemsTableColStat.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("status"));
+        activeItemsTableColStat.setCellValueFactory(
+                new PropertyValueFactory<TodoItem, String>("status"));
         //tblColStat.setStyle("-fx-alignment: CENTER;");
         Label tblColStatLabel = new Label("Status");
-        tblColStatLabel.setTooltip(new Tooltip("This column shows the status of the ToDo tasks. Types of status: Completed, Pending & Overdue"));
+
+        tblColStatLabel.setTooltip(
+                new Tooltip("This column shows the status of the ToDo tasks. Types of status: Completed, Pending & Overdue"));
         activeItemsTableColStat.setGraphic(tblColStatLabel);
 
         //tblColStat = new TableColumn("Status");
-        activeItemsTableColStar.setCellValueFactory(new PropertyValueFactory<TodoItem, Integer>("star"));
+        activeItemsTableColStar.setCellValueFactory(
+                new PropertyValueFactory<TodoItem, Integer>("star"));
         Label tblColStarLabel = new Label("");
-        tblColStarLabel.setTooltip(new Tooltip("This column shows the favourites ToDo tasks."));
+
+        tblColStarLabel.setTooltip(
+                new Tooltip("This column shows the favourites ToDo tasks."));
         activeItemsTableColStar.setGraphic(tblColStarLabel);
 
         //set tblColStar to button
@@ -1088,11 +1141,11 @@ public class MainController implements Initializable {
                             if (item == 1) //{
                             {
                                 setGraphic(new ImageView("/todo/star.png"));
-                                setTooltip(new Tooltip("Press to remove from favorites"));
+                                setTooltip(new Tooltip("Press to remove from favorites (ctrl+U)"));
 
                             } else {
                                 //setGraphic(new ImageView("/todo/unstar.png"));
-                                setTooltip(new Tooltip("Press to add to favorites"));
+                                setTooltip(new Tooltip("Press to add to favorites (ctrl+F)"));
                             }
                         }
                     }
@@ -1255,8 +1308,7 @@ public class MainController implements Initializable {
         activeItemsTable.getSortOrder()
                 .setAll(activeItemsTableColRank);
         //tblitems.getStyleClass().add("strike");
-        activeItemsTable.setEditable(
-                true);
+        //activeItemsTable.setEditable(true);
         activeItemsTable.setFixedCellSize(
                 30);
         if (activeItemsTable.getItems()
@@ -1339,7 +1391,7 @@ public class MainController implements Initializable {
                         } else {
                             //if (item == 0) {
                             setGraphic(new ImageView("/todo/checkbox-done.png"));
-                            setTooltip(new Tooltip("Press to put item to active again"));
+                            setTooltip(new Tooltip("Press to put item to active again (ctrl+A)"));
                             //} else {
                             //    setGraphic(new ImageView("/todo/checkbox-empty.png"));
                             //    setTooltip(new Tooltip("Press to put item to done"));
@@ -1497,7 +1549,7 @@ public class MainController implements Initializable {
         //tblColStat.setSortType(TableColumn.SortType.DESCENDING);
         doneItemsTable.getSortOrder().setAll(doneItemsTableColRank);
         //tblitems.getStyleClass().add("strike");
-        doneItemsTable.setEditable(true);
+        //doneItemsTable.setEditable(true);
         doneItemsTable.setFixedCellSize(30);
         doneItemsTable.prefHeightProperty().bind(doneItemsTable.fixedCellSizeProperty().multiply(doneItemsTable.getItems().size()).add(1.01));
         doneItemsTable.minHeightProperty().bind(doneItemsTable.prefHeightProperty());
@@ -1620,6 +1672,8 @@ public class MainController implements Initializable {
         borderPane.setLeft(leftFlapBar);
         borderPane.setRight(rightFlapBar);
         //toolbar.getItems().addAll(leftMenu);
+        leftMenu.setTooltip(new Tooltip("Open side menu"));
+        clock.setTooltip(new Tooltip("Current time"));
         anchorPane.getChildren().add(0, leftMenu);
         //anchorPane.setH
         //description.setLayoutX(75);
