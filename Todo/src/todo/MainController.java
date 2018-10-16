@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -44,9 +45,11 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -244,7 +247,7 @@ public class MainController implements Initializable {
 
     //@FXML
     private Label leftMenu = new Label("<<");
-    private BorderSlideBar leftFlapBar = new BorderSlideBar(210, leftMenu, Pos.BASELINE_LEFT, menuList);
+    private BorderSlideBar leftFlapBar = new BorderSlideBar(220, leftMenu, Pos.BASELINE_LEFT, menuList);
     //private ToolBar toolbar = new ToolBar();
 
     //Nodes to appear in new right pane
@@ -387,7 +390,7 @@ public class MainController implements Initializable {
         if (result.get() == yesButton) {
             db.deleteToDoItem();
             //refresh list of tasks
-            listTasks(onlyActive, onlyStarred);
+            listTasks(onlyActive, onlyStarred, true);
         } else if (result.get() == noButton) {
             event.consume();
         } else if (result.get() == cancelButton) {
@@ -423,7 +426,7 @@ public class MainController implements Initializable {
         }
 
         //refresh list of tasks
-        listTasks(onlyActive, onlyStarred);
+        listTasks(onlyActive, onlyStarred, false);
     }
 
     //handleDatePicker
@@ -447,9 +450,9 @@ public class MainController implements Initializable {
 
                 //refresh list of tasks after every task
                 if (onlyStarred || showDateStart != null) {
-                    listTasks(true, onlyStarred);
+                    listTasks(true, onlyStarred, true);
                 } else {
-                    listTasks(onlyActive, onlyStarred);
+                    listTasks(onlyActive, onlyStarred, true);
                 }
             } else {
                 System.out.println(localDate.toString());
@@ -479,15 +482,15 @@ public class MainController implements Initializable {
             @Override
             public void handle(ActionEvent event) {
                 db.changeItemStatus(id, 0);
-                String musicFile = "button-done.mp3";
+                String musicFile = "applause10.mp3";
 
                 Media sound = new Media(new File(musicFile).toURI().toString());
                 MediaPlayer mediaPlayer = new MediaPlayer(sound);
                 mediaPlayer.play();
                 if (onlyStarred || showDateStart != null) {
-                    listTasks(true, onlyStarred);
+                    listTasks(true, onlyStarred, true);
                 } else {
-                    listTasks(onlyActive, onlyStarred);
+                    listTasks(onlyActive, onlyStarred, true);
                 }
 
             }
@@ -498,7 +501,7 @@ public class MainController implements Initializable {
             @Override
             public void handle(ActionEvent event) {
                 db.changeItemStatus(id, 1);
-                listTasks(onlyActive, onlyStarred);
+                listTasks(onlyActive, onlyStarred, true);
             }
         };
 
@@ -508,9 +511,9 @@ public class MainController implements Initializable {
             public void handle(ActionEvent event) {
                 db.changeStarred(id, 1);
                 if (onlyStarred || showDateStart != null) {
-                    listTasks(true, onlyStarred);
+                    listTasks(true, onlyStarred, true);
                 } else {
-                    listTasks(onlyActive, onlyStarred);
+                    listTasks(onlyActive, onlyStarred, true);
                 }
             }
         };
@@ -521,9 +524,9 @@ public class MainController implements Initializable {
             public void handle(ActionEvent event) {
                 db.changeStarred(id, 0);
                 if (onlyStarred || showDateStart != null) {
-                    listTasks(true, onlyStarred);
+                    listTasks(true, onlyStarred, true);
                 } else {
-                    listTasks(onlyActive, onlyStarred);
+                    listTasks(onlyActive, onlyStarred, true);
                 }
             }
         };
@@ -539,9 +542,9 @@ public class MainController implements Initializable {
                     db.setAlarm(id, spinnerTime);
 
                     if (onlyStarred || showDateStart != null) {
-                        listTasks(true, onlyStarred);
+                        listTasks(true, onlyStarred, true);
                     } else {
-                        listTasks(onlyActive, onlyStarred);
+                        listTasks(onlyActive, onlyStarred, true);
                     }
                 }
 
@@ -554,9 +557,9 @@ public class MainController implements Initializable {
             public void handle(ActionEvent event) {
                 db.setAlarm(id, null);
                 if (onlyStarred || showDateStart != null) {
-                    listTasks(true, onlyStarred);
+                    listTasks(true, onlyStarred, true);
                 } else {
-                    listTasks(onlyActive, onlyStarred);
+                    listTasks(onlyActive, onlyStarred, true);
                 }
 
             }
@@ -588,9 +591,9 @@ public class MainController implements Initializable {
                     db.deleteToDoItem(id);
                     //refresh list of tasks
                     if (onlyStarred || showDateStart != null) {
-                        listTasks(true, onlyStarred);
+                        listTasks(true, onlyStarred, true);
                     } else {
-                        listTasks(onlyActive, onlyStarred);
+                        listTasks(onlyActive, onlyStarred, true);
                     }
                 } else if (result.get() == noButton) {
                     event.consume();
@@ -620,9 +623,9 @@ public class MainController implements Initializable {
                 //reset date in DatePicker
                 menuDatePicker.setValue(null);
                 if (onlyStarred || showDateStart != null) {
-                    listTasks(true, onlyStarred);
+                    listTasks(true, onlyStarred, true);
                 } else {
-                    listTasks(onlyActive, onlyStarred);
+                    listTasks(onlyActive, onlyStarred, true);
                 }
 
             }
@@ -779,9 +782,9 @@ public class MainController implements Initializable {
 
             //refresh list of tasks after every task
             if (onlyStarred || showDateStart != null) {
-                listTasks(true, onlyStarred);
+                listTasks(true, onlyStarred, true);
             } else {
-                listTasks(onlyActive, onlyStarred);
+                listTasks(onlyActive, onlyStarred, true);
             }
         }
 
@@ -878,13 +881,16 @@ public class MainController implements Initializable {
         menuList.prefHeightProperty().bind(menuList.fixedCellSizeProperty().multiply(menuList.getItems().size()).add(1.02));
         menuList.minHeightProperty().bind(menuList.prefHeightProperty());
         menuList.maxHeightProperty().bind(menuList.prefHeightProperty());
+
     }
 
 //private method for refreshing list of tasks
-    private void listTasks(boolean showOnlyActive, boolean showOnlyStarred) {
+    private void listTasks(boolean showOnlyActive, boolean showOnlyStarred, boolean refreshData) {
 
-        //read all DB and save to local variable 'toDoList'
-        allItems = db.viewTable(/*onlyActive, onlyStarred*/);
+        if (refreshData) {
+            //read all DB and save to local variable 'toDoList'
+            allItems = db.viewTable(/*onlyActive, onlyStarred*/);
+        }
 
         //clear ObservableList<TodoItem>
         activeItems.clear();
@@ -1083,13 +1089,13 @@ public class MainController implements Initializable {
                     } else {
                         cell.setItem(0);
                     }
-                    String musicFile = "button-done.mp3";
+                    String musicFile = "applause10.mp3";
 
                     Media sound = new Media(new File(musicFile).toURI().toString());
                     MediaPlayer mediaPlayer = new MediaPlayer(sound);
                     mediaPlayer.play();
                     db.changeItemStatus(activeItemsTable.getItems().get(activeItemsTable.getSelectionModel().getSelectedIndex()).getId(), cell.getItem());
-                    listTasks(onlyActive, onlyStarred);
+                    listTasks(onlyActive, onlyStarred, true);
                 });
 
                 return cell;
@@ -1162,9 +1168,9 @@ public class MainController implements Initializable {
 
                             db.changeStarred(activeItemsTable.getItems().get(activeItemsTable.getSelectionModel().getSelectedIndex()).getId(), cell.getItem());
                             if (onlyStarred || showDateStart != null) {
-                                listTasks(true, onlyStarred);
+                                listTasks(true, onlyStarred, true);
                             } else {
-                                listTasks(onlyActive, onlyStarred);
+                                listTasks(onlyActive, onlyStarred, true);
                             }
                         }
                 );
@@ -1254,9 +1260,9 @@ public class MainController implements Initializable {
                         }
 
                         if (onlyStarred || showDateStart != null) {
-                            listTasks(true, onlyStarred);
+                            listTasks(true, onlyStarred, true);
                         } else {
-                            listTasks(onlyActive, onlyStarred);
+                            listTasks(onlyActive, onlyStarred, true);
                         }
                         event.consume();
                     }
@@ -1364,7 +1370,7 @@ public class MainController implements Initializable {
                         t.getTablePosition().getRow())).setDescription(t.getNewValue());
 
                 db.editDescription(doneItemsTable.getItems().get(doneItemsTable.getSelectionModel().getSelectedIndex()).getId(), doneItemsTable.getItems().get(doneItemsTable.getSelectionModel().getSelectedIndex()).getDescription());
-                listTasks(onlyActive, onlyStarred);
+                listTasks(onlyActive, onlyStarred, true);
             }
         }
         );
@@ -1409,7 +1415,7 @@ public class MainController implements Initializable {
                     }
 
                     db.changeItemStatus(doneItemsTable.getItems().get(doneItemsTable.getSelectionModel().getSelectedIndex()).getId(), cell.getItem());
-                    listTasks(onlyActive, onlyStarred);
+                    listTasks(onlyActive, onlyStarred, true);
                 });
 
                 return cell;
@@ -1636,9 +1642,9 @@ public class MainController implements Initializable {
 
         //refresh list of tasks
         if (onlyStarred || showDateStart != null) {
-            listTasks(true, onlyStarred);
+            listTasks(true, onlyStarred, true);
         } else {
-            listTasks(onlyActive, onlyStarred);
+            listTasks(onlyActive, onlyStarred, true);
         }
 
         //play alarm
@@ -1704,7 +1710,7 @@ public class MainController implements Initializable {
                     description.setPromptText("Add new todo task...");
                     //set visibility of show done button
                     buttonShowOptions.setVisible(true);
-                    listTasks(onlyActive, onlyStarred);
+                    listTasks(onlyActive, onlyStarred, false);
                     index = -1;
                     break;
                 case 1:
@@ -1715,7 +1721,7 @@ public class MainController implements Initializable {
                     //set visibility of show done button
                     buttonShowOptions.setVisible(false);
                     description.setPromptText("Add new todo task...");
-                    listTasks(true, onlyStarred);
+                    listTasks(true, onlyStarred, false);
                     index = -1;
                     break;
                 case 2:
@@ -1727,7 +1733,7 @@ public class MainController implements Initializable {
                     //set visibility of show done button
                     buttonShowOptions.setVisible(false);
                     description.setPromptText("Add new todo task...");
-                    listTasks(true, onlyStarred);
+                    listTasks(true, onlyStarred, false);
                     index = -1;
                     break;
                 case 3:
@@ -1739,7 +1745,7 @@ public class MainController implements Initializable {
                     //set visibility of show done button
                     buttonShowOptions.setVisible(false);
                     description.setPromptText("Add new todo task...");
-                    listTasks(true, onlyStarred);
+                    listTasks(true, onlyStarred, false);
                     index = -1;
                     break;
                 case 4:
@@ -1753,7 +1759,7 @@ public class MainController implements Initializable {
                     //set visibility of show done button
                     buttonShowOptions.setVisible(false);
                     description.setPromptText("Add new todo task...");
-                    listTasks(true, onlyStarred);
+                    listTasks(true, onlyStarred, false);
                     index = -1;
                     break;
                 case 5:
@@ -1767,14 +1773,14 @@ public class MainController implements Initializable {
                     //set visibility of show done button
                     buttonShowOptions.setVisible(false);
                     description.setPromptText("Add new todo task...");
-                    listTasks(true, onlyStarred);
+                    listTasks(true, onlyStarred, false);
                     index = -1;
                     break;
             }
 
         });
 
-        listTasks(onlyActive, onlyStarred);
+        listTasks(onlyActive, onlyStarred, true);
 
         timeline = new Timeline(new KeyFrame(Duration.seconds(1), (ActionEvent event) -> {
             //final Calendar cal = Calendar.getInstance();

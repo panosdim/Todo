@@ -93,7 +93,7 @@ public class BorderSlideBar extends VBox {
             // Create an animation to show the panel.
             final Animation showPanel = new Transition() {
                 {
-                    setCycleDuration(Duration.millis(250));
+                    setCycleDuration(Duration.millis(500));
                 }
 
                 @Override
@@ -129,7 +129,7 @@ public class BorderSlideBar extends VBox {
             // Create an animation to hide the panel.
             final Animation hidePanel = new Transition() {
                 {
-                    setCycleDuration(Duration.millis(250));
+                    setCycleDuration(Duration.millis(500));
                 }
 
                 @Override

@@ -16,6 +16,7 @@ import javafx.scene.control.ToolBar;
 import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
+import javafx.stage.StageStyle;
 
 /**
  *
@@ -34,6 +35,12 @@ public class Todo extends Application {
         scene.getStylesheets().addAll(this.getClass().getResource("sceneCSS.css").toExternalForm());
         //stage.isResizable( );
         stage.setScene(scene);
+        //stage.initStyle(StageStyle.UNIFIED);
+        //stage.setIconified(true);
+        //stage.setOpacity(0);
+        //stage.setAlwaysOnTop(true);
+        
+        
         stage.show();
     }
 
