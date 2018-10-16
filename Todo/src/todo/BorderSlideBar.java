@@ -66,12 +66,12 @@ public class BorderSlideBar extends VBox {
 
         // Add nodes in the vbox
         getChildren().addAll(nodes);
-        
+
         //controlLabel.setGraphic(new ImageView("/todo/left_menu.png"));
         controlLabel.setOnMouseClicked((event) -> {
 
-                // Create an animation to hide the panel.
-          /*      final Animation hidePanel = new Transition() {
+            // Create an animation to hide the panel.
+            /*      final Animation hidePanel = new Transition() {
                     {
                         setCycleDuration(Duration.millis(250));
                     }
@@ -89,64 +89,63 @@ public class BorderSlideBar extends VBox {
                         setVisible(false);
                     }
                 });
-*/
-                // Create an animation to show the panel.
-                final Animation showPanel = new Transition() {
-                    {
-                        setCycleDuration(Duration.millis(250));
-                    }
+             */
+            // Create an animation to show the panel.
+            final Animation showPanel = new Transition() {
+                {
+                    setCycleDuration(Duration.millis(250));
+                }
 
-                    @Override
-                    protected void interpolate(double frac) {
-                        final double size = getExpandedSize() * frac;
-                        translateByPos(size);
-                    }
-                };
+                @Override
+                protected void interpolate(double frac) {
+                    final double size = getExpandedSize() * frac;
+                    translateByPos(size);
+                }
+            };
 
-                showPanel.onFinishedProperty().set(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent actionEvent) {
-                    }
-                });
+            showPanel.onFinishedProperty().set(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                }
+            });
 
-           //     if (showPanel.statusProperty().get() == Animation.Status.STOPPED
-                       // && hidePanel.statusProperty().get() == Animation.Status.STOPPED*/) {
+            if (showPanel.statusProperty().get() == Animation.Status.STOPPED /* && hidePanel.statusProperty().get() == Animation.Status.STOPPED*/) {
 
-                 /*   if (isVisible()) {
+                /*   if (isVisible()) {
                         hidePanel.play();
 
                     } else {*/
-                        setVisible(true);
-                        showPanel.play();
-                        controlLabel.setVisible(false);
-                        
-             //       }
-            //    }
-            
+                setVisible(true);
+                showPanel.play();
+                controlLabel.setVisible(false);
+
+                //       }
+            }
+
         });
-        
+
         setOnMouseExited((event) -> {
 
-                // Create an animation to hide the panel.
-                final Animation hidePanel = new Transition() {
-                    {
-                        setCycleDuration(Duration.millis(250));
-                    }
+            // Create an animation to hide the panel.
+            final Animation hidePanel = new Transition() {
+                {
+                    setCycleDuration(Duration.millis(250));
+                }
 
-                    @Override
-                    protected void interpolate(double frac) {
-                        final double size = getExpandedSize() * (1.0 - frac);
-                        translateByPos(size);
-                    }
-                };
+                @Override
+                protected void interpolate(double frac) {
+                    final double size = getExpandedSize() * (1.0 - frac);
+                    translateByPos(size);
+                }
+            };
 
-                hidePanel.onFinishedProperty().set(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent actionEvent) {
-                        setVisible(false);
-                    }
-                });
-/*
+            hidePanel.onFinishedProperty().set(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    setVisible(false);
+                }
+            });
+            /*
                 // Create an animation to show the panel.
                 final Animation showPanel = new Transition() {
                     {
@@ -165,23 +164,23 @@ public class BorderSlideBar extends VBox {
                     public void handle(ActionEvent actionEvent) {
                     }
                 });
+             */
+            if (/*showPanel.statusProperty().get() == Animation.Status.STOPPED
+                        &&*/hidePanel.statusProperty().get() == Animation.Status.STOPPED) {
 
-                if (showPanel.statusProperty().get() == Animation.Status.STOPPED
-                        && hidePanel.statusProperty().get() == Animation.Status.STOPPED) {
+                if (isVisible()) {
+                    hidePanel.play();
+                    controlLabel.setVisible(true);
 
-                    if (isVisible()) {*/
-                        hidePanel.play();
-                        controlLabel.setVisible(true);
-/*
-                    } else {
+                }
+                /*else {
                         setVisible(true);
                         showPanel.play();
                     }
-                }
-  */          
-        });        
-        
-        
+                 */            }
+
+        });
+
     }
 
     /**

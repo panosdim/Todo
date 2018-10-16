@@ -112,7 +112,7 @@ public class MainController implements Initializable {
 
     //shortcut ctrl+D to set selected item to done, ctrl+A back to active
     private KeyCombination cntrlD = new KeyCodeCombination(KeyCode.D, KeyCodeCombination.CONTROL_DOWN);
-    private KeyCombination cntrlA = new KeyCodeCombination(KeyCode.A, KeyCodeCombination.CONTROL_DOWN);
+    private KeyCombination cntrlS = new KeyCodeCombination(KeyCode.S, KeyCodeCombination.CONTROL_DOWN);
 
     //shortcut ctrl+E to edit selected item
     private KeyCombination cntrlE = new KeyCodeCombination(KeyCode.E, KeyCodeCombination.CONTROL_DOWN);
@@ -707,7 +707,7 @@ public class MainController implements Initializable {
         setDoneMenuItem.setAccelerator(cntrlD);
         setActiveItem.setOnAction(actionSetActive);
         setActiveItem.setGraphic(new ImageView("/todo/undo.png"));
-        setActiveItem.setAccelerator(cntrlA);
+        setActiveItem.setAccelerator(cntrlS);
         deleteMenuItem.setOnAction(actionDelete);
         deleteMenuItem.setGraphic(new ImageView("/todo/delete.png"));
         deleteMenuItem.setAccelerator(buttonDelete);
@@ -1002,7 +1002,7 @@ public class MainController implements Initializable {
             }
         }
         );
-        */
+         */
         //tblColDesc.isEditable();
 
         //tblColDate = new TableColumn("Date");
@@ -1552,10 +1552,16 @@ public class MainController implements Initializable {
         //tblitems.getStyleClass().add("strike");
         //doneItemsTable.setEditable(true);
         doneItemsTable.setFixedCellSize(30);
-        doneItemsTable.prefHeightProperty().bind(doneItemsTable.fixedCellSizeProperty().multiply(doneItemsTable.getItems().size()).add(1.01));
+        if (doneItemsTable.getItems()
+                .size() == 0) {
+            doneItemsTable.prefHeightProperty().bind(doneItemsTable.fixedCellSizeProperty().multiply(doneItemsTable.getItems().size()));
+        } else {
+
+            doneItemsTable.prefHeightProperty().bind(doneItemsTable.fixedCellSizeProperty().multiply(doneItemsTable.getItems().size()).add(1.01));
+
+        }
         doneItemsTable.minHeightProperty().bind(doneItemsTable.prefHeightProperty());
         doneItemsTable.maxHeightProperty().bind(doneItemsTable.prefHeightProperty());
-
         doneItemsTable.widthProperty().addListener(new ChangeListener<Number>() {
             @Override
             public void changed(ObservableValue<? extends Number> source, Number oldWidth, Number newWidth) {
