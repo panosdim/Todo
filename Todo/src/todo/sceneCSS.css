@@ -7,19 +7,44 @@ and open the template in the editor.
     Created on : Sep 26, 2018, 3:14:30 PM
     Author     : aled
 */
-.list-view { -fx-background-color: transparent; }
-.list-cell { -fx-background-color: transparent; 
-             
-             -fx-font-weight: bold }
-.list-cell:filled:selected:focused { -fx-text-fill: blue }
+.list-view { -fx-background-color: transparent;
 
+             -fx-selection-bar:green ;
+}
+
+.list-view .scroll-bar:vertical {
+    -fx-scale-x: 0;
+}
+
+.list-view .scroll-bar:horizontal {
+    -fx-scale-x: 0;
+}
+
+.list-cell { 
+    -fx-background-color: transparent; 
+    -fx-border-width: 1;
+    -fx-border-color: transparent, black;
+    -fx-border-opacity: 0.8;
+    -fx-font-weight: bold;
+}
+
+.list-cell:filled:hover {
+    -fx-background-color: #0093ff, transparent;
+    -fx-text-fill: white;
+}
+
+.list-cell:filled:selected:focused, .list-cell:filled:selected {
+    /* 3:, 4: */
+    -fx-background-color: linear-gradient(#333 0%, #777 25%, #aaa 75%, #eee 100%);
+    -fx-text-fill: white; /* 5 */
+}
 
 #activeItemsTable {
     -fx-background-color: transparent;
 }
 
 #tableLabel {
-   -fx-font-weight: bold;
+    -fx-font-weight: bold;
     -fx-font-size: 20px;
 }
 
@@ -30,16 +55,32 @@ and open the template in the editor.
 
 #doneItemsTable .text {
     -fx-strikethrough: true;
+    -fx-opacity: 0.8;
+    -background-color: transparent;
 }
 
 .toolbar {
     -fx-background-color: transparent;
 }
 
-#leftMenu {
-    -background-color: transparent;
-    -font-weight: bold;
-    -font-size: 30px;
+
+
+.button {
+    -fx-border-color: transparent, black;
+    -fx-border-opacity: 0.8;
+    -fx-border-width: 2;
+    -fx-background-radius: 0;
+    -fx-background-color: transparent;    
+}
+
+.button:pressed {
+    -fx-background-color: black;
+    -fx-text-fill: white;
+}
+
+.tooltip {
+    -fx-font-weight: normal;
+    -fx-strikethrough: false;
 }
 
 .root {

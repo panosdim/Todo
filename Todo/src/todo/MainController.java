@@ -244,7 +244,7 @@ public class MainController implements Initializable {
 
     //@FXML
     private Label leftMenu = new Label("<<");
-    private BorderSlideBar leftFlapBar = new BorderSlideBar(220, leftMenu, Pos.BASELINE_LEFT, menuList);
+    private BorderSlideBar leftFlapBar = new BorderSlideBar(210, leftMenu, Pos.BASELINE_LEFT, menuList);
     //private ToolBar toolbar = new ToolBar();
 
     //Nodes to appear in new right pane
@@ -757,6 +757,7 @@ public class MainController implements Initializable {
 
         //get description from textField
         descriptionText = description.getText();
+        //replace single quote with double single quote for SQL query
         descriptionText = descriptionText.replaceAll("'", "''");
         if (localDate == null) {
             //if DatePicker is empty (no date seleceted)
@@ -874,9 +875,9 @@ public class MainController implements Initializable {
 
         menuList.setItems(menuItems);
         menuList.setFixedCellSize(35);
-        //menuList.prefHeightProperty().bind(menuList.fixedCellSizeProperty().multiply(menuList.getItems().size()).add(1.02));
-        //menuList.minHeightProperty().bind(menuList.prefHeightProperty());
-        //menuList.maxHeightProperty().bind(menuList.prefHeightProperty());
+        menuList.prefHeightProperty().bind(menuList.fixedCellSizeProperty().multiply(menuList.getItems().size()).add(1.02));
+        menuList.minHeightProperty().bind(menuList.prefHeightProperty());
+        menuList.maxHeightProperty().bind(menuList.prefHeightProperty());
     }
 
 //private method for refreshing list of tasks

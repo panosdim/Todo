@@ -69,7 +69,7 @@ public class BorderSlideBar2 extends VBox {
         // Add nodes in the vbox
         getChildren().addAll(nodes);
         
-        setSpacing(10);
+        setSpacing(5);
         //setAlignment(Pos.CENTER_LEFT);
         //controlLabel.setGraphic(new ImageView("/todo/left_menu.png"));
         controlItem.setOnAction((event) -> {
