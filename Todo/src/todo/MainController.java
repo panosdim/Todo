@@ -81,6 +81,7 @@ import javafx.scene.layout.TilePane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import javafx.util.converter.LocalTimeStringConverter;
@@ -172,8 +173,6 @@ public class MainController implements Initializable {
 
     //
     //private final String strikeThrough = getClass().getResource("sceneCSS.css").toExternalForm();
-    @FXML
-    private Label tableLabel;
     @FXML
     private Button buttonShowOptions;
     //@FXML
@@ -424,7 +423,7 @@ public class MainController implements Initializable {
             buttonShowOptions.setText("Show Done");
             buttonShowOptions.setTooltip(new Tooltip("Show completed ToDo tasks"));
         }
-
+        
         //refresh list of tasks
         listTasks(onlyActive, onlyStarred, false);
     }
@@ -1706,47 +1705,55 @@ public class MainController implements Initializable {
                     showDateStart = null;
                     onlyStarred = false;
                     datePicker.setValue(null);
-                    tableLabel.setText("Todo Items");
+                    ((Stage)((ListView)event.getSource()).getScene().getWindow()).setTitle("Todo Items - All");
+                    //tableLabel.setText("Todo Items");
                     description.setPromptText("Add new todo task...");
                     //set visibility of show done button
                     buttonShowOptions.setVisible(true);
                     listTasks(onlyActive, onlyStarred, false);
-                    index = -1;
+                    //index = -1;
+                    
                     break;
                 case 1:
                     showDateStart = null;
                     onlyStarred = true;
                     datePicker.setValue(null);
-                    tableLabel.setText("Favorite Items");
+                    
+                    //tableLabel.setText("Favorite Items");
                     //set visibility of show done button
                     buttonShowOptions.setVisible(false);
                     description.setPromptText("Add new todo task...");
                     listTasks(true, onlyStarred, false);
-                    index = -1;
+                    //index = -1;
+                    ((Stage)((ListView)event.getSource()).getScene().getWindow()).setTitle("Todo Items - Favorites");
                     break;
                 case 2:
                     showDateStart = showDateEnd = LocalDate.now();
                     //preset DatePicker to current view date
                     datePicker.setValue(showDateStart);
                     onlyStarred = false;
-                    tableLabel.setText("Todo Items for today");
+                    
+                    //tableLabel.setText("Todo Items for today");
                     //set visibility of show done button
                     buttonShowOptions.setVisible(false);
                     description.setPromptText("Add new todo task...");
                     listTasks(true, onlyStarred, false);
-                    index = -1;
+                    //index = -1;
+                    ((Stage)((ListView)event.getSource()).getScene().getWindow()).setTitle("Todo Items - Today");
                     break;
                 case 3:
                     showDateStart = showDateEnd = LocalDate.now().plus(1, ChronoUnit.DAYS);
                     //preset DatePicker to current view date
                     datePicker.setValue(showDateStart);
                     onlyStarred = false;
-                    tableLabel.setText("Todo Items for tomorrow");
+                    
+                    //tableLabel.setText("Todo Items for tomorrow");
                     //set visibility of show done button
                     buttonShowOptions.setVisible(false);
                     description.setPromptText("Add new todo task...");
                     listTasks(true, onlyStarred, false);
-                    index = -1;
+                    //index = -1;
+                    ((Stage)((ListView)event.getSource()).getScene().getWindow()).setTitle("Todo Items - Tomorrow");
                     break;
                 case 4:
                     //showDateStart = LocalDate.now().with(WeekFields.of(Locale.FRANCE).dayOfWeek(), 1);
@@ -1755,12 +1762,14 @@ public class MainController implements Initializable {
                     showDateEnd = LocalDate.now().plus(7, ChronoUnit.DAYS);
                     datePicker.setValue(null);
                     onlyStarred = false;
-                    tableLabel.setText("Todo Items for upcoming week");
+                    
+                    //tableLabel.setText("Todo Items for upcoming week");
                     //set visibility of show done button
                     buttonShowOptions.setVisible(false);
                     description.setPromptText("Add new todo task...");
                     listTasks(true, onlyStarred, false);
-                    index = -1;
+                    //index = -1;
+                    ((Stage)((ListView)event.getSource()).getScene().getWindow()).setTitle("Todo Items - Upcoming Week");
                     break;
                 case 5:
                     //showDateStart = LocalDate.now().withDayOfMonth(1);
@@ -1769,14 +1778,17 @@ public class MainController implements Initializable {
                     showDateEnd = LocalDate.now().plus(showDateStart.lengthOfMonth(), ChronoUnit.DAYS);
                     datePicker.setValue(null);
                     onlyStarred = false;
-                    tableLabel.setText("Todo Items for upcoming month");
+                    
+                    //tableLabel.setText("Todo Items for upcoming month");
                     //set visibility of show done button
                     buttonShowOptions.setVisible(false);
                     description.setPromptText("Add new todo task...");
                     listTasks(true, onlyStarred, false);
-                    index = -1;
+                    //index = -1;
+                    ((Stage)((ListView)event.getSource()).getScene().getWindow()).setTitle("Todo Items - Upcoming Month");
                     break;
             }
+            event.consume();
 
         });
 

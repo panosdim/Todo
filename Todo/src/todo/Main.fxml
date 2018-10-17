@@ -52,7 +52,7 @@
                                                 </Button>
                                             </children>
                                         </HBox>
-                                        <Label fx:id="tableLabel" alignment="CENTER" contentDisplay="CENTER" layoutX="150.0" opacity="0.8" text="Todo Items" textAlignment="CENTER" />
+                                        
                                         <TableView fx:id="activeItemsTable" onMouseClicked="#selectTableItem" opacity="0.8" prefHeight="560.0" prefWidth="735.0" VBox.vgrow="ALWAYS">
                                             <placeholder>
                                                 <Label text=""/>

@@ -30,12 +30,12 @@ public class Todo extends Application {
         Parent root = FXMLLoader.load(getClass().getResource("Main.fxml"));
         Scene scene = new Scene(root);
         stage.getIcons().add(new Image(getClass().getResourceAsStream("todo1.png")));
-        stage.setTitle("ToDo v0.4");
+        stage.setTitle("Todo Items");
         //set background photo
         scene.getStylesheets().addAll(this.getClass().getResource("sceneCSS.css").toExternalForm());
         //stage.isResizable( );
         stage.setScene(scene);
-        //stage.initStyle(StageStyle.UNIFIED);
+        stage.initStyle(StageStyle.DECORATED);
         //stage.setIconified(true);
         //stage.setOpacity(0);
         //stage.setAlwaysOnTop(true);
