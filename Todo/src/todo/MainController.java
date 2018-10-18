@@ -93,12 +93,14 @@ import javafx.util.converter.LocalTimeStringConverter;
 public class MainController implements Initializable {
 
     DBHandler db;
+    DBHandler dbFolders;
     private String descriptionText;
     private long id = -1; //id read from DB used to delete single task
-    private int index = -1; //index of selected item
+
     private ObservableList<TodoItem> activeItems = FXCollections.observableArrayList(); //ObservableList of active items
     private ObservableList<TodoItem> doneItems = FXCollections.observableArrayList(); //ObservableList of done items
-    private ObservableList<Label> menuItems = FXCollections.observableArrayList(); //ObservableList of items
+    private ObservableList<Label> menuItems = FXCollections.observableArrayList(); //ObservableList of left menu items
+    //private ObservableList<String> folderItems = FXCollections.observableArrayList(); //ObservableList of folder items
     private boolean onlyActive = true; //used to view all items or only active ones, default=true
     private boolean onlyStarred = false;
     private LocalDate localDate = null; //used to read from DatePicker 
@@ -106,6 +108,8 @@ public class MainController implements Initializable {
     private LocalDate showDateEnd = null;
     private DataFormat SERIALIZED_MIME_TYPE = new DataFormat("application/x-java-serialized-object");
     private ArrayList<TodoItem> allItems; //stores all DB in ArrayList of TodoItem type
+    private ArrayList<MenuItem> menuFolders = new ArrayList<>();
+    //private ArrayList<String> allFolders;
     private boolean anyAlarm = false;
     private String alarmDesc = null;
     //shortcut ctrl+F to mark selected item as favorite, ctrl+U unfavor
@@ -130,6 +134,7 @@ public class MainController implements Initializable {
     MenuItem setDoneMenuItem = new MenuItem("Set Item to Done");
     MenuItem setActiveItem = new MenuItem("Set Item to Pending");
     Menu setDueDate = new Menu("Set Due Date");
+    Menu assignFolder = new Menu("Assign to Folder...");
     //MenuItem setDueToday = new MenuItem("today");
     //MenuItem setDueTomorrow = new MenuItem("tomorrow");
     DatePicker menuDatePicker = new DatePicker();
@@ -247,7 +252,12 @@ public class MainController implements Initializable {
 
     //@FXML
     private Label leftMenu = new Label("<<");
-    private BorderSlideBar leftFlapBar = new BorderSlideBar(220, leftMenu, Pos.BASELINE_LEFT, menuList);
+    private Label folderLabel = new Label("Folders");
+    private ListView folderList = new ListView<String>();
+    private TextField folderAddText = new TextField();
+    private Label folderAddLabel = new Label("Add new folder");
+
+    private BorderSlideBar leftFlapBar = new BorderSlideBar(220, leftMenu, Pos.BASELINE_LEFT, menuList, folderLabel, folderList, folderAddLabel, folderAddText);
     //private ToolBar toolbar = new ToolBar();
 
     //Nodes to appear in new right pane
@@ -314,7 +324,7 @@ public class MainController implements Initializable {
     private void selectTableItem(MouseEvent event) {
 
         //index from list of task is read via MouseEvent (any for now)
-        index = activeItemsTable.getSelectionModel().getSelectedIndex();
+        int index = activeItemsTable.getSelectionModel().getSelectedIndex();
 
         //if valid, it's used to find DB's ID
         if (index != -1) {
@@ -326,11 +336,6 @@ public class MainController implements Initializable {
             //dynamic context menu
             dynamicContextMenu(activeItemsTable.getItems().get(index));
 
-            //doubleclick sets to done
-            /*if (event.getClickCount() == 2) {
-                db.changeItemStatus(id, 0);
-                listTasks(onlyActive, onlyStarred);
-            }*/
             //reset index
             //index = -1;
         } else {
@@ -345,7 +350,7 @@ public class MainController implements Initializable {
     private void selectDoneTableItem(MouseEvent event) {
 
         //index from list of task is read via MouseEvent (any for now)
-        index = doneItemsTable.getSelectionModel().getSelectedIndex();
+        int index = doneItemsTable.getSelectionModel().getSelectedIndex();
 
         //if valid, it's used to find DB's ID
         if (index != -1) {
@@ -357,11 +362,6 @@ public class MainController implements Initializable {
             //dynamic context menu
             dynamicContextMenu(doneItemsTable.getItems().get(index));
 
-            //doubleclick sets to done
-            /*if (event.getClickCount() == 2) {
-                db.changeItemStatus(id, 0);
-                listTasks(onlyActive, onlyStarred);
-            }*/
             //reset index
             //index = -1;
         } else {
@@ -469,7 +469,7 @@ public class MainController implements Initializable {
         if (localDate != null) {
             if (descriptionText != null) {
                 //create new item
-                db.insertToDoItem(descriptionText, 1, localDate.toString(), onlyStarred ? 1 : 0, allItems.size());
+                db.insertToDoItem(descriptionText, 1, localDate.toString(), onlyStarred ? 1 : 0, activeItems.size());
 
                 //clear description field, ready for next task
                 description.clear();
@@ -508,7 +508,7 @@ public class MainController implements Initializable {
 
     //method to update all impacted ranks
     //called when item is set to done or removed or drag-dropped
-    private void updateRanks()  {
+    private void updateRanks() {
         for (int i = 0; i < activeItems.size(); i++) {
             db.changeItemRank(activeItems.get(i).getId(), i);
         }
@@ -607,6 +607,14 @@ public class MainController implements Initializable {
             }
         };
 
+        //assign Folder
+        EventHandler<ActionEvent> actionAssignFolder = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                //  db.assignFolder(folderName);
+            }
+        };
+
         //Delete
         EventHandler<ActionEvent> actionDelete = new EventHandler<ActionEvent>() {
             @Override
@@ -672,33 +680,7 @@ public class MainController implements Initializable {
 
             }
         };
-        /*
-        EventHandler<ActionEvent> actionSetDueDateToday = new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                //change due date to today
-                db.setDueDate(id, LocalDate.now().toString());
 
-                //reset date in DatePicker
-                //datePicker.setValue(null);
-                listTasks(onlyActive, onlyStarred);
-
-            }
-        };
-
-        EventHandler<ActionEvent> actionSetDueDateTomorrow = new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                //change due date to tomorrow
-                db.setDueDate(id, LocalDate.now().plus(1, ChronoUnit.DAYS).toString());
-
-                //reset date in DatePicker
-                //datePicker.setValue(null);
-                listTasks(onlyActive, onlyStarred);
-
-            }
-        };
-         */
         //Edit description
         EventHandler<ActionEvent> actionEdit;
         actionEdit = new EventHandler<ActionEvent>() {
@@ -761,7 +743,7 @@ public class MainController implements Initializable {
         //setDueTomorrow.setOnAction(actionSetDueDateTomorrow);
         setDueDatePicker.setGraphic(menuDatePicker);
         setDueDatePicker.setOnAction(actionSetDueDate);
-        setDueDate.getItems().addAll(/*setDueToday, setDueTomorrow,*/setDueDatePicker);
+        setDueDate.getItems().addAll(setDueDatePicker);
         setDueDate.setGraphic(new ImageView("/todo/calendar.png"));
         //editItem.setOnAction(actionEdit);
         editItem.setGraphic(new ImageView("/todo/edit.png"));
@@ -786,8 +768,9 @@ public class MainController implements Initializable {
 
         removeAlarm.setOnAction(actionRemoveAlarm);
         removeAlarm.setGraphic(new ImageView("/todo/alarm-off.png"));
+
         //context menu for TableView
-        ContextMenu tableContextMenu = new ContextMenu(editItem, setAlarm, removeAlarm, emailItem, starItem, unstarItem, setDueDate, setDoneMenuItem, setActiveItem, deleteMenuItem);
+        ContextMenu tableContextMenu = new ContextMenu(editItem, assignFolder, setAlarm, removeAlarm, emailItem, starItem, unstarItem, setDueDate, setDoneMenuItem, setActiveItem, deleteMenuItem);
 
         //set context menu for tblitems TableView object
         activeItemsTable.setContextMenu(tableContextMenu);
@@ -811,7 +794,7 @@ public class MainController implements Initializable {
             //datePicker.show();
         } else {
             //insert new task with description and status=1 and set date
-            db.insertToDoItem(descriptionText, 1, localDate.toString(), onlyStarred ? 1 : 0, allItems.size());
+            db.insertToDoItem(descriptionText, 1, localDate.toString(), onlyStarred ? 1 : 0, activeItems.size());
             //clear description field, ready for next task
             description.clear();
             descriptionText = null;
@@ -926,12 +909,28 @@ public class MainController implements Initializable {
 
     }
 
+    //private method to list all folders
+    private void listFolders() {
+        final ObservableList<String> folderItems = dbFolders.viewFolderTable();
+        folderList.setItems(folderItems);
+        for (int i = 0; i < folderItems.size(); i++) {
+            menuFolders.add(new MenuItem(folderItems.get(i)));
+            menuFolders.get(i).setOnAction((event) -> {
+                
+               // db.assignFolder(id, folderList.getItems().get(i)  .get(i));
+            });
+            
+        }
+        assignFolder.getItems().addAll(menuFolders);
+
+    }
+
 //private method for refreshing list of tasks
     private void listTasks(boolean showOnlyActive, boolean showOnlyStarred, boolean refreshData) {
 
         if (refreshData) {
             //read all DB and save to local variable 'toDoList'
-            allItems = db.viewTable(/*onlyActive, onlyStarred*/);
+            allItems = db.viewTable();
         }
 
         //clear ObservableList<TodoItem>
@@ -975,19 +974,19 @@ public class MainController implements Initializable {
                     //check star
                     if (allItems.get(i).getStar() == 1) {
 
-                        activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm()));
+                        activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolder()));
                     }
                     //otherwise, check dates
                 } else {
                     //check if showDate is set
                     if (showDateStart == null) {
                         //show all
-                        activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm()));
+                        activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolder()));
                     } else {
                         //show only for selected date
                         if (showDateStart.toString().compareTo(allItems.get(i).getDate()) <= 0) {
                             if (showDateEnd.toString().compareTo(allItems.get(i).getDate()) >= 0) {
-                                activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm()));
+                                activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolder()));
                             }
                         }
 
@@ -999,12 +998,12 @@ public class MainController implements Initializable {
                 //check if showDateStart is set
                 if (showDateStart == null) {
                     //show all
-                    doneItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm()));
+                    doneItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolder()));
                 } else {
                     //show only for selected date
                     if (showDateStart.toString().compareTo(allItems.get(i).getDate()) <= 0) {
                         if (showDateEnd.toString().compareTo(allItems.get(i).getDate()) >= 0) {
-                            doneItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm()));
+                            doneItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolder()));
                         }
                     }
                 }
@@ -1042,20 +1041,6 @@ public class MainController implements Initializable {
         Label tblColDescLabel = new Label("Description");
         tblColDescLabel.setTooltip(new Tooltip("This column shows the decription of the ToDo tasks."));
         activeItemsTableColDesc.setGraphic(tblColDescLabel);
-        /*
-        activeItemsTableColDesc.setOnEditCommit(
-                new EventHandler<CellEditEvent<TodoItem, String>>() {
-            @Override
-            public void handle(CellEditEvent<TodoItem, String> t) {
-                ((TodoItem) t.getTableView().getItems().get(
-                        t.getTablePosition().getRow())).setDescription(t.getNewValue());
-
-                db.editDescription(activeItemsTable.getItems().get(activeItemsTable.getSelectionModel().getSelectedIndex()).getId(), activeItemsTable.getItems().get(activeItemsTable.getSelectionModel().getSelectedIndex()).getDescription());
-                listTasks(onlyActive, onlyStarred);
-            }
-        }
-        );
-         */
         //tblColDesc.isEditable();
 
         //tblColDate = new TableColumn("Date");
@@ -1134,7 +1119,7 @@ public class MainController implements Initializable {
                     //if (cell.getItem() == 0) {
                     //    cell.setItem(1);
                     //} else {
-                        cell.setItem(0);
+                    cell.setItem(0);
                     //}
                     String musicFile = "applause10.mp3";
 
@@ -1287,30 +1272,6 @@ public class MainController implements Initializable {
 
                         //call updateRanks(drag,drop)
                         updateRanks();
-                        /*
-                        activeItemsTable.getSelectionModel().select(dropIndex);
-                        if (forDragged < forDropped) {
-                            for (int i = 0; i < allItems.size(); i++) {
-
-                                if (allItems.get(i).getRank() == forDragged) {
-                                    db.changeItemRank(allItems.get(i).getId(), forDropped - 1);
-                                } else if (allItems.get(i).getRank() > forDragged && allItems.get(i).getRank() < forDropped) {
-                                    db.changeItemRank(allItems.get(i).getId(), allItems.get(i).getRank() - 1);
-                                }
-
-                            }
-                        } else {
-                            for (int i = 0; i < allItems.size(); i++) {
-
-                                if (allItems.get(i).getRank() == forDragged) {
-                                    db.changeItemRank(allItems.get(i).getId(), forDropped);
-                                } else if (allItems.get(i).getRank() > forDropped - 1 && allItems.get(i).getRank() < forDragged) {
-                                    db.changeItemRank(allItems.get(i).getId(), allItems.get(i).getRank() + 1);
-                                }
-
-                            }
-                        }
-                         */
 
                         if (onlyStarred || showDateStart != null) {
                             listTasks(true, onlyStarred, true);
@@ -1462,7 +1423,7 @@ public class MainController implements Initializable {
 
                 cell.setOnMouseClicked((event) -> {
                     //if (cell.getItem() == 0) {
-                        cell.setItem(1);
+                    cell.setItem(1);
                     //} else {
                     //    cell.setItem(0);
                     //}
@@ -1480,130 +1441,7 @@ public class MainController implements Initializable {
         doneItemsTableColRank.setCellValueFactory(new PropertyValueFactory<TodoItem, Integer>("rank"));
         //tblColStat = new TableColumn("Star");
         doneItemsTableColStar.setCellValueFactory(new PropertyValueFactory<TodoItem, Integer>("star"));
-        /*
-        //set tblColStar to button
-        Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>> cellDoneFactory;
-        cellDoneFactory = new Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>>() {
-            @Override
-            public TableCell<TodoItem, Integer> call(final TableColumn<TodoItem, Integer> param) {
-                final TableCell<TodoItem, Integer> doneCell = new TableCell<TodoItem, Integer>() {
 
-                    private ImageView doneStar = new ImageView();
-
-                    @Override
-                    public void updateItem(Integer item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (empty) {
-                            setGraphic(null);
-                        } else {
-                            if (item == 1) {
-                                setGraphic(new ImageView("/todo/star.png"));
-                            } else {
-                                setGraphic(new ImageView("/todo/unstar.png"));
-                            }
-                        }
-                    }
-                };
-
-                doneCell.setOnMouseClicked((event) -> {
-                    if (doneCell.getItem() == 1) {
-                        doneCell.setItem(0);
-                    } else {
-                        doneCell.setItem(1);
-                    }
-
-                    db.changeStarred(doneItemsTable.getItems().get(doneItemsTable.getSelectionModel().getSelectedIndex()).getId(), doneCell.getItem());
-                    listTasks(onlyActive, onlyStarred);
-                });
-
-                return doneCell;
-            }
-        };
-
-        
-        doneItemsTable.setRowFactory(tv -> {
-            TableRow<TodoItem> row = new TableRow<>();
-
-            row.setOnDragDetected(event -> {
-                if (!row.isEmpty()) {
-                    Integer index = row.getIndex();
-                    Dragboard dragboard = row.startDragAndDrop(TransferMode.MOVE);
-                    dragboard.setDragView(row.snapshot(null, null));
-                    ClipboardContent cc = new ClipboardContent();
-                    cc.put(SERIALIZED_MIME_TYPE, index);
-                    dragboard.setContent(cc);
-                    event.consume();
-                }
-            });
-
-            row.setOnDragOver(event -> {
-                Dragboard dragboard = event.getDragboard();
-                if (dragboard.hasContent(SERIALIZED_MIME_TYPE)) {
-                    if (row.getIndex() != ((Integer) dragboard.getContent(SERIALIZED_MIME_TYPE)).intValue()) {
-                        event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
-                        event.consume();
-                    }
-                }
-            });
-
-            row.setOnDragDropped(event -> {
-                Dragboard dragboard = event.getDragboard();
-                if (dragboard.hasContent(SERIALIZED_MIME_TYPE)) {
-                    int draggedIndex = (Integer) dragboard.getContent(SERIALIZED_MIME_TYPE);
-                    int forDragged = doneItemsTable.getItems().get(draggedIndex).getRank();
-                    TodoItem draggedTodoItem = doneItemsTable.getItems().remove(draggedIndex);
-
-                    int dropIndex;
-                    int forDropped;
-
-                    if (row.isEmpty()) {
-                        dropIndex = doneItemsTable.getItems().size();
-                        forDropped = doneItemsTable.getItems().get(dropIndex - 1).getRank() + 1;
-                    } else {
-                        dropIndex = row.getIndex();
-                        forDropped = doneItemsTable.getItems().get(dropIndex).getRank();
-                    }
-
-                    doneItemsTable.getItems().add(dropIndex, draggedTodoItem);
-
-                    //debugging
-                    System.out.println("Dragged index=" + draggedIndex + "\t dropped index=" + dropIndex + "\t dragged rank=" + forDragged + "\t dropped rank=" + forDropped);
-
-                    //selectedIndex - start
-                    //dropIndex - end/drop        
-                    event.setDropCompleted(true);
-                    doneItemsTable.getSelectionModel().select(dropIndex);
-                    if (forDragged < forDropped) {
-                        for (int i = 0; i < allItems.size(); i++) {
-
-                            if (allItems.get(i).getRank() == forDragged) {
-                                db.changeItemRank(allItems.get(i).getId(), forDropped - 1);
-                            } else if (allItems.get(i).getRank() > forDragged && allItems.get(i).getRank() < forDropped) {
-                                db.changeItemRank(allItems.get(i).getId(), allItems.get(i).getRank() - 1);
-                            }
-
-                        }
-                    } else {
-                        for (int i = 0; i < allItems.size(); i++) {
-
-                            if (allItems.get(i).getRank() == forDragged) {
-                                db.changeItemRank(allItems.get(i).getId(), forDropped);
-                            } else if (allItems.get(i).getRank() > forDropped-1 && allItems.get(i).getRank() < forDragged) {
-                                db.changeItemRank(allItems.get(i).getId(), allItems.get(i).getRank() + 1);
-                            }
-
-                        }
-                    }
-                    
-                    listTasks(onlyActive, onlyStarred);
-                    event.consume();
-                }
-            });
-        
-            return row;
-        });
-<<<<<<< HEAD
-         */
         doneItemsTable.getColumns().setAll(doneItemsTableColStat, doneItemsTableColId, doneItemsTableColDesc, doneItemsTableColDate, doneItemsTableColStar, doneItemsTableColRank);
         doneItemsTableColRank.setSortType(TableColumn.SortType.ASCENDING);
         //tblColStat.setSortType(TableColumn.SortType.DESCENDING);
@@ -1743,6 +1581,8 @@ public class MainController implements Initializable {
 
         //create new DBHandler object and establish connection to DB
         db = new DBHandler("tasks");
+        dbFolders = new DBHandler("folders");
+        listFolders();
         buildTableContextMenu();
 
         borderPane.setLeft(leftFlapBar);
@@ -1864,6 +1704,13 @@ public class MainController implements Initializable {
             }
             event.consume();
 
+        });
+
+        folderAddText.setOnAction((event) -> {
+            String newFolderName = folderAddText.getText();
+            dbFolders.insertFolderItem(newFolderName);
+            //folderList.setItems(folderItems);
+            listFolders();
         });
 
         listTasks(onlyActive, onlyStarred, true);

@@ -13,6 +13,7 @@ import java.sql.*;
 import java.text.SimpleDateFormat;
 import static javafx.application.Platform.exit;
 import java.util.Date;
+import javafx.collections.FXCollections;
 
 /**
  *
@@ -41,7 +42,7 @@ public class DBHandler {
 
             con = DriverManager.getConnection(dbURL);
 
-            System.out.println("Connection to SQLite has been established.");
+            System.out.println(dbName + " Connection to SQLite has been established.");
 
             // When JDBC encounters an error during an interaction with a data source, it throws an instance of SQLException as 
             // opposed to Exception. (A data source in this context represents the database to which a Connection object is connected.) 
@@ -59,6 +60,54 @@ public class DBHandler {
         }
     }
 
+    //This method inserts new entry into DB, table folders
+    //with name from parameter list
+    public void insertFolderItem(String name) {
+
+        try {
+            Statement statement = con.createStatement();
+
+            statement.setQueryTimeout(30);  // set timeout to 30 sec.
+
+            //     Date d = new Date();
+            //     SimpleDateFormat ft = new SimpleDateFormat ("yyyy-MM-dd");
+            //INSERT query with description and status from parameters
+            //and current date
+            //no id is provided, DB handles on it's own
+            String query = "INSERT INTO " + dbName + " (name) "
+                    + "VALUES ('" + name + "')";
+            System.out.println(query);
+            statement.executeQuery(query);
+
+        } catch (SQLException sQLException) {
+        }
+    }    
+    
+    // This method outputs the contents of the table folders
+    // In the method, con is a Connection object and dbName is the name of 
+    // the database in which you are creating the table.
+    public ObservableList<String> viewFolderTable() {
+
+        try {
+            Statement statement = con.createStatement();
+            statement.setQueryTimeout(30);  // set timeout to 30 sec.
+
+            String query = "SELECT * FROM " + dbName;;
+
+            System.out.println(query);
+            ResultSet rs = statement.executeQuery(query);
+            ObservableList<String> allFolders = FXCollections.observableArrayList();
+            while (rs.next()) {
+                allFolders.add(rs.getString("name"));
+            }
+            return allFolders;
+        } catch (SQLException sQLException) {
+        }
+        return null;
+    }    
+    
+    
+    
     //This method inserts new entry into DB
     //with description and status from parameter list
     //and current date
@@ -136,6 +185,26 @@ public class DBHandler {
         } catch (SQLException sQLException) {
         }
     }
+    
+    //assignFolder
+    //This method assigns folder to the item from DB
+    //based on parameter id and folderName
+    public void assignFolder(long id, String folderName) {
+
+        try {
+            Statement statement = con.createStatement();
+
+            statement.setQueryTimeout(30);  // set timeout to 30 sec.
+
+            //UPDATE query is created WHERE id matches given id
+            //SET Date = date
+            String query = "UPDATE " + dbName + " SET Folder = '" + folderName + "' WHERE id=" + id;
+            System.out.println(query);
+            statement.executeQuery(query);
+        } catch (SQLException sQLException) {
+        }
+    }    
+    
 
     //editDescription
     //This method edits description of one entry from DB
@@ -253,30 +322,19 @@ public class DBHandler {
     // This method outputs the contents of the table Tasks
     // In the method, con is a Connection object and dbName is the name of 
     // the database in which you are creating the table.
-    public ArrayList<TodoItem> viewTable(/*boolean onlyActive, boolean onlyStarred*/) {
-        //choice
-        //0 - all
-        //1 - skipp finished
-        //2 - only starred
-        //ResultSet rs;
+    public ArrayList<TodoItem> viewTable() {
+
         try {
             Statement statement = con.createStatement();
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
 
             String query = "SELECT * FROM " + dbName;;
-            /*
-            if(onlyStarred) {
-                if(onlyActive) query = "SELECT * FROM " + dbName + " WHERE (Starred = 1 AND Status <> 0)";
-                else query = "SELECT * FROM " + dbName + " WHERE Starred = 1";
-            } else {
-                if(onlyActive) query = "SELECT * FROM " + dbName + " WHERE Status <> 0";
-            }
-             */
+
             System.out.println(query);
             ResultSet rs = statement.executeQuery(query);
             ArrayList<TodoItem> allItems = new ArrayList<TodoItem>();
             while (rs.next()) {
-                allItems.add(new TodoItem(rs.getInt("id"), rs.getString("description"), rs.getString("date"), rs.getInt("status"), rs.getInt("starred"), rs.getInt("rank"), rs.getString("alarm")));
+                allItems.add(new TodoItem(rs.getInt("id"), rs.getString("description"), rs.getString("date"), rs.getInt("status"), rs.getInt("starred"), rs.getInt("rank"), rs.getString("alarm"), rs.getString("folder")));
             }
             return allItems;
         } catch (SQLException sQLException) {

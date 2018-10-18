@@ -50,9 +50,9 @@ and open the template in the editor.
     -fx-scale-x: 0;
 }
 
-#tableLabel {
-    -fx-font-weight: bold;
-    -fx-font-size: 20px;
+.label {
+    -font-weight: bold;
+    -font-size: 20px;
 }
 
 #clock {

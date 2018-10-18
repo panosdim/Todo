@@ -63,6 +63,7 @@ public class BorderSlideBar extends VBox {
         }
 
         initPosition();
+        setSpacing(15);
 
         // Add nodes in the vbox
         getChildren().addAll(nodes);
