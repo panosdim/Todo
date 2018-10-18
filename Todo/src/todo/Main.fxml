@@ -55,7 +55,7 @@
                                         
                                         <TableView fx:id="activeItemsTable" onMouseClicked="#selectTableItem" opacity="0.8" prefHeight="560.0" prefWidth="735.0" VBox.vgrow="ALWAYS">
                                             <placeholder>
-                                                <Label text=""/>
+                                                <Label text="" />
                                             </placeholder>
                                             <columns>
       
@@ -72,14 +72,23 @@
                                                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                                             </columnResizePolicy>
                                         </TableView>
-                                        <Button fx:id="buttonShowOptions" mnemonicParsing="false" onAction="#handleButtonShowOptions" text="Show Done">
-                                            <tooltip>
-                                                <Tooltip text="Show completed ToDo tasks" wrapText="true" />
-                                            </tooltip>
-                                        </Button>
+                                        <HBox spacing="15.0">
+                                            <children>
+                                                <Button fx:id="buttonShowOptions" mnemonicParsing="false" onAction="#handleButtonShowOptions" text="Show Done">
+                                                    <tooltip>
+                                                        <Tooltip text="Show completed ToDo tasks" wrapText="true" />
+                                                    </tooltip>
+                                                </Button>
+                                                <Button fx:id="buttonDeleteDone" mnemonicParsing="false" onAction="#handleButtonDeleteDoneAction" text="Clear Done" visible="false">
+                                                    <tooltip>
+                                                        <Tooltip text="Delete All completed ToDo tasks" wrapText="true" />
+                                                    </tooltip>
+                                                </Button>
+                                            </children>
+                                        </HBox>
                                         <TableView fx:id="doneItemsTable" onMouseClicked="#selectDoneTableItem" opacity="0.8" prefHeight="560.0" prefWidth="735.0" VBox.vgrow="ALWAYS">
                                             <placeholder>
-                                                <Label text=""/>
+                                                <Label text="" />
                                             </placeholder>
                                             <columns>
                                                 <TableColumn fx:id="doneItemsTableColId" minWidth="40.0" prefWidth="40.0" text="ID" visible="false" />

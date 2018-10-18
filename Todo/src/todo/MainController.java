@@ -95,6 +95,7 @@ public class MainController implements Initializable {
     DBHandler db;
     private String descriptionText;
     private long id = -1; //id read from DB used to delete single task
+    private int index = -1; //index of selected item
     private ObservableList<TodoItem> activeItems = FXCollections.observableArrayList(); //ObservableList of active items
     private ObservableList<TodoItem> doneItems = FXCollections.observableArrayList(); //ObservableList of done items
     private ObservableList<Label> menuItems = FXCollections.observableArrayList(); //ObservableList of items
@@ -175,8 +176,8 @@ public class MainController implements Initializable {
     //private final String strikeThrough = getClass().getResource("sceneCSS.css").toExternalForm();
     @FXML
     private Button buttonShowOptions;
-    //@FXML
-    //private Button buttonShowDate;
+    @FXML
+    private Button buttonDeleteDone;
     @FXML
     private TextField description;
     @FXML
@@ -265,44 +266,44 @@ public class MainController implements Initializable {
     @FXML
     private void toolTipList(MouseEvent event) {
         //index from list of task is read via MouseEvent (any for now)
-        int index = menuList.getSelectionModel().getSelectedIndex();
+        int indexLocal = menuList.getSelectionModel().getSelectedIndex();
         //System.out.println(index);
         //if valid, it's used for menu actions (filtering items by dates)
-        switch (index) {
+        switch (indexLocal) {
             case -1:
                 break;
             case 0:
                 menuList.tooltipProperty();
                 menuList.setTooltip(new Tooltip("Show all active Todo tasks"));
                 //System.out.println("test0");
-                index = -1;
+                indexLocal = -1;
                 event.consume();
                 break;
             case 1:
                 menuList.tooltipProperty();
                 menuList.setTooltip(new Tooltip("Show all favourite Todo tasks"));
                 //System.out.println("test1");
-                index = -1;
+                indexLocal = -1;
                 event.consume();
                 break;
             case 2:
                 System.out.println("Show the active ToDo tasks for today");
-                index = -1;
+                indexLocal = -1;
                 event.consume();
                 break;
             case 3:
                 System.out.println("Show the active ToDo tasks for tomorrow");
-                index = -1;
+                indexLocal = -1;
                 event.consume();
                 break;
             case 4:
                 System.out.println("Show the active ToDo tasks for the upcoming week");
-                index = -1;
+                indexLocal = -1;
                 event.consume();
                 break;
             case 5:
                 System.out.println("Show the active ToDo tasks for the current month");
-                index = -1;
+                indexLocal = -1;
                 event.consume();
                 break;
         }
@@ -313,7 +314,7 @@ public class MainController implements Initializable {
     private void selectTableItem(MouseEvent event) {
 
         //index from list of task is read via MouseEvent (any for now)
-        int index = activeItemsTable.getSelectionModel().getSelectedIndex();
+        index = activeItemsTable.getSelectionModel().getSelectedIndex();
 
         //if valid, it's used to find DB's ID
         if (index != -1) {
@@ -331,7 +332,7 @@ public class MainController implements Initializable {
                 listTasks(onlyActive, onlyStarred);
             }*/
             //reset index
-            index = -1;
+            //index = -1;
         } else {
             //clear any previous value of id
             id = -1;
@@ -344,7 +345,7 @@ public class MainController implements Initializable {
     private void selectDoneTableItem(MouseEvent event) {
 
         //index from list of task is read via MouseEvent (any for now)
-        int index = doneItemsTable.getSelectionModel().getSelectedIndex();
+        index = doneItemsTable.getSelectionModel().getSelectedIndex();
 
         //if valid, it's used to find DB's ID
         if (index != -1) {
@@ -362,7 +363,7 @@ public class MainController implements Initializable {
                 listTasks(onlyActive, onlyStarred);
             }*/
             //reset index
-            index = -1;
+            //index = -1;
         } else {
             //clear any previous value of id
             id = -1;
@@ -397,6 +398,36 @@ public class MainController implements Initializable {
         }
     }
 
+    //method handling action on 'Clear done list' button
+    @FXML
+    private void handleButtonDeleteDoneAction(ActionEvent event) {
+        //Warning Dialog Box for delete all tasks 
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Warning");
+        alert.setHeaderText("Would You Like To Delete All Done Items?");
+        alert.setContentText("Please choose an option.");
+
+        ButtonType yesButton = new ButtonType("Yes");
+        ButtonType noButton = new ButtonType("No");
+        ButtonType cancelButton = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(yesButton, noButton, cancelButton);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.get() == yesButton) {
+            for (int i = 0; i < doneItems.size(); i++) {
+                db.deleteToDoItem(doneItems.get(i).getId());
+            }
+
+            //refresh list of tasks
+            listTasks(onlyActive, onlyStarred, true);
+        } else if (result.get() == noButton) {
+            event.consume();
+        } else if (result.get() == cancelButton) {
+            event.consume();
+        }
+    }
+
     //method handling action on 'Help' button
     @FXML
     private void handleButtonHelpAction(ActionEvent event) {
@@ -418,10 +449,13 @@ public class MainController implements Initializable {
             onlyActive = false;
             buttonShowOptions.setText("Hide Done");
             buttonShowOptions.setTooltip(new Tooltip("Hide completed ToDo tasks"));
+            buttonDeleteDone.setVisible(true);
+
         } else {
             onlyActive = true;
             buttonShowOptions.setText("Show Done");
             buttonShowOptions.setTooltip(new Tooltip("Show completed ToDo tasks"));
+            buttonDeleteDone.setVisible(false);
         }
 
         //refresh list of tasks
@@ -472,6 +506,14 @@ public class MainController implements Initializable {
         //listTasks(onlyActive, onlyStarred);
     }
 
+    //method to update all impacted ranks
+    //called when item is set to done or removed or drag-dropped
+    private void updateRanks()  {
+        for (int i = 0; i < activeItems.size(); i++) {
+            db.changeItemRank(activeItems.get(i).getId(), i);
+        }
+    }
+
     //method to build context menu
     private void buildTableContextMenu() {
 
@@ -480,7 +522,8 @@ public class MainController implements Initializable {
         EventHandler<ActionEvent> actionSetDone = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                db.changeItemStatus(id, 0);
+                db.changeItemStatus(id, 0, activeItems.size());
+                updateRanks();
                 String musicFile = "applause10.mp3";
 
                 Media sound = new Media(new File(musicFile).toURI().toString());
@@ -499,7 +542,7 @@ public class MainController implements Initializable {
         EventHandler<ActionEvent> actionSetActive = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                db.changeItemStatus(id, 1);
+                db.changeItemStatus(id, 1, activeItems.size());
                 listTasks(onlyActive, onlyStarred, true);
             }
         };
@@ -821,7 +864,7 @@ public class MainController implements Initializable {
             if (todayString.compareTo(dueDateString) > 0) {
                 outStatus = 2;
                 //update DB as well
-                db.changeItemStatus(id, outStatus);
+                db.changeItemStatus(id, outStatus, activeItems.size());
             }
         }
         //if overdue, check dates
@@ -838,7 +881,7 @@ public class MainController implements Initializable {
             } else {
                 outStatus = 1;
                 //update DB as well
-                db.changeItemStatus(id, outStatus);
+                db.changeItemStatus(id, outStatus, activeItems.size());
             }
 
         }
@@ -1088,17 +1131,18 @@ public class MainController implements Initializable {
                 };
 
                 cell.setOnMouseClicked((event) -> {
-                    if (cell.getItem() == 0) {
-                        cell.setItem(1);
-                    } else {
+                    //if (cell.getItem() == 0) {
+                    //    cell.setItem(1);
+                    //} else {
                         cell.setItem(0);
-                    }
+                    //}
                     String musicFile = "applause10.mp3";
 
                     Media sound = new Media(new File(musicFile).toURI().toString());
                     MediaPlayer mediaPlayer = new MediaPlayer(sound);
                     mediaPlayer.play();
-                    db.changeItemStatus(activeItemsTable.getItems().get(activeItemsTable.getSelectionModel().getSelectedIndex()).getId(), cell.getItem());
+                    db.changeItemStatus(activeItemsTable.getItems().get(activeItemsTable.getSelectionModel().getSelectedIndex()).getId(), cell.getItem(), activeItems.size());
+                    updateRanks();
                     listTasks(onlyActive, onlyStarred, true);
                 });
 
@@ -1194,11 +1238,11 @@ public class MainController implements Initializable {
 
                 row.setOnDragDetected(event -> {
                     if (!row.isEmpty()) {
-                        Integer index = row.getIndex();
+                        Integer indexLocal = row.getIndex();
                         Dragboard dragboard = row.startDragAndDrop(TransferMode.MOVE);
                         dragboard.setDragView(row.snapshot(null, null));
                         ClipboardContent cc = new ClipboardContent();
-                        cc.put(SERIALIZED_MIME_TYPE, index);
+                        cc.put(SERIALIZED_MIME_TYPE, indexLocal);
                         dragboard.setContent(cc);
                         event.consume();
                     }
@@ -1218,28 +1262,32 @@ public class MainController implements Initializable {
                     Dragboard dragboard = event.getDragboard();
                     if (dragboard.hasContent(SERIALIZED_MIME_TYPE)) {
                         int draggedIndex = (Integer) dragboard.getContent(SERIALIZED_MIME_TYPE);
-                        int forDragged = activeItemsTable.getItems().get(draggedIndex).getRank();
+                        //int forDragged = activeItemsTable.getItems().get(draggedIndex).getRank();
                         TodoItem draggedTodoItem = activeItemsTable.getItems().remove(draggedIndex);
 
                         int dropIndex;
-                        int forDropped;
+                        //int forDropped;
 
                         if (row.isEmpty()) {
                             dropIndex = activeItemsTable.getItems().size();
-                            forDropped = activeItemsTable.getItems().get(dropIndex - 1).getRank() + 1;
+                            //forDropped = activeItemsTable.getItems().get(dropIndex - 1).getRank() + 1;
+                            activeItemsTable.getItems().add(draggedTodoItem);
                         } else {
                             dropIndex = row.getIndex();
-                            forDropped = activeItemsTable.getItems().get(dropIndex).getRank();
+                            //forDropped = activeItemsTable.getItems().get(dropIndex).getRank();
+                            activeItemsTable.getItems().add(dropIndex, draggedTodoItem);
                         }
 
-                        activeItemsTable.getItems().add(dropIndex, draggedTodoItem);
-
                         //debugging
-                        System.out.println("Dragged index=" + draggedIndex + "\t dropped index=" + dropIndex + "\t dragged rank=" + forDragged + "\t dropped rank=" + forDropped);
+                        System.out.println("Dragged index=" + draggedIndex + "\t dropped index=" + dropIndex);
 
                         //selectedIndex - start
                         //dropIndex - end/drop        
                         event.setDropCompleted(true);
+
+                        //call updateRanks(drag,drop)
+                        updateRanks();
+                        /*
                         activeItemsTable.getSelectionModel().select(dropIndex);
                         if (forDragged < forDropped) {
                             for (int i = 0; i < allItems.size(); i++) {
@@ -1262,6 +1310,7 @@ public class MainController implements Initializable {
 
                             }
                         }
+                         */
 
                         if (onlyStarred || showDateStart != null) {
                             listTasks(true, onlyStarred, true);
@@ -1412,13 +1461,13 @@ public class MainController implements Initializable {
                 };
 
                 cell.setOnMouseClicked((event) -> {
-                    if (cell.getItem() == 0) {
+                    //if (cell.getItem() == 0) {
                         cell.setItem(1);
-                    } else {
-                        cell.setItem(0);
-                    }
+                    //} else {
+                    //    cell.setItem(0);
+                    //}
 
-                    db.changeItemStatus(doneItemsTable.getItems().get(doneItemsTable.getSelectionModel().getSelectedIndex()).getId(), cell.getItem());
+                    db.changeItemStatus(doneItemsTable.getItems().get(doneItemsTable.getSelectionModel().getSelectedIndex()).getId(), cell.getItem(), activeItems.size());
                     listTasks(onlyActive, onlyStarred, true);
                 });
 
@@ -1710,10 +1759,10 @@ public class MainController implements Initializable {
         menuList.setOnMouseClicked((event) -> {
 
             //index from list of task is read via MouseEvent (any for now)
-            int index = menuList.getSelectionModel().getSelectedIndex();
+            int indexLocal = menuList.getSelectionModel().getSelectedIndex();
 
             //if valid, it's used for menu actions (filtering items by dates)
-            switch (index) {
+            switch (indexLocal) {
                 case -1:
                     break;
                 case 0:
@@ -1725,6 +1774,11 @@ public class MainController implements Initializable {
                     description.setPromptText("Add new todo task...");
                     //set visibility of show done button
                     buttonShowOptions.setVisible(true);
+                    if (onlyActive) {
+                        buttonDeleteDone.setVisible(false);
+                    } else {
+                        buttonDeleteDone.setVisible(true);
+                    }
                     listTasks(onlyActive, onlyStarred, false);
                     //index = -1;
 
@@ -1737,6 +1791,7 @@ public class MainController implements Initializable {
                     //tableLabel.setText("Favorite Items");
                     //set visibility of show done button
                     buttonShowOptions.setVisible(false);
+                    buttonDeleteDone.setVisible(false);
                     description.setPromptText("Add new todo task...");
                     listTasks(true, onlyStarred, false);
                     //index = -1;
@@ -1751,6 +1806,7 @@ public class MainController implements Initializable {
                     //tableLabel.setText("Todo Items for today");
                     //set visibility of show done button
                     buttonShowOptions.setVisible(false);
+                    buttonDeleteDone.setVisible(false);
                     description.setPromptText("Add new todo task...");
                     listTasks(true, onlyStarred, false);
                     //index = -1;
@@ -1765,6 +1821,7 @@ public class MainController implements Initializable {
                     //tableLabel.setText("Todo Items for tomorrow");
                     //set visibility of show done button
                     buttonShowOptions.setVisible(false);
+                    buttonDeleteDone.setVisible(false);
                     description.setPromptText("Add new todo task...");
                     listTasks(true, onlyStarred, false);
                     //index = -1;
@@ -1781,6 +1838,7 @@ public class MainController implements Initializable {
                     //tableLabel.setText("Todo Items for upcoming week");
                     //set visibility of show done button
                     buttonShowOptions.setVisible(false);
+                    buttonDeleteDone.setVisible(false);
                     description.setPromptText("Add new todo task...");
                     listTasks(true, onlyStarred, false);
                     //index = -1;
@@ -1797,6 +1855,7 @@ public class MainController implements Initializable {
                     //tableLabel.setText("Todo Items for upcoming month");
                     //set visibility of show done button
                     buttonShowOptions.setVisible(false);
+                    buttonDeleteDone.setVisible(false);
                     description.setPromptText("Add new todo task...");
                     listTasks(true, onlyStarred, false);
                     //index = -1;

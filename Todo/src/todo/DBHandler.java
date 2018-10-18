@@ -178,23 +178,34 @@ public class DBHandler {
     //changeItemStatus
     //This method changes status of one entry from DB
     //based on parameter id and status
-    public void changeItemStatus(long id, int status) {
+    public void changeItemStatus(long id, int status, int rank) {
 
         try {
             Statement statement = con.createStatement();
 
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
 
+            String query;
             //UPDATE query is created WHERE id matches given id
-            //SET Status = 1 (active)
-            String query = "UPDATE " + dbName + " SET Status = " + status + ", alarm = null, Starred = 0 WHERE id=" + id;
-            
+            //SET Status = status (active(1)/done(0))
+            switch (status) {
+                case 0:
+                    query = "UPDATE " + dbName + " SET Status = " + status + ", alarm = null, Starred = 0, Rank = -1 WHERE id=" + id;
+                    break;
+                case 1:
+                    query = "UPDATE " + dbName + " SET Status = " + status + ", alarm = null, Starred = 0, Rank = " + rank + " WHERE id=" + id;
+                    break;
+                default: //case 2:
+                    query = "UPDATE " + dbName + " SET Status = " + status + ", alarm = null, Starred = 0 WHERE id=" + id;
+                    break;
+            }
+  
             System.out.println(query);
             statement.executeQuery(query);
         } catch (SQLException sQLException) {
         }
     }
-    
+
     //changeItemRank
     //This method changes rank of one entry from DB
     //based on parameter id and rank
@@ -212,9 +223,8 @@ public class DBHandler {
             statement.executeQuery(query);
         } catch (SQLException sQLException) {
         }
-    }   
-    
-    
+    }
+
     //setAlarm
     //This method changes rank of one entry from DB
     //based on parameter id and rank
@@ -233,13 +243,12 @@ public class DBHandler {
             } else {
                 query = "UPDATE " + dbName + " SET alarm = '" + alarm + "' WHERE id=" + id;
             }
-            
+
             System.out.println(query);
             statement.executeQuery(query);
         } catch (SQLException sQLException) {
         }
-    }      
-    
+    }
 
     // This method outputs the contents of the table Tasks
     // In the method, con is a Connection object and dbName is the name of 
@@ -253,7 +262,7 @@ public class DBHandler {
         try {
             Statement statement = con.createStatement();
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
-            
+
             String query = "SELECT * FROM " + dbName;;
             /*
             if(onlyStarred) {
@@ -262,11 +271,11 @@ public class DBHandler {
             } else {
                 if(onlyActive) query = "SELECT * FROM " + dbName + " WHERE Status <> 0";
             }
-            */
+             */
             System.out.println(query);
             ResultSet rs = statement.executeQuery(query);
             ArrayList<TodoItem> allItems = new ArrayList<TodoItem>();
-            while(rs.next()) {
+            while (rs.next()) {
                 allItems.add(new TodoItem(rs.getInt("id"), rs.getString("description"), rs.getString("date"), rs.getInt("status"), rs.getInt("starred"), rs.getInt("rank"), rs.getString("alarm")));
             }
             return allItems;
