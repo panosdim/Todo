@@ -28,6 +28,7 @@ public class Todo extends Application {
     public void start(Stage stage) throws Exception {
 
         Parent root = FXMLLoader.load(getClass().getResource("Main.fxml"));
+        
         Scene scene = new Scene(root);
         stage.getIcons().add(new Image(getClass().getResourceAsStream("todo1.png")));
         stage.setTitle("Todo Items");
@@ -36,6 +37,7 @@ public class Todo extends Application {
         //stage.isResizable( );
         stage.setScene(scene);
         stage.initStyle(StageStyle.DECORATED);
+        
         //stage.setIconified(true);
         //stage.setOpacity(0);
         //stage.setAlwaysOnTop(true);
@@ -43,12 +45,13 @@ public class Todo extends Application {
         
         stage.show();
     }
-
+    
     /**
      * @param args the command line arguments
      */
     public static void main(String[] args) {
         launch(args);
+        
     }
 
 }

@@ -105,7 +105,7 @@ public class MainController implements Initializable {
     private LocalDate showDateEnd = null;
     private DataFormat SERIALIZED_MIME_TYPE = new DataFormat("application/x-java-serialized-object");
     private ArrayList<TodoItem> allItems; //stores all DB in ArrayList of TodoItem type
-    private long playAlarm = -1;
+    private boolean anyAlarm = false;
     private String alarmDesc = null;
     //shortcut ctrl+F to mark selected item as favorite, ctrl+U unfavor
     private KeyCombination cntrlF = new KeyCodeCombination(KeyCode.F, KeyCodeCombination.CONTROL_DOWN);
@@ -320,10 +320,10 @@ public class MainController implements Initializable {
 
             id = activeItemsTable.getItems().get(index).getId();
             //terminal printout of both: list ID and DB's ID just for check
-            System.out.println(id + "\t" + index + "\t" + activeItemsTable.getItems().get(index).getStar() + "\t rank =" + activeItemsTable.getItems().get(index).getRank());
+            System.out.println(id + "\t" + index + "\t fav=" + activeItemsTable.getItems().get(index).getStar() + "\t rank=" + activeItemsTable.getItems().get(index).getRank() + "\t status=" + activeItemsTable.getItems().get(index).getStatus());
 
             //dynamic context menu
-            dynamicContextMenu(index);
+            dynamicContextMenu(activeItemsTable.getItems().get(index));
 
             //doubleclick sets to done
             /*if (event.getClickCount() == 2) {
@@ -354,7 +354,7 @@ public class MainController implements Initializable {
             System.out.println(id + "\t" + index + "\t" + doneItemsTable.getItems().get(index).getStar() + "\t rank =" + doneItemsTable.getItems().get(index).getRank());
 
             //dynamic context menu
-            dynamicDoneContextMenu(index);
+            dynamicContextMenu(doneItemsTable.getItems().get(index));
 
             //doubleclick sets to done
             /*if (event.getClickCount() == 2) {
@@ -423,7 +423,7 @@ public class MainController implements Initializable {
             buttonShowOptions.setText("Show Done");
             buttonShowOptions.setTooltip(new Tooltip("Show completed ToDo tasks"));
         }
-        
+
         //refresh list of tasks
         listTasks(onlyActive, onlyStarred, false);
     }
@@ -894,6 +894,7 @@ public class MainController implements Initializable {
         //clear ObservableList<TodoItem>
         activeItems.clear();
         doneItems.clear();
+        anyAlarm = false;
 
         //declare counters
         int active = 0, favs = 0, today = 0, tomorrow = 0, week = 0, month = 0;
@@ -901,6 +902,10 @@ public class MainController implements Initializable {
 
         //scan all 'activetoDoList'
         for (int i = 0; i < allItems.size(); i++) {
+
+            if (allItems.get(i).getAlarm() != null) {
+                anyAlarm = true;
+            }
 
             int intStatus = checkOverDue(allItems.get(i).getStatus(), allItems.get(i).getDate(), allItems.get(i).getId());
             //only active items
@@ -1584,54 +1589,64 @@ public class MainController implements Initializable {
     }
 
     //disable menu options based on items parameters
-    private void dynamicContextMenu(int row) {
+    private void dynamicContextMenu(TodoItem currentRow) {
+        //restore all items to visible
+        setDoneMenuItem.setDisable(false);
+        setActiveItem.setDisable(false);
+        emailItem.setDisable(false);
+        setDueDate.setDisable(false);
+        starItem.setDisable(false);
+        unstarItem.setDisable(false);
+        removeAlarm.setDisable(false);
+        setAlarm.setDisable(false);
+
         //disable options according to items parameters
-        TodoItem currentRow = activeItemsTable.getItems().get(row);
+        //TodoItem currentRow = activeItemsTable.getItems().get(row);
         if (currentRow.getStatus() == 0) {
+            //for 'done' items disable:
             setDoneMenuItem.setDisable(true);
             emailItem.setDisable(true);
-            setActiveItem.setDisable(false);
-        } else {
-            setDoneMenuItem.setDisable(false);
-            emailItem.setDisable(false);
-            setActiveItem.setDisable(true);
-        }
-
-        if (currentRow.getStar() == 1) {
+            setDueDate.setDisable(true);
             starItem.setDisable(true);
-            unstarItem.setDisable(false);
-        } else {
-            starItem.setDisable(false);
             unstarItem.setDisable(true);
-        }
-
-        if (currentRow.getAlarm() == null) {
             removeAlarm.setDisable(true);
-            setAlarm.setDisable(false);
-        } else {
-            removeAlarm.setDisable(false);
             setAlarm.setDisable(true);
-        }
-    }
 
-    //disable menu options based on items parameters
-    private void dynamicDoneContextMenu(int row) {
-        //disable options according to items parameters
-        TodoItem currentRow = doneItemsTable.getItems().get(row);
-        if (currentRow.getStatus() == 0) {
-            setDoneMenuItem.setDisable(true);
-            emailItem.setDisable(true);
-            setActiveItem.setDisable(false);
-        } else {
-            setDoneMenuItem.setDisable(false);
-            emailItem.setDisable(false);
+        } else if (currentRow.getStatus() == 1) {
+            //for 'pending' items disable:
             setActiveItem.setDisable(true);
+
+            if (currentRow.getAlarm() == null) {
+                removeAlarm.setDisable(true);
+                //setAlarm.setDisable(false);
+            } else {
+                //removeAlarm.setDisable(false);
+                setAlarm.setDisable(true);
+            }
+
+            if (currentRow.getStar() == 1) {
+                starItem.setDisable(true);
+                //unstarItem.setDisable(false);
+            } else {
+                //starItem.setDisable(false);
+                unstarItem.setDisable(true);
+            }
+
+        } else {
+            //for 'overdue' items disable:
+            removeAlarm.setDisable(true);
+            setAlarm.setDisable(true);
+            setActiveItem.setDisable(true);
+
+            if (currentRow.getStar() == 1) {
+                starItem.setDisable(true);
+                //unstarItem.setDisable(false);
+            } else {
+                //starItem.setDisable(false);
+                unstarItem.setDisable(true);
+            }
         }
-        setDueDate.setDisable(true);
-        starItem.setDisable(true);
-        unstarItem.setDisable(true);
-        removeAlarm.setDisable(true);
-        setAlarm.setDisable(true);
+
     }
 
     private void executePlayAlarm(long itemId, String text) {
@@ -1705,55 +1720,55 @@ public class MainController implements Initializable {
                     showDateStart = null;
                     onlyStarred = false;
                     datePicker.setValue(null);
-                    ((Stage)((ListView)event.getSource()).getScene().getWindow()).setTitle("Todo Items - All");
+                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - All");
                     //tableLabel.setText("Todo Items");
                     description.setPromptText("Add new todo task...");
                     //set visibility of show done button
                     buttonShowOptions.setVisible(true);
                     listTasks(onlyActive, onlyStarred, false);
                     //index = -1;
-                    
+
                     break;
                 case 1:
                     showDateStart = null;
                     onlyStarred = true;
                     datePicker.setValue(null);
-                    
+
                     //tableLabel.setText("Favorite Items");
                     //set visibility of show done button
                     buttonShowOptions.setVisible(false);
                     description.setPromptText("Add new todo task...");
                     listTasks(true, onlyStarred, false);
                     //index = -1;
-                    ((Stage)((ListView)event.getSource()).getScene().getWindow()).setTitle("Todo Items - Favorites");
+                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - Favorites");
                     break;
                 case 2:
                     showDateStart = showDateEnd = LocalDate.now();
                     //preset DatePicker to current view date
                     datePicker.setValue(showDateStart);
                     onlyStarred = false;
-                    
+
                     //tableLabel.setText("Todo Items for today");
                     //set visibility of show done button
                     buttonShowOptions.setVisible(false);
                     description.setPromptText("Add new todo task...");
                     listTasks(true, onlyStarred, false);
                     //index = -1;
-                    ((Stage)((ListView)event.getSource()).getScene().getWindow()).setTitle("Todo Items - Today");
+                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - Today");
                     break;
                 case 3:
                     showDateStart = showDateEnd = LocalDate.now().plus(1, ChronoUnit.DAYS);
                     //preset DatePicker to current view date
                     datePicker.setValue(showDateStart);
                     onlyStarred = false;
-                    
+
                     //tableLabel.setText("Todo Items for tomorrow");
                     //set visibility of show done button
                     buttonShowOptions.setVisible(false);
                     description.setPromptText("Add new todo task...");
                     listTasks(true, onlyStarred, false);
                     //index = -1;
-                    ((Stage)((ListView)event.getSource()).getScene().getWindow()).setTitle("Todo Items - Tomorrow");
+                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - Tomorrow");
                     break;
                 case 4:
                     //showDateStart = LocalDate.now().with(WeekFields.of(Locale.FRANCE).dayOfWeek(), 1);
@@ -1762,14 +1777,14 @@ public class MainController implements Initializable {
                     showDateEnd = LocalDate.now().plus(7, ChronoUnit.DAYS);
                     datePicker.setValue(null);
                     onlyStarred = false;
-                    
+
                     //tableLabel.setText("Todo Items for upcoming week");
                     //set visibility of show done button
                     buttonShowOptions.setVisible(false);
                     description.setPromptText("Add new todo task...");
                     listTasks(true, onlyStarred, false);
                     //index = -1;
-                    ((Stage)((ListView)event.getSource()).getScene().getWindow()).setTitle("Todo Items - Upcoming Week");
+                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - Upcoming Week");
                     break;
                 case 5:
                     //showDateStart = LocalDate.now().withDayOfMonth(1);
@@ -1778,14 +1793,14 @@ public class MainController implements Initializable {
                     showDateEnd = LocalDate.now().plus(showDateStart.lengthOfMonth(), ChronoUnit.DAYS);
                     datePicker.setValue(null);
                     onlyStarred = false;
-                    
+
                     //tableLabel.setText("Todo Items for upcoming month");
                     //set visibility of show done button
                     buttonShowOptions.setVisible(false);
                     description.setPromptText("Add new todo task...");
                     listTasks(true, onlyStarred, false);
                     //index = -1;
-                    ((Stage)((ListView)event.getSource()).getScene().getWindow()).setTitle("Todo Items - Upcoming Month");
+                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - Upcoming Month");
                     break;
             }
             event.consume();
@@ -1793,17 +1808,22 @@ public class MainController implements Initializable {
         });
 
         listTasks(onlyActive, onlyStarred, true);
-
+        String currentDay = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         timeline = new Timeline(new KeyFrame(Duration.seconds(1), (ActionEvent event) -> {
             //final Calendar cal = Calendar.getInstance();
 
-            final String currentTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")).toString();
+            String currentTime = LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm"));
             clock.setText(currentTime);
-            for (int i = 0; i < allItems.size(); i++) {
-                if (allItems.get(i).getAlarm() != null && allItems.get(i).getAlarm().equals(currentTime)) {
-                    //play alarm and continue scanning
-                    executePlayAlarm(allItems.get(i).getId(), allItems.get(i).getDescription());
+            //
 
+            if (anyAlarm) {
+                for (int i = 0; i < allItems.size(); i++) {
+                    if (allItems.get(i).getAlarm() != null && allItems.get(i).getDate().equals(currentDay) && allItems.get(i).getAlarm().equals(currentTime)) {
+                        //play alarm and continue scanning
+                        anyAlarm = false; //will be updated in listTask anyway
+                        executePlayAlarm(allItems.get(i).getId(), allItems.get(i).getDescription());
+
+                    }
                 }
             }
         }));
