@@ -74,7 +74,7 @@ public class DBHandler {
             //INSERT query with description and status from parameters
             //and current date
             //no id is provided, DB handles on it's own
-            String query = "INSERT INTO " + dbName + " (name) "
+            String query = "INSERT INTO " + dbName + " (folder_name) "
                     + "VALUES ('" + name + "')";
             System.out.println(query);
             statement.executeQuery(query);
@@ -92,13 +92,13 @@ public class DBHandler {
             Statement statement = con.createStatement();
             statement.setQueryTimeout(30);  // set timeout to 30 sec.
 
-            String query = "SELECT * FROM " + dbName;;
+            String query = "SELECT * FROM " + dbName;
 
             System.out.println(query);
             ResultSet rs = statement.executeQuery(query);
             ObservableList<String> allFolders = FXCollections.observableArrayList();
             while (rs.next()) {
-                allFolders.add(rs.getString("name"));
+                allFolders.add(rs.getString("folder_name"));
             }
             return allFolders;
         } catch (SQLException sQLException) {
@@ -334,7 +334,7 @@ public class DBHandler {
             ResultSet rs = statement.executeQuery(query);
             ArrayList<TodoItem> allItems = new ArrayList<TodoItem>();
             while (rs.next()) {
-                allItems.add(new TodoItem(rs.getInt("id"), rs.getString("description"), rs.getString("date"), rs.getInt("status"), rs.getInt("starred"), rs.getInt("rank"), rs.getString("alarm"), rs.getString("folder")));
+                allItems.add(new TodoItem(rs.getInt("id"), rs.getString("description"), rs.getString("date"), rs.getInt("status"), rs.getInt("starred"), rs.getInt("rank"), rs.getString("alarm"), rs.getInt("folder_id")));
             }
             return allItems;
         } catch (SQLException sQLException) {

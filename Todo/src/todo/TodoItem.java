@@ -18,9 +18,9 @@ public class TodoItem {
     private int star;
     private int rank;
     private String alarm;
-    private String folder;
+    private int folder_id;
 
-    public TodoItem(long id, String description, String date, int status, int star, int rank, String alarm, String folder) {
+    public TodoItem(long id, String description, String date, int status, int star, int rank, String alarm, int folder_id) {
         this.id = id;
         this.description = description;
         this.date = date;
@@ -28,15 +28,15 @@ public class TodoItem {
         this.star = star;
         this.rank = rank;
         this.alarm = alarm;
-        this.folder = folder;
+        this.folder_id = folder_id;
     }
 
-    public String getFolder() {
-        return folder;
+    public int getFolderId() {
+        return folder_id;
     }
 
-    public void setFolder(String folder) {
-        this.folder = folder;
+    public void setFolderId(int folder_id) {
+        this.folder_id = folder_id;
     }
 
     public int getRank() {

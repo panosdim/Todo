@@ -974,19 +974,19 @@ public class MainController implements Initializable {
                     //check star
                     if (allItems.get(i).getStar() == 1) {
 
-                        activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolder()));
+                        activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
                     }
                     //otherwise, check dates
                 } else {
                     //check if showDate is set
                     if (showDateStart == null) {
                         //show all
-                        activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolder()));
+                        activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
                     } else {
                         //show only for selected date
                         if (showDateStart.toString().compareTo(allItems.get(i).getDate()) <= 0) {
                             if (showDateEnd.toString().compareTo(allItems.get(i).getDate()) >= 0) {
-                                activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolder()));
+                                activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
                             }
                         }
 
@@ -998,12 +998,12 @@ public class MainController implements Initializable {
                 //check if showDateStart is set
                 if (showDateStart == null) {
                     //show all
-                    doneItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolder()));
+                    doneItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
                 } else {
                     //show only for selected date
                     if (showDateStart.toString().compareTo(allItems.get(i).getDate()) <= 0) {
                         if (showDateEnd.toString().compareTo(allItems.get(i).getDate()) >= 0) {
-                            doneItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolder()));
+                            doneItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
                         }
                     }
                 }
