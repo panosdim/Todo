@@ -96,11 +96,12 @@ public class MainController implements Initializable {
     DBHandler dbFolders;
     private String descriptionText;
     private long id = -1; //id read from DB used to delete single task
+    private int folderFolderId = -1; //folder Id from DB, folder table
 
     private ObservableList<TodoItem> activeItems = FXCollections.observableArrayList(); //ObservableList of active items
     private ObservableList<TodoItem> doneItems = FXCollections.observableArrayList(); //ObservableList of done items
     private ObservableList<Label> menuItems = FXCollections.observableArrayList(); //ObservableList of left menu items
-    //private ObservableList<String> folderItems = FXCollections.observableArrayList(); //ObservableList of folder items
+    private ObservableList<FolderItem>  folderItems = FXCollections.observableArrayList(); //ObservableList of folder items
     private boolean onlyActive = true; //used to view all items or only active ones, default=true
     private boolean onlyStarred = false;
     private LocalDate localDate = null; //used to read from DatePicker 
@@ -176,6 +177,11 @@ public class MainController implements Initializable {
     MenuItem confirmAlarmSpinner = new MenuItem();
     Button confirmAlarm = new Button("Set Alarm");
     MenuItem removeAlarm = new MenuItem("Remove Alarm");
+
+    //menu items for folders
+    MenuItem removeFolderAll = new MenuItem("Delete Folder and all Items");
+    MenuItem removeFolderDefault = new MenuItem("Delete Folder but keep Items");
+    MenuItem removeFolderItems = new MenuItem("Delete All Items from folder");
 
     //
     //private final String strikeThrough = getClass().getResource("sceneCSS.css").toExternalForm();
@@ -512,6 +518,60 @@ public class MainController implements Initializable {
         for (int i = 0; i < activeItems.size(); i++) {
             db.changeItemRank(activeItems.get(i).getId(), i);
         }
+    }
+
+    //method to build context menu for folders
+    private void buildFoldersContextMenu() {
+
+        //Delete Folder and Items inside
+        EventHandler<ActionEvent> actionDeleteFolderAll = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                //db.deleteToDoItem(id);
+                //listTasks(onlyActive, onlyStarred);
+                //Warning Dialog Box for delete one task 
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+
+                alert.setTitle("Warning");
+                alert.setHeaderText("Would You Like To Delete Folder and All Item inside?");
+                alert.setContentText("Please choose an option.");
+
+                ButtonType yesButton = new ButtonType("Yes");
+                ButtonType noButton = new ButtonType("No");
+                ButtonType cancelButton = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+
+                alert.getButtonTypes().setAll(yesButton, noButton, cancelButton);
+
+                Optional<ButtonType> result = alert.showAndWait();
+
+                if (result.get() == yesButton) {
+                    db.deleteFolderItems(folderFolderId);
+                    dbFolders.deleteFolder(folderFolderId);
+                    //refresh list of tasks
+                    if (onlyStarred || showDateStart != null) {
+                        listTasks(true, onlyStarred, true);
+                    } else {
+                        listTasks(onlyActive, onlyStarred, true);
+                    }
+                    listFolders();
+                } else if (result.get() == noButton) {
+                    event.consume();
+                } else if (result.get() == cancelButton) {
+                    event.consume();
+                }
+
+            }
+        };
+
+        removeFolderAll.setOnAction(actionDeleteFolderAll);
+        removeFolderAll.setGraphic(new ImageView("/todo/delete.png"));
+        //removeFolderDefault;
+        //removeFolderItems;
+        
+        ContextMenu folderContextMenu = new ContextMenu(removeFolderAll);
+        folderList.setContextMenu(folderContextMenu);
+        
     }
 
     //method to build context menu
@@ -911,18 +971,21 @@ public class MainController implements Initializable {
 
     //private method to list all folders
     private void listFolders() {
-        final ObservableList<String> folderItems = dbFolders.viewFolderTable();
-        folderList.setItems(folderItems);
+        folderItems = dbFolders.viewFolderTable();
+        ObservableList<String> folderNames = FXCollections.observableArrayList();
+        for(int i = 0; i < folderItems.size(); i++) {
+            folderNames.add(folderItems.get(i).getFolderName());
+        }
+        folderList.setItems(folderNames);
+        menuFolders.clear();
         for (int i = 0; i < folderItems.size(); i++) {
-            menuFolders.add(new MenuItem(folderItems.get(i)));
-            menuFolders.get(i).setOnAction((event) -> {
-                
-               // db.assignFolder(id, folderList.getItems().get(i)  .get(i));
-            });
-            
+            menuFolders.add(new MenuItem(folderItems.get(i).getFolderName()));
+            //menuFolders.get(i).setOnAction((event) -> {
+
+            // db.assignFolder(id, folderList.getItems().get(i)  .get(i));
+            //});
         }
         assignFolder.getItems().addAll(menuFolders);
-
     }
 
 //private method for refreshing list of tasks
@@ -1584,6 +1647,7 @@ public class MainController implements Initializable {
         dbFolders = new DBHandler("folders");
         listFolders();
         buildTableContextMenu();
+        buildFoldersContextMenu();
 
         borderPane.setLeft(leftFlapBar);
         borderPane.setRight(rightFlapBar);
@@ -1595,6 +1659,22 @@ public class MainController implements Initializable {
         //description.setLayoutX(75);
         //rightEdit.setGraphic(new ImageView("/todo/edit.png"));
         //editItem.setGraphic(rightEdit);
+        
+        folderList.setOnMouseClicked((event) -> {
+            int indexLocal = folderList.getSelectionModel().getSelectedIndex();
+            folderFolderId = folderItems.get(indexLocal).getFolderId();
+            System.out.println("folder list, index="+indexLocal+"\tFolderId="+folderFolderId);
+            
+            switch(indexLocal) {
+                case -1:
+                    break;
+                case 0:
+                    break;
+                default:
+                    break;
+                    
+            }
+        });
 
         menuList.setOnMouseClicked((event) -> {
 
@@ -1702,7 +1782,7 @@ public class MainController implements Initializable {
                     ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - Upcoming Month");
                     break;
             }
-            event.consume();
+            //event.consume();
 
         });
 

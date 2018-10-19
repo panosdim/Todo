@@ -74,7 +74,7 @@ public class DBHandler {
             //INSERT query with description and status from parameters
             //and current date
             //no id is provided, DB handles on it's own
-            String query = "INSERT INTO " + dbName + " (folder_name) "
+            String query = "INSERT INTO " + dbName + " (name) "
                     + "VALUES ('" + name + "')";
             System.out.println(query);
             statement.executeQuery(query);
@@ -83,10 +83,28 @@ public class DBHandler {
         }
     }    
     
+    //This method deletes one entry from DB
+    //based on parameter id
+    public void deleteFolder(int folder_id) {
+
+        try {
+            Statement statement = con.createStatement();
+
+            statement.setQueryTimeout(30);  // set timeout to 30 sec.
+
+            //DELETE query is created WHERE id matches given id
+            String query = "DELETE FROM " + dbName + " WHERE folder_id=" + folder_id;
+            System.out.println(query);
+            statement.executeQuery(query);
+        } catch (SQLException sQLException) {
+        }
+    }    
+    
+    
     // This method outputs the contents of the table folders
     // In the method, con is a Connection object and dbName is the name of 
     // the database in which you are creating the table.
-    public ObservableList<String> viewFolderTable() {
+    public ObservableList<FolderItem> viewFolderTable() {
 
         try {
             Statement statement = con.createStatement();
@@ -96,9 +114,9 @@ public class DBHandler {
 
             System.out.println(query);
             ResultSet rs = statement.executeQuery(query);
-            ObservableList<String> allFolders = FXCollections.observableArrayList();
+            ObservableList<FolderItem> allFolders = FXCollections.observableArrayList();
             while (rs.next()) {
-                allFolders.add(rs.getString("folder_name"));
+                allFolders.add(new FolderItem(rs.getInt("folder_id"), rs.getString("name")));
             }
             return allFolders;
         } catch (SQLException sQLException) {
@@ -124,8 +142,8 @@ public class DBHandler {
             //INSERT query with description and status from parameters
             //and current date
             //no id is provided, DB handles on it's own
-            String query = "INSERT INTO " + dbName + " (Description, Date, Status, Starred, rank) "
-                    + "VALUES ('" + Description + "', '" + date + "', '" + Integer.toString(Status) + "', " + star + ", " + rank + ")";
+            String query = "INSERT INTO " + dbName + " (Description, Date, Status, Starred, rank, folder_id) "
+                    + "VALUES ('" + Description + "', '" + date + "', " + Status + ", " + star + ", " + rank + ", 1)";
             System.out.println(query);
             statement.executeQuery(query);
 
@@ -166,6 +184,23 @@ public class DBHandler {
         } catch (SQLException sQLException) {
         }
     }
+    
+    //This method deletes entries from specified folder
+    //based on parameter id
+    public void deleteFolderItems(int folder_id) {
+
+        try {
+            Statement statement = con.createStatement();
+
+            statement.setQueryTimeout(30);  // set timeout to 30 sec.
+
+            //DELETE query is created WHERE id matches given id
+            String query = "DELETE FROM " + dbName + " WHERE folder_id=" + folder_id;
+            System.out.println(query);
+            statement.executeQuery(query);
+        } catch (SQLException sQLException) {
+        }
+    }    
 
     //setDueDate
     //This method changes status of one entry from DB
