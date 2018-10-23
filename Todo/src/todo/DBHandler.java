@@ -127,7 +127,7 @@ public class DBHandler {
     //with description and status from parameter list
     //and current date
     //DB handles ID on it's own
-    public void insertToDoItem(String Description, int Status, String date, int star, int rank) {
+    public void insertToDoItem(String Description, int Status, String date, int star, int rank, int folder_id) {
 
         try {
             Statement statement = con.createStatement();
@@ -140,7 +140,7 @@ public class DBHandler {
             //and current date
             //no id is provided, DB handles on it's own
             String query = "INSERT INTO " + dbName + " (Description, Date, Status, Starred, rank, folder_id) "
-                    + "VALUES ('" + Description + "', '" + date + "', " + Status + ", " + star + ", " + rank + ", 1)";
+                    + "VALUES ('" + Description + "', '" + date + "', " + Status + ", " + star + ", " + rank + ", " + folder_id +")";
             System.out.println(query);
             statement.executeQuery(query);
 
@@ -215,6 +215,24 @@ public class DBHandler {
         } catch (SQLException sQLException) {
         }
     }
+    
+    
+    //This method moves one Item to selected folder
+    public void moveItem(int folder_id, long id) {
+
+        try {
+            Statement statement = con.createStatement();
+
+            statement.setQueryTimeout(30);  // set timeout to 30 sec.
+
+            //UPDATE query is created WHERE folder_id matches given folder_id
+            //SET folder_id = 1
+            String query = "UPDATE " + dbName + " SET folder_id = " + folder_id + " WHERE id=" + id;
+            System.out.println(query);
+            statement.executeQuery(query);
+        } catch (SQLException sQLException) {
+        }
+    }    
 
     //setDueDate
     //This method changes status of one entry from DB

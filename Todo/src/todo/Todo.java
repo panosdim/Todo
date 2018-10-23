@@ -31,7 +31,7 @@ public class Todo extends Application {
         
         Scene scene = new Scene(root);
         stage.getIcons().add(new Image(getClass().getResourceAsStream("todo1.png")));
-        stage.setTitle("Todo Items");
+        stage.setTitle("Todo Items - INTRACOM TELECOM");
         //set background photo
         scene.getStylesheets().addAll(this.getClass().getResource("sceneCSS.css").toExternalForm());
         //stage.isResizable( );

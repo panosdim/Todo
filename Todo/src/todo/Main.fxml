@@ -34,7 +34,8 @@
                                                         <Tooltip text="Due date of the Todo task" />
                                                     </tooltip>
                                                 </DatePicker>
-                                                <Label fx:id="clock" alignment="TOP_RIGHT" contentDisplay="TOP" opacity="0.8" text="clock" textAlignment="CENTER" />
+                                                
+                                                <Label fx:id="clock" alignment="CENTER" opacity="0.8" text="clock" textAlignment="CENTER" prefWidth="100.0" minWidth="100.0"/>
                                             </children>
                                         </HBox>
                                         <HBox maxHeight="40.0" minHeight="40.0" prefHeight="40.0" spacing="15.0" VBox.vgrow="ALWAYS">

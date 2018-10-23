@@ -13,16 +13,13 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import javafx.scene.input.MouseEvent;
 import java.net.URL;
-import static java.sql.JDBCType.NULL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
 import java.util.ResourceBundle;
@@ -31,7 +28,6 @@ import java.util.logging.Logger;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
-import javafx.beans.binding.Bindings;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -45,8 +41,6 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -62,7 +56,6 @@ import javafx.scene.control.TableColumn.CellEditEvent;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ToolBar;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
@@ -75,13 +68,13 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Background;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.TilePane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
+import javafx.scene.shape.SVGPath;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Duration;
@@ -97,7 +90,7 @@ public class MainController implements Initializable {
     DBHandler dbFolders;
     private String descriptionText;
     private long id = -1; //id read from DB used to delete single task
-    private int folderFolderId = -1; //folder Id from DB, folder table
+    private int folderFolderId = 1; //folder Id from DB, folder table
 
     private ObservableList<TodoItem> activeItems = FXCollections.observableArrayList(); //ObservableList of active items
     private ObservableList<TodoItem> doneItems = FXCollections.observableArrayList(); //ObservableList of done items
@@ -132,12 +125,32 @@ public class MainController implements Initializable {
     //shortcut ctrl+M to email selected item
     private KeyCombination cntrlM = new KeyCodeCombination(KeyCode.M, KeyCodeCombination.CONTROL_DOWN);
 
+    private final String trashBucketSVG = "M16.588,3.411h-4.466c0.042-0.116,0.074-0.236,0.074-0.366c0-0.606-0.492-1.098-1.099-1.098H8.901c-0.607,0-1.098,0.492-1.098,1.098c0,0.13,0.033,0.25,0.074,0.366H3.41c-0.606,0-1.098,0.492-1.098,1.098c0,0.607,0.492,1.098,1.098,1.098h0.366V16.59c0,0.808,0.655,1.464,1.464,1.464h9.517c0.809,0,1.466-0.656,1.466-1.464V5.607h0.364c0.607,0,1.1-0.491,1.1-1.098C17.688,3.903,17.195,3.411,16.588,3.411z M8.901,2.679h2.196c0.202,0,0.366,0.164,0.366,0.366S11.3,3.411,11.098,3.411H8.901c-0.203,0-0.366-0.164-0.366-0.366S8.699,2.679,8.901,2.679z M15.491,16.59c0,0.405-0.329,0.731-0.733,0.731H5.241c-0.404,0-0.732-0.326-0.732-0.731V5.607h10.983V16.59z M16.588,4.875H3.41c-0.203,0-0.366-0.164-0.366-0.366S3.208,4.143,3.41,4.143h13.178c0.202,0,0.367,0.164,0.367,0.366S16.79,4.875,16.588,4.875zM6.705,14.027h6.589c0.202,0,0.366-0.164,0.366-0.366s-0.164-0.367-0.366-0.367H6.705c-0.203,0-0.366,0.165-0.366,0.367S6.502,14.027,6.705,14.027z M6.705,11.83h6.589c0.202,0,0.366-0.164,0.366-0.365c0-0.203-0.164-0.367-0.366-0.367H6.705c-0.203,0-0.366,0.164-0.366,0.367C6.339,11.666,6.502,11.83,6.705,11.83z M6.705,9.634h6.589c0.202,0,0.366-0.164,0.366-0.366c0-0.202-0.164-0.366-0.366-0.366H6.705c-0.203,0-0.366,0.164-0.366,0.366C6.339,9.47,6.502,9.634,6.705,9.634z";
+    private final String envelopeSVG = "M17.388,4.751H2.613c-0.213,0-0.389,0.175-0.389,0.389v9.72c0,0.216,0.175,0.389,0.389,0.389h14.775c0.214,0,0.389-0.173,0.389-0.389v-9.72C17.776,4.926,17.602,4.751,17.388,4.751 M16.448,5.53L10,11.984L3.552,5.53H16.448zM3.002,6.081l3.921,3.925l-3.921,3.925V6.081z M3.56,14.471l3.914-3.916l2.253,2.253c0.153,0.153,0.395,0.153,0.548,0l2.253-2.253l3.913,3.916H3.56z M16.999,13.931l-3.921-3.925l3.921-3.925V13.931z";
+    private final String backToActiveSVG = "M3.24,7.51c-0.146,0.142-0.146,0.381,0,0.523l5.199,5.193c0.234,0.238,0.633,0.064,0.633-0.262v-2.634c0.105-0.007,0.212-0.011,0.321-0.011c2.373,0,4.302,1.91,4.302,4.258c0,0.957-0.33,1.809-1.008,2.602c-0.259,0.307,0.084,0.762,0.451,0.572c2.336-1.195,3.73-3.408,3.73-5.924c0-3.741-3.103-6.783-6.916-6.783c-0.307,0-0.615,0.028-0.881,0.063V2.575c0-0.327-0.398-0.5-0.633-0.261L3.24,7.51 M4.027,7.771l4.301-4.3v2.073c0,0.232,0.21,0.409,0.441,0.366c0.298-0.056,0.746-0.123,1.184-0.123c3.402,0,6.172,2.709,6.172,6.041c0,1.695-0.718,3.24-1.979,4.352c0.193-0.51,0.293-1.045,0.293-1.602c0-2.76-2.266-5-5.046-5c-0.256,0-0.528,0.018-0.747,0.05C8.465,9.653,8.328,9.81,8.328,9.995v2.074L4.027,7.771z";
+    private final String calendarSVG = "M16.557,4.467h-1.64v-0.82c0-0.225-0.183-0.41-0.409-0.41c-0.226,0-0.41,0.185-0.41,0.41v0.82H5.901v-0.82c0-0.225-0.185-0.41-0.41-0.41c-0.226,0-0.41,0.185-0.41,0.41v0.82H3.442c-0.904,0-1.64,0.735-1.64,1.639v9.017c0,0.904,0.736,1.64,1.64,1.64h13.114c0.904,0,1.64-0.735,1.64-1.64V6.106C18.196,5.203,17.461,4.467,16.557,4.467 M17.377,15.123c0,0.453-0.366,0.819-0.82,0.819H3.442c-0.453,0-0.82-0.366-0.82-0.819V8.976h14.754V15.123z M17.377,8.156H2.623V6.106c0-0.453,0.367-0.82,0.82-0.82h1.639v1.23c0,0.225,0.184,0.41,0.41,0.41c0.225,0,0.41-0.185,0.41-0.41v-1.23h8.196v1.23c0,0.225,0.185,0.41,0.41,0.41c0.227,0,0.409-0.185,0.409-0.41v-1.23h1.64c0.454,0,0.82,0.367,0.82,0.82V8.156z";
+    private final String setAlarmSVG = "M14.38,3.467l0.232-0.633c0.086-0.226-0.031-0.477-0.264-0.559c-0.229-0.081-0.48,0.033-0.562,0.262l-0.234,0.631C10.695,2.38,7.648,3.89,6.616,6.689l-1.447,3.93l-2.664,1.227c-0.354,0.166-0.337,0.672,0.035,0.805l4.811,1.729c-0.19,1.119,0.445,2.25,1.561,2.65c1.119,0.402,2.341-0.059,2.923-1.039l4.811,1.73c0,0.002,0.002,0.002,0.002,0.002c0.23,0.082,0.484-0.033,0.568-0.262c0.049-0.129,0.029-0.266-0.041-0.377l-1.219-2.586l1.447-3.932C18.435,7.768,17.085,4.676,14.38,3.467 M9.215,16.211c-0.658-0.234-1.054-0.869-1.014-1.523l2.784,0.998C10.588,16.215,9.871,16.447,9.215,16.211 M16.573,10.27l-1.51,4.1c-0.041,0.107-0.037,0.227,0.012,0.33l0.871,1.844l-4.184-1.506l-3.734-1.342l-4.185-1.504l1.864-0.857c0.104-0.049,0.188-0.139,0.229-0.248l1.51-4.098c0.916-2.487,3.708-3.773,6.222-2.868C16.187,5.024,17.489,7.783,16.573,10.27";
+    private final String starSVG = "M15.94,10.179l-2.437-0.325l1.62-7.379c0.047-0.235-0.132-0.458-0.372-0.458H5.25c-0.241,0-0.42,0.223-0.373,0.458l1.634,7.376L4.06,10.179c-0.312,0.041-0.446,0.425-0.214,0.649l2.864,2.759l-0.724,3.947c-0.058,0.315,0.277,0.554,0.559,0.401l3.457-1.916l3.456,1.916c-0.419-0.238,0.56,0.439,0.56-0.401l-0.725-3.947l2.863-2.759C16.388,10.604,16.254,10.22,15.94,10.179M10.381,2.778h3.902l-1.536,6.977L12.036,9.66l-1.655-3.546V2.778z M5.717,2.778h3.903v3.335L7.965,9.66L7.268,9.753L5.717,2.778zM12.618,13.182c-0.092,0.088-0.134,0.217-0.11,0.343l0.615,3.356l-2.938-1.629c-0.057-0.03-0.122-0.048-0.184-0.048c-0.063,0-0.128,0.018-0.185,0.048l-2.938,1.629l0.616-3.356c0.022-0.126-0.019-0.255-0.11-0.343l-2.441-2.354l3.329-0.441c0.128-0.017,0.24-0.099,0.295-0.215l1.435-3.073l1.435,3.073c0.055,0.116,0.167,0.198,0.294,0.215l3.329,0.441L12.618,13.182z";
+    private final String unstarSVG = "M16.85,7.275l-3.967-0.577l-1.773-3.593c-0.208-0.423-0.639-0.69-1.11-0.69s-0.902,0.267-1.11,0.69L7.116,6.699L3.148,7.275c-0.466,0.068-0.854,0.394-1,0.842c-0.145,0.448-0.023,0.941,0.314,1.27l2.871,2.799l-0.677,3.951c-0.08,0.464,0.112,0.934,0.493,1.211c0.217,0.156,0.472,0.236,0.728,0.236c0.197,0,0.396-0.048,0.577-0.143l3.547-1.864l3.548,1.864c0.18,0.095,0.381,0.143,0.576,0.143c0.256,0,0.512-0.08,0.729-0.236c0.381-0.277,0.572-0.747,0.492-1.211l-0.678-3.951l2.871-2.799c0.338-0.329,0.459-0.821,0.314-1.27C17.705,7.669,17.316,7.343,16.85,7.275z M13.336,11.754l0.787,4.591l-4.124-2.167l-4.124,2.167l0.788-4.591L3.326,8.5l4.612-0.67l2.062-4.177l2.062,4.177l4.613,0.67L13.336,11.754z";
+    private final String clockSVG = "M10.25,2.375c-4.212,0-7.625,3.413-7.625,7.625s3.413,7.625,7.625,7.625s7.625-3.413,7.625-7.625S14.462,2.375,10.25,2.375M10.651,16.811v-0.403c0-0.221-0.181-0.401-0.401-0.401s-0.401,0.181-0.401,0.401v0.403c-3.443-0.201-6.208-2.966-6.409-6.409h0.404c0.22,0,0.401-0.181,0.401-0.401S4.063,9.599,3.843,9.599H3.439C3.64,6.155,6.405,3.391,9.849,3.19v0.403c0,0.22,0.181,0.401,0.401,0.401s0.401-0.181,0.401-0.401V3.19c3.443,0.201,6.208,2.965,6.409,6.409h-0.404c-0.22,0-0.4,0.181-0.4,0.401s0.181,0.401,0.4,0.401h0.404C16.859,13.845,14.095,16.609,10.651,16.811 M12.662,12.412c-0.156,0.156-0.409,0.159-0.568,0l-2.127-2.129C9.986,10.302,9.849,10.192,9.849,10V5.184c0-0.221,0.181-0.401,0.401-0.401s0.401,0.181,0.401,0.401v4.651l2.011,2.008C12.818,12.001,12.818,12.256,12.662,12.412";
+    private final String doSVG = "M10.219,1.688c-4.471,0-8.094,3.623-8.094,8.094s3.623,8.094,8.094,8.094s8.094-3.623,8.094-8.094S14.689,1.688,10.219,1.688 M10.219,17.022c-3.994,0-7.242-3.247-7.242-7.241c0-3.994,3.248-7.242,7.242-7.242c3.994,0,7.241,3.248,7.241,7.242C17.46,13.775,14.213,17.022,10.219,17.022 M15.099,7.03c-0.167-0.167-0.438-0.167-0.604,0.002L9.062,12.48l-2.269-2.277c-0.166-0.167-0.437-0.167-0.603,0c-0.166,0.166-0.168,0.437-0.002,0.603l2.573,2.578c0.079,0.08,0.188,0.125,0.3,0.125s0.222-0.045,0.303-0.125l5.736-5.751C15.268,7.466,15.265,7.196,15.099,7.03";
+    private final String undoSVG = "M14.776,10c0,0.239-0.195,0.434-0.435,0.434H5.658c-0.239,0-0.434-0.195-0.434-0.434s0.195-0.434,0.434-0.434h8.684C14.581,9.566,14.776,9.762,14.776,10 M18.25,10c0,4.558-3.693,8.25-8.25,8.25c-4.557,0-8.25-3.691-8.25-8.25c0-4.557,3.693-8.25,8.25-8.25C14.557,1.75,18.25,5.443,18.25,10 M17.382,10c0-4.071-3.312-7.381-7.382-7.381C5.929,2.619,2.619,5.93,2.619,10c0,4.07,3.311,7.382,7.381,7.382C14.07,17.383,17.382,14.07,17.382,10";
+    private final String editSVG = "M19.404,6.65l-5.998-5.996c-0.292-0.292-0.765-0.292-1.056,0l-2.22,2.22l-8.311,8.313l-0.003,0.001v0.003l-0.161,0.161c-0.114,0.112-0.187,0.258-0.21,0.417l-1.059,7.051c-0.035,0.233,0.044,0.47,0.21,0.639c0.143,0.14,0.333,0.219,0.528,0.219c0.038,0,0.073-0.003,0.111-0.009l7.054-1.055c0.158-0.025,0.306-0.098,0.417-0.211l8.478-8.476l2.22-2.22C19.695,7.414,19.695,6.941,19.404,6.65z M8.341,16.656l-0.989-0.99l7.258-7.258l0.989,0.99L8.341,16.656z M2.332,15.919l0.411-2.748l4.143,4.143l-2.748,0.41L2.332,15.919z M13.554,7.351L6.296,14.61l-0.849-0.848l7.259-7.258l0.423,0.424L13.554,7.351zM10.658,4.457l0.992,0.99l-7.259,7.258L3.4,11.715L10.658,4.457z M16.656,8.342l-1.517-1.517V6.823h-0.003l-0.951-0.951l-2.471-2.471l1.164-1.164l4.942,4.94L16.656,8.342z";
+    private final String removeAlarmSVG = "M3.401,13.367h0.959l1.56-1.56H4.181v-4.07h3.177c0.207,0,0.405-0.084,0.553-0.23l3.608-3.633V6.21l1.56-1.56V1.983c0-0.315-0.192-0.602-0.485-0.721c-0.29-0.122-0.624-0.055-0.85,0.171L7.032,6.178h-3.63c-0.433,0-0.78,0.349-0.78,0.78v5.629C2.621,13.018,2.968,13.367,3.401,13.367z M11.519,15.674l-2.416-2.418L8,14.358l3.745,3.753c0.149,0.149,0.349,0.228,0.553,0.228c0.1,0,0.201-0.019,0.297-0.059c0.291-0.12,0.483-0.405,0.483-0.72V9.28l-1.56,1.56V15.674z M19.259,0.785c-0.167-0.168-0.387-0.25-0.606-0.25s-0.438,0.082-0.606,0.25l-4.968,4.968l-1.56,1.56l-4.496,4.494l-1.56,1.56L0.83,18.001c-0.335,0.335-0.335,0.877,0,1.213c0.167,0.167,0.386,0.251,0.606,0.251c0.22,0,0.439-0.084,0.606-0.251l5.407-5.407l1.105-1.104l2.965-2.966l1.56-1.56l6.18-6.181C19.594,1.664,19.594,1.12,19.259,0.785z";
+    private final String showAllSVG = "M2.25,12.584c-0.713,0-1.292,0.578-1.292,1.291s0.579,1.291,1.292,1.291c0.713,0,1.292-0.578,1.292-1.291S2.963,12.584,2.25,12.584z M2.25,14.307c-0.238,0-0.43-0.193-0.43-0.432s0.192-0.432,0.43-0.432c0.238,0,0.431,0.193,0.431,0.432S2.488,14.307,2.25,14.307z M5.694,6.555H18.61c0.237,0,0.431-0.191,0.431-0.43s-0.193-0.431-0.431-0.431H5.694c-0.238,0-0.43,0.192-0.43,0.431S5.457,6.555,5.694,6.555z M2.25,8.708c-0.713,0-1.292,0.578-1.292,1.291c0,0.715,0.579,1.292,1.292,1.292c0.713,0,1.292-0.577,1.292-1.292C3.542,9.287,2.963,8.708,2.25,8.708z M2.25,10.43c-0.238,0-0.43-0.192-0.43-0.431c0-0.237,0.192-0.43,0.43-0.43c0.238,0,0.431,0.192,0.431,0.43C2.681,10.238,2.488,10.43,2.25,10.43z M18.61,9.57H5.694c-0.238,0-0.43,0.192-0.43,0.43c0,0.238,0.192,0.431,0.43,0.431H18.61c0.237,0,0.431-0.192,0.431-0.431C19.041,9.762,18.848,9.57,18.61,9.57z M18.61,13.443H5.694c-0.238,0-0.43,0.193-0.43,0.432s0.192,0.432,0.43,0.432H18.61c0.237,0,0.431-0.193,0.431-0.432S18.848,13.443,18.61,13.443z M2.25,4.833c-0.713,0-1.292,0.578-1.292,1.292c0,0.713,0.579,1.291,1.292,1.291c0.713,0,1.292-0.578,1.292-1.291C3.542,5.412,2.963,4.833,2.25,4.833z M2.25,6.555c-0.238,0-0.43-0.191-0.43-0.43s0.192-0.431,0.43-0.431c0.238,0,0.431,0.192,0.431,0.431S2.488,6.555,2.25,6.555z";
+    private final String showDateSVG = "M16.254,3.399h-0.695V3.052c0-0.576-0.467-1.042-1.041-1.042c-0.576,0-1.043,0.467-1.043,1.042v0.347H6.526V3.052c0-0.576-0.467-1.042-1.042-1.042S4.441,2.476,4.441,3.052v0.347H3.747c-0.768,0-1.39,0.622-1.39,1.39v11.813c0,0.768,0.622,1.39,1.39,1.39h12.507c0.768,0,1.391-0.622,1.391-1.39V4.789C17.645,4.021,17.021,3.399,16.254,3.399z M14.17,3.052c0-0.192,0.154-0.348,0.348-0.348c0.191,0,0.348,0.156,0.348,0.348v0.347H14.17V3.052z M5.136,3.052c0-0.192,0.156-0.348,0.348-0.348S5.831,2.86,5.831,3.052v0.347H5.136V3.052z M16.949,16.602c0,0.384-0.311,0.694-0.695,0.694H3.747c-0.384,0-0.695-0.311-0.695-0.694V7.568h13.897V16.602z M16.949,6.874H3.052V4.789c0-0.383,0.311-0.695,0.695-0.695h12.507c0.385,0,0.695,0.312,0.695,0.695V6.874z M5.484,11.737c0.576,0,1.042-0.467,1.042-1.042c0-0.576-0.467-1.043-1.042-1.043s-1.042,0.467-1.042,1.043C4.441,11.271,4.908,11.737,5.484,11.737z M5.484,10.348c0.192,0,0.347,0.155,0.347,0.348c0,0.191-0.155,0.348-0.347,0.348s-0.348-0.156-0.348-0.348C5.136,10.503,5.292,10.348,5.484,10.348z M14.518,11.737c0.574,0,1.041-0.467,1.041-1.042c0-0.576-0.467-1.043-1.041-1.043c-0.576,0-1.043,0.467-1.043,1.043C13.475,11.271,13.941,11.737,14.518,11.737z M14.518,10.348c0.191,0,0.348,0.155,0.348,0.348c0,0.191-0.156,0.348-0.348,0.348c-0.193,0-0.348-0.156-0.348-0.348C14.17,10.503,14.324,10.348,14.518,10.348z M14.518,15.212c0.574,0,1.041-0.467,1.041-1.043c0-0.575-0.467-1.042-1.041-1.042c-0.576,0-1.043,0.467-1.043,1.042C13.475,14.745,13.941,15.212,14.518,15.212z M14.518,13.822c0.191,0,0.348,0.155,0.348,0.347c0,0.192-0.156,0.348-0.348,0.348c-0.193,0-0.348-0.155-0.348-0.348C14.17,13.978,14.324,13.822,14.518,13.822z M10,15.212c0.575,0,1.042-0.467,1.042-1.043c0-0.575-0.467-1.042-1.042-1.042c-0.576,0-1.042,0.467-1.042,1.042C8.958,14.745,9.425,15.212,10,15.212z M10,13.822c0.192,0,0.348,0.155,0.348,0.347c0,0.192-0.156,0.348-0.348,0.348s-0.348-0.155-0.348-0.348C9.653,13.978,9.809,13.822,10,13.822z M5.484,15.212c0.576,0,1.042-0.467,1.042-1.043c0-0.575-0.467-1.042-1.042-1.042s-1.042,0.467-1.042,1.042C4.441,14.745,4.908,15.212,5.484,15.212z M5.484,13.822c0.192,0,0.347,0.155,0.347,0.347c0,0.192-0.155,0.348-0.347,0.348s-0.348-0.155-0.348-0.348C5.136,13.978,5.292,13.822,5.484,13.822z M10,11.737c0.575,0,1.042-0.467,1.042-1.042c0-0.576-0.467-1.043-1.042-1.043c-0.576,0-1.042,0.467-1.042,1.043C8.958,11.271,9.425,11.737,10,11.737z M10,10.348c0.192,0,0.348,0.155,0.348,0.348c0,0.191-0.156,0.348-0.348,0.348s-0.348-0.156-0.348-0.348C9.653,10.503,9.809,10.348,10,10.348z";
+    private final String activeSVG = "M9.917,0.875c-5.086,0-9.208,4.123-9.208,9.208c0,5.086,4.123,9.208,9.208,9.208s9.208-4.122,9.208-9.208\n"
+            + "								C19.125,4.998,15.003,0.875,9.917,0.875z M9.917,18.141c-4.451,0-8.058-3.607-8.058-8.058s3.607-8.057,8.058-8.057\n"
+            + "								c4.449,0,8.057,3.607,8.057,8.057S14.366,18.141,9.917,18.141z M13.851,6.794l-5.373,5.372L5.984,9.672\n"
+            + "								c-0.219-0.219-0.575-0.219-0.795,0c-0.219,0.22-0.219,0.575,0,0.794l2.823,2.823c0.02,0.028,0.031,0.059,0.055,0.083\n"
+            + "								c0.113,0.113,0.263,0.166,0.411,0.162c0.148,0.004,0.298-0.049,0.411-0.162c0.024-0.024,0.036-0.055,0.055-0.083l5.701-5.7\n"
+            + "								c0.219-0.219,0.219-0.575,0-0.794C14.425,6.575,14.069,6.575,13.851,6.794z";
     //declarations of Menu Items
     MenuItem deleteMenuItem = new MenuItem("Delete Item");
     MenuItem setDoneMenuItem = new MenuItem("Set Item to Done");
     MenuItem setActiveItem = new MenuItem("Set Item to Pending");
     Menu setDueDate = new Menu("Set Due Date");
-    Menu assignFolder = new Menu("Assign to Folder...");
+    //Menu assignFolder = new Menu("Assign to Folder...");
     //MenuItem setDueToday = new MenuItem("today");
     //MenuItem setDueTomorrow = new MenuItem("tomorrow");
     DatePicker menuDatePicker = new DatePicker();
@@ -340,7 +353,7 @@ public class MainController implements Initializable {
 
             id = activeItemsTable.getItems().get(index).getId();
             //terminal printout of both: list ID and DB's ID just for check
-            System.out.println(id + "\t" + index + "\t fav=" + activeItemsTable.getItems().get(index).getStar() + "\t rank=" + activeItemsTable.getItems().get(index).getRank() + "\t status=" + activeItemsTable.getItems().get(index).getStatus());
+            System.out.println(id + "\t" + index + "\t fav=" + activeItemsTable.getItems().get(index).getStar() + "\t rank=" + activeItemsTable.getItems().get(index).getRank() + "\t status=" + activeItemsTable.getItems().get(index).getStatus() + "\t folderId=" + activeItemsTable.getItems().get(index).getFolderId());
 
             //dynamic context menu
             dynamicContextMenu(activeItemsTable.getItems().get(index));
@@ -399,7 +412,7 @@ public class MainController implements Initializable {
         if (result.get() == yesButton) {
             db.deleteToDoItem();
             //refresh list of tasks
-            listTasks(onlyActive, onlyStarred, true, 1);
+            listTasks(onlyActive, onlyStarred, true, folderFolderId);
         } else if (result.get() == noButton) {
             event.consume();
         } else if (result.get() == cancelButton) {
@@ -429,7 +442,7 @@ public class MainController implements Initializable {
             }
 
             //refresh list of tasks
-            listTasks(onlyActive, onlyStarred, true, 1);
+            listTasks(onlyActive, onlyStarred, true, folderFolderId);
         } else if (result.get() == noButton) {
             event.consume();
         } else if (result.get() == cancelButton) {
@@ -468,7 +481,7 @@ public class MainController implements Initializable {
         }
 
         //refresh list of tasks
-        listTasks(onlyActive, onlyStarred, false, 1);
+        listTasks(onlyActive, onlyStarred, false, folderFolderId);
     }
 
     //handleDatePicker
@@ -478,7 +491,7 @@ public class MainController implements Initializable {
         if (localDate != null) {
             if (descriptionText != null) {
                 //create new item
-                db.insertToDoItem(descriptionText, 1, localDate.toString(), onlyStarred ? 1 : 0, activeItems.size());
+                db.insertToDoItem(descriptionText, 1, localDate.toString(), onlyStarred ? 1 : 0, activeItems.size(), folderFolderId);
 
                 //clear description field, ready for next task
                 description.clear();
@@ -492,9 +505,9 @@ public class MainController implements Initializable {
 
                 //refresh list of tasks after every task
                 if (onlyStarred || showDateStart != null) {
-                    listTasks(true, onlyStarred, true, 1);
+                    listTasks(true, onlyStarred, true, folderFolderId);
                 } else {
-                    listTasks(onlyActive, onlyStarred, true, 1);
+                    listTasks(onlyActive, onlyStarred, true, folderFolderId);
                 }
             } else {
                 System.out.println(localDate.toString());
@@ -553,9 +566,9 @@ public class MainController implements Initializable {
                     dbFolders.deleteFolder(folderFolderId);
                     //refresh list of tasks
                     if (onlyStarred || showDateStart != null) {
-                        listTasks(true, onlyStarred, true, 1);
+                        listTasks(true, onlyStarred, true, folderFolderId);
                     } else {
-                        listTasks(onlyActive, onlyStarred, true, 1);
+                        listTasks(onlyActive, onlyStarred, true, folderFolderId);
                     }
                     listFolders();
                 } else if (result.get() == noButton) {
@@ -594,9 +607,9 @@ public class MainController implements Initializable {
                     dbFolders.deleteFolder(folderFolderId);
                     //refresh list of tasks
                     if (onlyStarred || showDateStart != null) {
-                        listTasks(true, onlyStarred, true, 1);
+                        listTasks(true, onlyStarred, true, folderFolderId);
                     } else {
-                        listTasks(onlyActive, onlyStarred, true, 1);
+                        listTasks(onlyActive, onlyStarred, true, folderFolderId);
                     }
                     listFolders();
                 } else if (result.get() == noButton) {
@@ -635,9 +648,9 @@ public class MainController implements Initializable {
                     //dbFolders.deleteFolder(folderFolderId);
                     //refresh list of tasks
                     if (onlyStarred || showDateStart != null) {
-                        listTasks(true, onlyStarred, true, 1);
+                        listTasks(true, onlyStarred, true, folderFolderId);
                     } else {
-                        listTasks(onlyActive, onlyStarred, true, 1);
+                        listTasks(onlyActive, onlyStarred, true, folderFolderId);
                     }
                     listFolders();
                 } else if (result.get() == noButton) {
@@ -660,8 +673,8 @@ public class MainController implements Initializable {
         folderList.setContextMenu(folderContextMenu);
 
     }
-
     //method to build context menu
+
     private void buildTableContextMenu() {
 
         //declarations of actions for Menu Items
@@ -677,9 +690,9 @@ public class MainController implements Initializable {
                 MediaPlayer mediaPlayer = new MediaPlayer(sound);
                 mediaPlayer.play();
                 if (onlyStarred || showDateStart != null) {
-                    listTasks(true, onlyStarred, true, 1);
+                    listTasks(true, onlyStarred, true, folderFolderId);
                 } else {
-                    listTasks(onlyActive, onlyStarred, true, 1);
+                    listTasks(onlyActive, onlyStarred, true, folderFolderId);
                 }
 
             }
@@ -690,7 +703,7 @@ public class MainController implements Initializable {
             @Override
             public void handle(ActionEvent event) {
                 db.changeItemStatus(id, 1, activeItems.size());
-                listTasks(onlyActive, onlyStarred, true, 1);
+                listTasks(onlyActive, onlyStarred, true, folderFolderId);
             }
         };
 
@@ -700,9 +713,9 @@ public class MainController implements Initializable {
             public void handle(ActionEvent event) {
                 db.changeStarred(id, 1);
                 if (onlyStarred || showDateStart != null) {
-                    listTasks(true, onlyStarred, true, 1);
+                    listTasks(true, onlyStarred, true, folderFolderId);
                 } else {
-                    listTasks(onlyActive, onlyStarred, true, 1);
+                    listTasks(onlyActive, onlyStarred, true, folderFolderId);
                 }
             }
         };
@@ -713,9 +726,9 @@ public class MainController implements Initializable {
             public void handle(ActionEvent event) {
                 db.changeStarred(id, 0);
                 if (onlyStarred || showDateStart != null) {
-                    listTasks(true, onlyStarred, true, 1);
+                    listTasks(true, onlyStarred, true, folderFolderId);
                 } else {
-                    listTasks(onlyActive, onlyStarred, true, 1);
+                    listTasks(onlyActive, onlyStarred, true, folderFolderId);
                 }
             }
         };
@@ -731,9 +744,9 @@ public class MainController implements Initializable {
                     db.setAlarm(id, spinnerTime);
 
                     if (onlyStarred || showDateStart != null) {
-                        listTasks(true, onlyStarred, true, 1);
+                        listTasks(true, onlyStarred, true, folderFolderId);
                     } else {
-                        listTasks(onlyActive, onlyStarred, true, 1);
+                        listTasks(onlyActive, onlyStarred, true, folderFolderId);
                     }
                 }
 
@@ -746,9 +759,9 @@ public class MainController implements Initializable {
             public void handle(ActionEvent event) {
                 db.setAlarm(id, null);
                 if (onlyStarred || showDateStart != null) {
-                    listTasks(true, onlyStarred, true, 1);
+                    listTasks(true, onlyStarred, true, folderFolderId);
                 } else {
-                    listTasks(onlyActive, onlyStarred, true, 1);
+                    listTasks(onlyActive, onlyStarred, true, folderFolderId);
                 }
 
             }
@@ -788,9 +801,9 @@ public class MainController implements Initializable {
                     db.deleteToDoItem(id);
                     //refresh list of tasks
                     if (onlyStarred || showDateStart != null) {
-                        listTasks(true, onlyStarred, true, 1);
+                        listTasks(true, onlyStarred, true, folderFolderId);
                     } else {
-                        listTasks(onlyActive, onlyStarred, true, 1);
+                        listTasks(onlyActive, onlyStarred, true, folderFolderId);
                     }
                 } else if (result.get() == noButton) {
                     event.consume();
@@ -820,9 +833,9 @@ public class MainController implements Initializable {
                 //reset date in DatePicker
                 menuDatePicker.setValue(null);
                 if (onlyStarred || showDateStart != null) {
-                    listTasks(true, onlyStarred, true, 1);
+                    listTasks(true, onlyStarred, true, folderFolderId);
                 } else {
-                    listTasks(onlyActive, onlyStarred, true, 1);
+                    listTasks(onlyActive, onlyStarred, true, folderFolderId);
                 }
 
             }
@@ -877,33 +890,63 @@ public class MainController implements Initializable {
 
         //Assignment of actions to Menu Items
         setDoneMenuItem.setOnAction(actionSetDone);
-        setDoneMenuItem.setGraphic(new ImageView("/todo/done.png"));
+        //setDoneMenuItem.setGraphic(new ImageView("/todo/done.png"));
+        SVGPath setDoneIcon = new SVGPath();
+        setDoneIcon.setContent(doSVG);
+        setDoneMenuItem.setGraphic(setDoneIcon);
         setDoneMenuItem.setAccelerator(cntrlD);
+
         setActiveItem.setOnAction(actionSetActive);
-        setActiveItem.setGraphic(new ImageView("/todo/undo.png"));
+        //setActiveItem.setGraphic(new ImageView("/todo/undo.png"));
+        SVGPath setActiveIcon = new SVGPath();
+        setActiveIcon.setContent(undoSVG);
+        setActiveItem.setGraphic(setActiveIcon);
         setActiveItem.setAccelerator(cntrlS);
+
         deleteMenuItem.setOnAction(actionDelete);
-        deleteMenuItem.setGraphic(new ImageView("/todo/delete.png"));
+        //deleteMenuItem.setGraphic(new ImageView("/todo/delete.png"));
+        SVGPath deleteIcon = new SVGPath();
+        deleteIcon.setContent(trashBucketSVG);
+        deleteMenuItem.setGraphic(deleteIcon);
         deleteMenuItem.setAccelerator(buttonDelete);
+
         //setDueDate.setOnAction(actionSetDueDate);
         //setDueToday.setOnAction(actionSetDueDateToday);
         //setDueTomorrow.setOnAction(actionSetDueDateTomorrow);
         setDueDatePicker.setGraphic(menuDatePicker);
         setDueDatePicker.setOnAction(actionSetDueDate);
         setDueDate.getItems().addAll(setDueDatePicker);
-        setDueDate.setGraphic(new ImageView("/todo/calendar.png"));
+        //setDueDate.setGraphic(new ImageView("/todo/calendar.png"));
+        SVGPath setDateIcon = new SVGPath();
+        setDateIcon.setContent(calendarSVG);
+        setDueDate.setGraphic(setDateIcon);
+
         //editItem.setOnAction(actionEdit);
-        editItem.setGraphic(new ImageView("/todo/edit.png"));
+        //editItem.setGraphic(new ImageView("/todo/edit.png"));
+        SVGPath editIcon = new SVGPath();
+        editIcon.setContent(editSVG);
+        editItem.setGraphic(editIcon);
         editItem.setAccelerator(cntrlE);
 
         starItem.setOnAction(actionSetStarred);
-        starItem.setGraphic(new ImageView("/todo/star.png"));
+        //starItem.setGraphic(new ImageView("/todo/star.png"));
+        SVGPath starIcon = new SVGPath();
+        starIcon.setContent(starSVG);
+        starItem.setGraphic(starIcon);
         starItem.setAccelerator(cntrlF);
+
         unstarItem.setOnAction(actionResetStarred);
-        unstarItem.setGraphic(new ImageView("/todo/unstar.png"));
+        //unstarItem.setGraphic(new ImageView("/todo/unstar.png"));
+        SVGPath unstarIcon = new SVGPath();
+        unstarIcon.setContent(unstarSVG);
+        unstarItem.setGraphic(unstarIcon);
         unstarItem.setAccelerator(cntrlU);
+
         emailItem.setOnAction(actionEmail);
-        emailItem.setGraphic(new ImageView("/todo/email.png"));
+        //emailItem.setGraphic(new ImageView("/todo/email.png"));
+        SVGPath emailIcon = new SVGPath();
+        emailIcon.setContent(envelopeSVG);
+        emailItem.setGraphic(emailIcon);
         emailItem.setAccelerator(cntrlM);
         setAlarmSpinner.setGraphic(alarmSpinner);
         //setAlarmSpinner.
@@ -911,17 +954,19 @@ public class MainController implements Initializable {
         confirmAlarmSpinner.setGraphic(confirmAlarm);
         confirmAlarmSpinner.setOnAction(actionSetAlarm);
         setAlarm.getItems().addAll(setAlarmSpinner, confirmAlarmSpinner);
-        setAlarm.setGraphic(new ImageView("/todo/alarm-on.png"));
+        //setAlarm.setGraphic(new ImageView("/todo/alarm-on.png"));
+        SVGPath setAlarmIcon = new SVGPath();
+        setAlarmIcon.setContent(setAlarmSVG);
+        setAlarm.setGraphic(setAlarmIcon);
 
         removeAlarm.setOnAction(actionRemoveAlarm);
-        removeAlarm.setGraphic(new ImageView("/todo/alarm-off.png"));
+        //removeAlarm.setGraphic(new ImageView("/todo/alarm-off.png"));
+        SVGPath removeAlarmIcon = new SVGPath();
+        removeAlarmIcon.setContent(removeAlarmSVG);
+        removeAlarm.setGraphic(removeAlarmIcon);
 
-        ChoiceBox folderChoiceBox = new ChoiceBox(folderNames);
-        menuFolderChoiceBox.setGraphic(folderChoiceBox);
-        assignFolder.getItems().addAll(menuFolderChoiceBox);
-        
         //context menu for TableView
-        ContextMenu tableContextMenu = new ContextMenu(editItem, assignFolder, setAlarm, removeAlarm, emailItem, starItem, unstarItem, setDueDate, setDoneMenuItem, setActiveItem, deleteMenuItem);
+        ContextMenu tableContextMenu = new ContextMenu(editItem, setAlarm, removeAlarm, emailItem, starItem, unstarItem, setDueDate, setDoneMenuItem, setActiveItem, deleteMenuItem);
 
         //set context menu for tblitems TableView object
         activeItemsTable.setContextMenu(tableContextMenu);
@@ -945,7 +990,7 @@ public class MainController implements Initializable {
             //datePicker.show();
         } else {
             //insert new task with description and status=1 and set date
-            db.insertToDoItem(descriptionText, 1, localDate.toString(), onlyStarred ? 1 : 0, activeItems.size());
+            db.insertToDoItem(descriptionText, 1, localDate.toString(), onlyStarred ? 1 : 0, activeItems.size(), folderFolderId);
             //clear description field, ready for next task
             description.clear();
             descriptionText = null;
@@ -958,9 +1003,9 @@ public class MainController implements Initializable {
 
             //refresh list of tasks after every task
             if (onlyStarred || showDateStart != null) {
-                listTasks(true, onlyStarred, true, 1);
+                listTasks(true, onlyStarred, true, folderFolderId);
             } else {
-                listTasks(onlyActive, onlyStarred, true, 1);
+                listTasks(onlyActive, onlyStarred, true, folderFolderId);
             }
         }
 
@@ -1027,27 +1072,50 @@ public class MainController implements Initializable {
     private void buildSideMenu(int active, int favs, int today, int tomorrow, int week, int month) {
         menuItems.clear();
         Label inboxList = new Label("Show All \t\t\t" + active);
-        inboxList.setGraphic(new ImageView("/todo/todo1_small.png"));
+        //inboxList.setGraphic(new ImageView("/todo/todo1_small.png"));
+        SVGPath showAllIcon = new SVGPath();
+        showAllIcon.setContent(showAllSVG);
+        inboxList.setGraphic(showAllIcon);
         inboxList.setTooltip(new Tooltip("Show all items"));
         menuItems.add(inboxList);
+
         Label favsList = new Label("Show Favorites \t" + favs);
-        favsList.setGraphic(new ImageView("/todo/star.png"));
+        //favsList.setGraphic(new ImageView("/todo/star.png"));
+        SVGPath showFavsIcon = new SVGPath();
+        showFavsIcon.setContent(starSVG);
+        favsList.setGraphic(showFavsIcon);
         favsList.setTooltip(new Tooltip("Show all favorite items"));
         menuItems.add(favsList);
+
         Label todayList = new Label("Show Today \t\t" + today);
-        todayList.setGraphic(new ImageView("/todo/today.png"));
+        //todayList.setGraphic(new ImageView("/todo/today.png"));
+        SVGPath showTodayIcon = new SVGPath();
+        showTodayIcon.setContent(showDateSVG);
+        todayList.setGraphic(showTodayIcon);
         todayList.setTooltip(new Tooltip("Show all items for today"));
         menuItems.add(todayList);
+
         Label tomorrowList = new Label("Show Tomorrow \t" + tomorrow);
-        tomorrowList.setGraphic(new ImageView("/todo/tomorrow.jpg"));
+        //tomorrowList.setGraphic(new ImageView("/todo/tomorrow.jpg"));
+        SVGPath showTomorrowIcon = new SVGPath();
+        showTomorrowIcon.setContent(showDateSVG);
+        tomorrowList.setGraphic(showTomorrowIcon);
         tomorrowList.setTooltip(new Tooltip("Show all items for tomorrow"));
         menuItems.add(tomorrowList);
+
         Label weekList = new Label("Show Week \t\t" + week);
-        weekList.setGraphic(new ImageView("/todo/week.png"));
+        //weekList.setGraphic(new ImageView("/todo/week.png"));
+        SVGPath showWeekIcon = new SVGPath();
+        showWeekIcon.setContent(showDateSVG);
+        weekList.setGraphic(showWeekIcon);
         weekList.setTooltip(new Tooltip("Show all items for upcoming week"));
         menuItems.add(weekList);
+
         Label monthList = new Label("Show Month \t\t" + month);
-        monthList.setGraphic(new ImageView("/todo/month.png"));
+        //monthList.setGraphic(new ImageView("/todo/month.png"));
+        SVGPath showMonthIcon = new SVGPath();
+        showMonthIcon.setContent(showDateSVG);
+        monthList.setGraphic(showMonthIcon);
         monthList.setTooltip(new Tooltip("Show all items for upcoming month"));
         menuItems.add(monthList);
         //menuItems.add("Show Month \t\t\t" + month);
@@ -1127,33 +1195,39 @@ public class MainController implements Initializable {
                 }
 
                 //if default 'All' folder
-                if (folderId == 1) {
-                    //check if only favorites
-                    if (showOnlyStarred) {
-                        //check star
-                        if (allItems.get(i).getStar() == 1) {
-
+                //check if only favorites
+                if (showOnlyStarred) {
+                    //check star
+                    if (allItems.get(i).getStar() == 1) {
+                        if (folderId == 1) {
+                            activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
+                        } else if (folderId == allItems.get(i).getFolderId()) {
                             activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
                         }
-                        //otherwise, check dates
-                    } else {
-                        //check if showDate is set
-                        if (showDateStart == null) {
-                            //show all
+                    }
+                    //otherwise, check dates
+                } else {
+                    //check if showDate is set
+                    if (showDateStart == null) {
+                        //show all
+                        if (folderId == 1) {
                             activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
-                        } else {
-                            //show only for selected date
-                            if (showDateStart.toString().compareTo(allItems.get(i).getDate()) <= 0) {
-                                if (showDateEnd.toString().compareTo(allItems.get(i).getDate()) >= 0) {
+                        } else if (folderId == allItems.get(i).getFolderId()) {
+                            activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
+                        }
+                    } else {
+                        //show only for selected date
+                        if (showDateStart.toString().compareTo(allItems.get(i).getDate()) <= 0) {
+                            if (showDateEnd.toString().compareTo(allItems.get(i).getDate()) >= 0) {
+                                if (folderId == 1) {
+                                    activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
+                                } else if (folderId == allItems.get(i).getFolderId()) {
                                     activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
                                 }
                             }
-
                         }
+
                     }
-                } else { //other custom folders, folderId /= 1
-                    if(folderId == allItems.get(i).getFolderId())
-                        activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
                 }
 
                 //done items, all, no filter
@@ -1175,20 +1249,25 @@ public class MainController implements Initializable {
 
         }
         //populate tblitems (TableView<TodoItem>) to be displayed in App from ObservableList<TodoItem>
+
         activeItemsTable.setItems(activeItems);
+
         doneItemsTable.setItems(doneItems);
 
-        doneItemsTable.setVisible(!showOnlyActive);
+        doneItemsTable.setVisible(
+                !showOnlyActive);
 
         //build table's properties
         buildTable();
+
         buildDoneTable();
+
         buildSideMenu(active, favs, today, tomorrow, week, month);
     }
 
-    //buildTable
-    //defines all properties for cells, rows, columns and table itself
-    //add any change here...
+//buildTable
+//defines all properties for cells, rows, columns and table itself
+//add any change here...
     private void buildTable() {
         //set properties of cells
         //tblColId = new TableColumn("Id");
@@ -1271,7 +1350,10 @@ public class MainController implements Initializable {
                             //    setGraphic(new ImageView("/todo/checkbox-done.png"));
                             //    setTooltip(new Tooltip("Press to put item to active again"));
                             //} else {
-                            setGraphic(new ImageView("/todo/checkbox-empty.png"));
+                            SVGPath activeIcon = new SVGPath();
+                            activeIcon.setContent(activeSVG);
+                            setGraphic(activeIcon);
+                            //setGraphic(new ImageView("/todo/checkbox-empty.png"));
                             setTooltip(new Tooltip("Press to put item to done (ctrl+D)"));
                             //}
                         }
@@ -1291,7 +1373,7 @@ public class MainController implements Initializable {
                     mediaPlayer.play();
                     db.changeItemStatus(activeItemsTable.getItems().get(activeItemsTable.getSelectionModel().getSelectedIndex()).getId(), cell.getItem(), activeItems.size());
                     updateRanks();
-                    listTasks(onlyActive, onlyStarred, true, 1);
+                    listTasks(onlyActive, onlyStarred, true, folderFolderId);
                 });
 
                 return cell;
@@ -1343,7 +1425,10 @@ public class MainController implements Initializable {
                         } else {
                             if (item == 1) //{
                             {
-                                setGraphic(new ImageView("/todo/star.png"));
+                                SVGPath starredIcon = new SVGPath();
+                                starredIcon.setContent(starSVG);
+                                setGraphic(starredIcon);
+                                //setGraphic(new ImageView("/todo/star.png"));
                                 setTooltip(new Tooltip("Press to remove from favorites (ctrl+U)"));
 
                             } else {
@@ -1364,9 +1449,9 @@ public class MainController implements Initializable {
 
                             db.changeStarred(activeItemsTable.getItems().get(activeItemsTable.getSelectionModel().getSelectedIndex()).getId(), cell.getItem());
                             if (onlyStarred || showDateStart != null) {
-                                listTasks(true, onlyStarred, true, 1);
+                                listTasks(true, onlyStarred, true, folderFolderId);
                             } else {
-                                listTasks(onlyActive, onlyStarred, true, 1);
+                                listTasks(onlyActive, onlyStarred, true, folderFolderId);
                             }
                         }
                 );
@@ -1387,7 +1472,7 @@ public class MainController implements Initializable {
                 row.setOnDragDetected(event -> {
                     if (!row.isEmpty()) {
                         Integer indexLocal = row.getIndex();
-                        Dragboard dragboard = row.startDragAndDrop(TransferMode.MOVE);
+                        Dragboard dragboard = row.startDragAndDrop(TransferMode.ANY);
                         dragboard.setDragView(row.snapshot(null, null));
                         ClipboardContent cc = new ClipboardContent();
                         cc.put(SERIALIZED_MIME_TYPE, indexLocal);
@@ -1405,6 +1490,7 @@ public class MainController implements Initializable {
                         }
                     }
                 });
+
                 //  if (!onlyStarred) {
                 row.setOnDragDropped(event -> {
                     Dragboard dragboard = event.getDragboard();
@@ -1437,9 +1523,9 @@ public class MainController implements Initializable {
                         updateRanks();
 
                         if (onlyStarred || showDateStart != null) {
-                            listTasks(true, onlyStarred, true, 1);
+                            listTasks(true, onlyStarred, true, folderFolderId);
                         } else {
-                            listTasks(onlyActive, onlyStarred, true, 1);
+                            listTasks(onlyActive, onlyStarred, true, folderFolderId);
                         }
                         event.consume();
                     }
@@ -1471,7 +1557,10 @@ public class MainController implements Initializable {
                             if (item == null) {
                                 setGraphic(null);
                             } else {
-                                setGraphic(new ImageView("/todo/alarm-on.png"));
+                                SVGPath alarmOnIcon = new SVGPath();
+                                alarmOnIcon.setContent(setAlarmSVG);
+                                setGraphic(alarmOnIcon);
+                                //setGraphic(new ImageView("/todo/alarm-on.png"));
                                 setTooltip(new Tooltip(item));
                             }
                         }
@@ -1547,7 +1636,7 @@ public class MainController implements Initializable {
                         t.getTablePosition().getRow())).setDescription(t.getNewValue());
 
                 db.editDescription(doneItemsTable.getItems().get(doneItemsTable.getSelectionModel().getSelectedIndex()).getId(), doneItemsTable.getItems().get(doneItemsTable.getSelectionModel().getSelectedIndex()).getDescription());
-                listTasks(onlyActive, onlyStarred, true, 1);
+                listTasks(onlyActive, onlyStarred, true, folderFolderId);
             }
         }
         );
@@ -1574,7 +1663,10 @@ public class MainController implements Initializable {
                             setGraphic(null);
                         } else {
                             //if (item == 0) {
-                            setGraphic(new ImageView("/todo/checkbox-done.png"));
+                            SVGPath doneIcon = new SVGPath();
+                            doneIcon.setContent(backToActiveSVG);
+                            setGraphic(doneIcon);
+                            //setGraphic(new ImageView("/todo/checkbox-done.png"));
                             setTooltip(new Tooltip("Press to put item to active again (ctrl+A)"));
                             //} else {
                             //    setGraphic(new ImageView("/todo/checkbox-empty.png"));
@@ -1592,7 +1684,7 @@ public class MainController implements Initializable {
                     //}
 
                     db.changeItemStatus(doneItemsTable.getItems().get(doneItemsTable.getSelectionModel().getSelectedIndex()).getId(), cell.getItem(), activeItems.size());
-                    listTasks(onlyActive, onlyStarred, true, 1);
+                    listTasks(onlyActive, onlyStarred, true, folderFolderId);
                 });
 
                 return cell;
@@ -1706,9 +1798,9 @@ public class MainController implements Initializable {
 
         //refresh list of tasks
         if (onlyStarred || showDateStart != null) {
-            listTasks(true, onlyStarred, true, 1);
+            listTasks(true, onlyStarred, true, folderFolderId);
         } else {
-            listTasks(onlyActive, onlyStarred, true, 1);
+            listTasks(onlyActive, onlyStarred, true, folderFolderId);
         }
 
         //play alarm
@@ -1764,10 +1856,18 @@ public class MainController implements Initializable {
             int indexLocal = folderList.getSelectionModel().getSelectedIndex();
             folderFolderId = folderItems.get(indexLocal).getFolderId();
             System.out.println("folder list, index=" + indexLocal + "\tFolderId=" + folderFolderId);
-            
+            if (folderFolderId == 1) {
+                removeFolderAll.setDisable(true);
+                removeFolderDefault.setDisable(true);
+                removeFolderItems.setDisable(true);
+            } else {
+                removeFolderAll.setDisable(false);
+                removeFolderDefault.setDisable(false);
+                removeFolderItems.setDisable(false);
+            }
             listTasks(true, onlyStarred, false, folderFolderId);
 
-            switch (indexLocal) {
+            /*switch (indexLocal) {
                 case -1:
                     break;
                 case 0:
@@ -1775,7 +1875,50 @@ public class MainController implements Initializable {
                 default:
                     break;
 
-            }
+            }*/
+        });
+
+        folderList.setCellFactory(lv -> {
+            ListCell<String> cell = new ListCell<String>() {
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(item);
+                }
+            };
+            cell.setOnDragOver(e -> {
+                Dragboard dragboard = e.getDragboard();
+                if (dragboard.hasContent(SERIALIZED_MIME_TYPE)) {
+                    e.acceptTransferModes(TransferMode.COPY_OR_MOVE);
+                    e.consume();
+
+                }
+            });
+
+            cell.setOnDragDropped(e -> {
+                Dragboard dragboard = e.getDragboard();
+                if (dragboard.hasContent(SERIALIZED_MIME_TYPE)) {
+                    int draggedIndex = (Integer) dragboard.getContent(SERIALIZED_MIME_TYPE);
+                    int dropIndex = cell.getIndex();
+                    System.out.println("Dragged item index=" + draggedIndex + "\t dropped folder index=" + dropIndex);
+                    //update item's folder in DB
+                    db.moveItem(folderItems.get(dropIndex).getFolderId(), activeItems.get(draggedIndex).getId());
+
+                    e.setDropCompleted(true);
+
+                    //call updateRanks(drag,drop)
+                    //updateRanks();
+                    if (onlyStarred || showDateStart != null) {
+                        listTasks(true, onlyStarred, true, folderFolderId);
+                    } else {
+                        listTasks(onlyActive, onlyStarred, true, folderFolderId);
+                    }
+                    e.consume();
+                }
+
+            });
+
+            return cell;
         });
 
         menuList.setOnMouseClicked((event) -> {
@@ -1791,7 +1934,7 @@ public class MainController implements Initializable {
                     showDateStart = null;
                     onlyStarred = false;
                     datePicker.setValue(null);
-                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - All");
+                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - INTRACOM TELECOM - All");
                     //tableLabel.setText("Todo Items");
                     description.setPromptText("Add new todo task...");
                     //set visibility of show done button
@@ -1801,7 +1944,7 @@ public class MainController implements Initializable {
                     } else {
                         buttonDeleteDone.setVisible(true);
                     }
-                    listTasks(onlyActive, onlyStarred, false, 1);
+                    listTasks(onlyActive, onlyStarred, false, folderFolderId);
                     //index = -1;
 
                     break;
@@ -1815,9 +1958,9 @@ public class MainController implements Initializable {
                     buttonShowOptions.setVisible(false);
                     buttonDeleteDone.setVisible(false);
                     description.setPromptText("Add new todo task...");
-                    listTasks(true, onlyStarred, false, 1);
+                    listTasks(true, onlyStarred, false, folderFolderId);
                     //index = -1;
-                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - Favorites");
+                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - INTRACOM TELECOM - Favorites");
                     break;
                 case 2:
                     showDateStart = showDateEnd = LocalDate.now();
@@ -1830,9 +1973,9 @@ public class MainController implements Initializable {
                     buttonShowOptions.setVisible(false);
                     buttonDeleteDone.setVisible(false);
                     description.setPromptText("Add new todo task...");
-                    listTasks(true, onlyStarred, false, 1);
+                    listTasks(true, onlyStarred, false, folderFolderId);
                     //index = -1;
-                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - Today");
+                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - INTRACOM TELECOM - Today");
                     break;
                 case 3:
                     showDateStart = showDateEnd = LocalDate.now().plus(1, ChronoUnit.DAYS);
@@ -1845,9 +1988,9 @@ public class MainController implements Initializable {
                     buttonShowOptions.setVisible(false);
                     buttonDeleteDone.setVisible(false);
                     description.setPromptText("Add new todo task...");
-                    listTasks(true, onlyStarred, false, 1);
+                    listTasks(true, onlyStarred, false, folderFolderId);
                     //index = -1;
-                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - Tomorrow");
+                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - INTRACOM TELECOM - Tomorrow");
                     break;
                 case 4:
                     //showDateStart = LocalDate.now().with(WeekFields.of(Locale.FRANCE).dayOfWeek(), 1);
@@ -1862,9 +2005,9 @@ public class MainController implements Initializable {
                     buttonShowOptions.setVisible(false);
                     buttonDeleteDone.setVisible(false);
                     description.setPromptText("Add new todo task...");
-                    listTasks(true, onlyStarred, false, 1);
+                    listTasks(true, onlyStarred, false, folderFolderId);
                     //index = -1;
-                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - Upcoming Week");
+                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - INTRACOM TELECOM - Upcoming Week");
                     break;
                 case 5:
                     //showDateStart = LocalDate.now().withDayOfMonth(1);
@@ -1879,9 +2022,9 @@ public class MainController implements Initializable {
                     buttonShowOptions.setVisible(false);
                     buttonDeleteDone.setVisible(false);
                     description.setPromptText("Add new todo task...");
-                    listTasks(true, onlyStarred, false, 1);
+                    listTasks(true, onlyStarred, false, folderFolderId);
                     //index = -1;
-                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - Upcoming Month");
+                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - INTRACOM TELECOM - Upcoming Month");
                     break;
             }
             //event.consume();
@@ -1895,7 +2038,7 @@ public class MainController implements Initializable {
             listFolders();
         });
 
-        listTasks(onlyActive, onlyStarred, true, 1);
+        listTasks(onlyActive, onlyStarred, true, folderFolderId);
         String currentDay = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         timeline = new Timeline(new KeyFrame(Duration.seconds(1), (ActionEvent event) -> {
             //final Calendar cal = Calendar.getInstance();
@@ -1920,6 +2063,9 @@ public class MainController implements Initializable {
 
         timeline.play();
 
+        SVGPath clockIcon = new SVGPath();
+        clockIcon.setContent(clockSVG);
+        clock.setGraphic(clockIcon);
     }
 
 }

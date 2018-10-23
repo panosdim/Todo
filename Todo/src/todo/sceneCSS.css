@@ -22,8 +22,8 @@ and open the template in the editor.
 
 .list-cell { 
     -fx-background-color: transparent; 
-/*    -fx-border-width: 1;
-    -fx-border-color: transparent, black;*/
+    /*    -fx-border-width: 1;
+        -fx-border-color: transparent, black;*/
     -fx-border-opacity: 0.8;
     -fx-font-weight: bold;
 }
@@ -50,6 +50,11 @@ and open the template in the editor.
     -fx-scale-x: 0;
 }
 
+#activeItemsTable .table-row-cell:filled:hover {
+    -fx-background-color: #0093ff, transparent;
+    -fx-text-fill: white;
+}
+
 .label {
     -font-weight: bold;
     -font-size: 20px;
@@ -58,6 +63,9 @@ and open the template in the editor.
 #clock {
     -fx-font-weight: bold;
     -fx-font-size: 20px;
+    -fx-border-color: transparent, black;
+    -fx-border-opacity: 0.8;
+    -fx-border-width: 2;
 }
 
 #doneItemsTable .text {
