@@ -72,25 +72,26 @@ public class BorderSlideBar extends VBox {
         controlLabel.setOnMouseClicked((event) -> {
 
             // Create an animation to hide the panel.
-            /*      final Animation hidePanel = new Transition() {
-                    {
-                        setCycleDuration(Duration.millis(250));
-                    }
+            final Animation hidePanel = new Transition() {
+                {
+                    setCycleDuration(Duration.millis(250));
+                }
 
-                    @Override
-                    protected void interpolate(double frac) {
-                        final double size = getExpandedSize() * (1.0 - frac);
-                        translateByPos(size);
-                    }
-                };
+                @Override
+                protected void interpolate(double frac) {
+                    final double size = getExpandedSize() * (1.0 - frac);
+                    translateByPos(size);
+                }
+            };
 
-                hidePanel.onFinishedProperty().set(new EventHandler<ActionEvent>() {
-                    @Override
-                    public void handle(ActionEvent actionEvent) {
-                        setVisible(false);
-                    }
-                });
-             */
+            hidePanel.onFinishedProperty().set(new EventHandler<ActionEvent>() {
+                @Override
+                public void handle(ActionEvent actionEvent) {
+                    setVisible(false);
+                    controlLabel.setText(">>");
+                }
+            });
+
             // Create an animation to show the panel.
             final Animation showPanel = new Transition() {
                 {
@@ -107,24 +108,25 @@ public class BorderSlideBar extends VBox {
             showPanel.onFinishedProperty().set(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {
+                    controlLabel.setText("<<");
                 }
             });
 
-            if (showPanel.statusProperty().get() == Animation.Status.STOPPED /* && hidePanel.statusProperty().get() == Animation.Status.STOPPED*/) {
+            if (showPanel.statusProperty().get() == Animation.Status.STOPPED && hidePanel.statusProperty().get() == Animation.Status.STOPPED) {
 
-                /*   if (isVisible()) {
-                        hidePanel.play();
+                if (isVisible()) {
+                    hidePanel.play();
 
-                    } else {*/
-                setVisible(true);
-                showPanel.play();
-                controlLabel.setVisible(false);
+                } else {
+                    setVisible(true);
+                    showPanel.play();
+                    //controlLabel.setVisible(false);
 
-                //       }
+                }
             }
 
         });
-
+        /*
         setOnMouseExited((event) -> {
 
             // Create an animation to hide the panel.
@@ -165,23 +167,23 @@ public class BorderSlideBar extends VBox {
                     public void handle(ActionEvent actionEvent) {
                     }
                 });
-             */
+             
             if (/*showPanel.statusProperty().get() == Animation.Status.STOPPED
-                        &&*/hidePanel.statusProperty().get() == Animation.Status.STOPPED) {
+                        &&hidePanel.statusProperty().get() == Animation.Status.STOPPED) {
 
                 if (isVisible()) {
                     hidePanel.play();
                     controlLabel.setVisible(true);
 
                 }
-                /*else {
+                else {
                         setVisible(true);
                         showPanel.play();
                     }
-                 */            }
+                             }
 
         });
-
+         */
     }
 
     /**

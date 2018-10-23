@@ -81,8 +81,8 @@ public class DBHandler {
 
         } catch (SQLException sQLException) {
         }
-    }    
-    
+    }
+
     //This method deletes one entry from DB
     //based on parameter id
     public void deleteFolder(int folder_id) {
@@ -98,9 +98,8 @@ public class DBHandler {
             statement.executeQuery(query);
         } catch (SQLException sQLException) {
         }
-    }    
-    
-    
+    }
+
     // This method outputs the contents of the table folders
     // In the method, con is a Connection object and dbName is the name of 
     // the database in which you are creating the table.
@@ -122,10 +121,8 @@ public class DBHandler {
         } catch (SQLException sQLException) {
         }
         return null;
-    }    
-    
-    
-    
+    }
+
     //This method inserts new entry into DB
     //with description and status from parameter list
     //and current date
@@ -184,7 +181,7 @@ public class DBHandler {
         } catch (SQLException sQLException) {
         }
     }
-    
+
     //This method deletes entries from specified folder
     //based on parameter id
     public void deleteFolderItems(int folder_id) {
@@ -200,7 +197,24 @@ public class DBHandler {
             statement.executeQuery(query);
         } catch (SQLException sQLException) {
         }
-    }    
+    }
+
+    //This method moves all Items from one folder to default folder (id=1)
+    public void moveItemsDefault(int folder_id) {
+
+        try {
+            Statement statement = con.createStatement();
+
+            statement.setQueryTimeout(30);  // set timeout to 30 sec.
+
+            //UPDATE query is created WHERE folder_id matches given folder_id
+            //SET folder_id = 1
+            String query = "UPDATE " + dbName + " SET folder_id = 1 WHERE folder_id=" + folder_id;
+            System.out.println(query);
+            statement.executeQuery(query);
+        } catch (SQLException sQLException) {
+        }
+    }
 
     //setDueDate
     //This method changes status of one entry from DB
@@ -220,7 +234,7 @@ public class DBHandler {
         } catch (SQLException sQLException) {
         }
     }
-    
+
     //assignFolder
     //This method assigns folder to the item from DB
     //based on parameter id and folderName
@@ -238,8 +252,7 @@ public class DBHandler {
             statement.executeQuery(query);
         } catch (SQLException sQLException) {
         }
-    }    
-    
+    }
 
     //editDescription
     //This method edits description of one entry from DB
@@ -303,7 +316,7 @@ public class DBHandler {
                     query = "UPDATE " + dbName + " SET Status = " + status + ", alarm = null, Starred = 0 WHERE id=" + id;
                     break;
             }
-  
+
             System.out.println(query);
             statement.executeQuery(query);
         } catch (SQLException sQLException) {

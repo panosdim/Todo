@@ -45,6 +45,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.DatePicker;
@@ -101,7 +102,8 @@ public class MainController implements Initializable {
     private ObservableList<TodoItem> activeItems = FXCollections.observableArrayList(); //ObservableList of active items
     private ObservableList<TodoItem> doneItems = FXCollections.observableArrayList(); //ObservableList of done items
     private ObservableList<Label> menuItems = FXCollections.observableArrayList(); //ObservableList of left menu items
-    private ObservableList<FolderItem>  folderItems = FXCollections.observableArrayList(); //ObservableList of folder items
+    private ObservableList<FolderItem> folderItems = FXCollections.observableArrayList(); //ObservableList of folder items
+    private ObservableList<String> folderNames = FXCollections.observableArrayList();
     private boolean onlyActive = true; //used to view all items or only active ones, default=true
     private boolean onlyStarred = false;
     private LocalDate localDate = null; //used to read from DatePicker 
@@ -177,6 +179,7 @@ public class MainController implements Initializable {
     MenuItem confirmAlarmSpinner = new MenuItem();
     Button confirmAlarm = new Button("Set Alarm");
     MenuItem removeAlarm = new MenuItem("Remove Alarm");
+    MenuItem menuFolderChoiceBox = new MenuItem();
 
     //menu items for folders
     MenuItem removeFolderAll = new MenuItem("Delete Folder and all Items");
@@ -257,7 +260,7 @@ public class MainController implements Initializable {
     Timeline timeline;
 
     //@FXML
-    private Label leftMenu = new Label("<<");
+    private Label leftMenu = new Label(">>");
     private Label folderLabel = new Label("Folders");
     private ListView folderList = new ListView<String>();
     private TextField folderAddText = new TextField();
@@ -396,7 +399,7 @@ public class MainController implements Initializable {
         if (result.get() == yesButton) {
             db.deleteToDoItem();
             //refresh list of tasks
-            listTasks(onlyActive, onlyStarred, true);
+            listTasks(onlyActive, onlyStarred, true, 1);
         } else if (result.get() == noButton) {
             event.consume();
         } else if (result.get() == cancelButton) {
@@ -426,7 +429,7 @@ public class MainController implements Initializable {
             }
 
             //refresh list of tasks
-            listTasks(onlyActive, onlyStarred, true);
+            listTasks(onlyActive, onlyStarred, true, 1);
         } else if (result.get() == noButton) {
             event.consume();
         } else if (result.get() == cancelButton) {
@@ -465,7 +468,7 @@ public class MainController implements Initializable {
         }
 
         //refresh list of tasks
-        listTasks(onlyActive, onlyStarred, false);
+        listTasks(onlyActive, onlyStarred, false, 1);
     }
 
     //handleDatePicker
@@ -489,9 +492,9 @@ public class MainController implements Initializable {
 
                 //refresh list of tasks after every task
                 if (onlyStarred || showDateStart != null) {
-                    listTasks(true, onlyStarred, true);
+                    listTasks(true, onlyStarred, true, 1);
                 } else {
-                    listTasks(onlyActive, onlyStarred, true);
+                    listTasks(onlyActive, onlyStarred, true, 1);
                 }
             } else {
                 System.out.println(localDate.toString());
@@ -550,9 +553,91 @@ public class MainController implements Initializable {
                     dbFolders.deleteFolder(folderFolderId);
                     //refresh list of tasks
                     if (onlyStarred || showDateStart != null) {
-                        listTasks(true, onlyStarred, true);
+                        listTasks(true, onlyStarred, true, 1);
                     } else {
-                        listTasks(onlyActive, onlyStarred, true);
+                        listTasks(onlyActive, onlyStarred, true, 1);
+                    }
+                    listFolders();
+                } else if (result.get() == noButton) {
+                    event.consume();
+                } else if (result.get() == cancelButton) {
+                    event.consume();
+                }
+
+            }
+        };
+
+        //Delete Folder and move Items to default (name="All", id=1)
+        EventHandler<ActionEvent> actionDeleteFolderDefault = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                //db.deleteToDoItem(id);
+                //listTasks(onlyActive, onlyStarred);
+                //Warning Dialog Box for delete one task 
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+
+                alert.setTitle("Warning");
+                alert.setHeaderText("Would You Like To Delete Folder?");
+                alert.setContentText("Please choose an option.");
+
+                ButtonType yesButton = new ButtonType("Yes");
+                ButtonType noButton = new ButtonType("No");
+                ButtonType cancelButton = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+
+                alert.getButtonTypes().setAll(yesButton, noButton, cancelButton);
+
+                Optional<ButtonType> result = alert.showAndWait();
+
+                if (result.get() == yesButton) {
+                    db.moveItemsDefault(folderFolderId);
+                    dbFolders.deleteFolder(folderFolderId);
+                    //refresh list of tasks
+                    if (onlyStarred || showDateStart != null) {
+                        listTasks(true, onlyStarred, true, 1);
+                    } else {
+                        listTasks(onlyActive, onlyStarred, true, 1);
+                    }
+                    listFolders();
+                } else if (result.get() == noButton) {
+                    event.consume();
+                } else if (result.get() == cancelButton) {
+                    event.consume();
+                }
+
+            }
+        };
+
+        //Delete Items from folder
+        EventHandler<ActionEvent> actionDeleteFolderItems = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                //db.deleteToDoItem(id);
+                //listTasks(onlyActive, onlyStarred);
+                //Warning Dialog Box for delete one task 
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+
+                alert.setTitle("Warning");
+                alert.setHeaderText("Would You Like To Delete All Item from Folder?");
+                alert.setContentText("Please choose an option.");
+
+                ButtonType yesButton = new ButtonType("Yes");
+                ButtonType noButton = new ButtonType("No");
+                ButtonType cancelButton = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+
+                alert.getButtonTypes().setAll(yesButton, noButton, cancelButton);
+
+                Optional<ButtonType> result = alert.showAndWait();
+
+                if (result.get() == yesButton) {
+                    db.deleteFolderItems(folderFolderId);
+                    //dbFolders.deleteFolder(folderFolderId);
+                    //refresh list of tasks
+                    if (onlyStarred || showDateStart != null) {
+                        listTasks(true, onlyStarred, true, 1);
+                    } else {
+                        listTasks(onlyActive, onlyStarred, true, 1);
                     }
                     listFolders();
                 } else if (result.get() == noButton) {
@@ -565,13 +650,15 @@ public class MainController implements Initializable {
         };
 
         removeFolderAll.setOnAction(actionDeleteFolderAll);
-        removeFolderAll.setGraphic(new ImageView("/todo/delete.png"));
-        //removeFolderDefault;
-        //removeFolderItems;
-        
-        ContextMenu folderContextMenu = new ContextMenu(removeFolderAll);
+        //removeFolderAll.setGraphic(new ImageView("/todo/delete.png"));
+
+        removeFolderDefault.setOnAction(actionDeleteFolderDefault);
+
+        removeFolderItems.setOnAction(actionDeleteFolderItems);
+
+        ContextMenu folderContextMenu = new ContextMenu(removeFolderItems, removeFolderDefault, removeFolderAll);
         folderList.setContextMenu(folderContextMenu);
-        
+
     }
 
     //method to build context menu
@@ -590,9 +677,9 @@ public class MainController implements Initializable {
                 MediaPlayer mediaPlayer = new MediaPlayer(sound);
                 mediaPlayer.play();
                 if (onlyStarred || showDateStart != null) {
-                    listTasks(true, onlyStarred, true);
+                    listTasks(true, onlyStarred, true, 1);
                 } else {
-                    listTasks(onlyActive, onlyStarred, true);
+                    listTasks(onlyActive, onlyStarred, true, 1);
                 }
 
             }
@@ -603,7 +690,7 @@ public class MainController implements Initializable {
             @Override
             public void handle(ActionEvent event) {
                 db.changeItemStatus(id, 1, activeItems.size());
-                listTasks(onlyActive, onlyStarred, true);
+                listTasks(onlyActive, onlyStarred, true, 1);
             }
         };
 
@@ -613,9 +700,9 @@ public class MainController implements Initializable {
             public void handle(ActionEvent event) {
                 db.changeStarred(id, 1);
                 if (onlyStarred || showDateStart != null) {
-                    listTasks(true, onlyStarred, true);
+                    listTasks(true, onlyStarred, true, 1);
                 } else {
-                    listTasks(onlyActive, onlyStarred, true);
+                    listTasks(onlyActive, onlyStarred, true, 1);
                 }
             }
         };
@@ -626,9 +713,9 @@ public class MainController implements Initializable {
             public void handle(ActionEvent event) {
                 db.changeStarred(id, 0);
                 if (onlyStarred || showDateStart != null) {
-                    listTasks(true, onlyStarred, true);
+                    listTasks(true, onlyStarred, true, 1);
                 } else {
-                    listTasks(onlyActive, onlyStarred, true);
+                    listTasks(onlyActive, onlyStarred, true, 1);
                 }
             }
         };
@@ -644,9 +731,9 @@ public class MainController implements Initializable {
                     db.setAlarm(id, spinnerTime);
 
                     if (onlyStarred || showDateStart != null) {
-                        listTasks(true, onlyStarred, true);
+                        listTasks(true, onlyStarred, true, 1);
                     } else {
-                        listTasks(onlyActive, onlyStarred, true);
+                        listTasks(onlyActive, onlyStarred, true, 1);
                     }
                 }
 
@@ -659,9 +746,9 @@ public class MainController implements Initializable {
             public void handle(ActionEvent event) {
                 db.setAlarm(id, null);
                 if (onlyStarred || showDateStart != null) {
-                    listTasks(true, onlyStarred, true);
+                    listTasks(true, onlyStarred, true, 1);
                 } else {
-                    listTasks(onlyActive, onlyStarred, true);
+                    listTasks(onlyActive, onlyStarred, true, 1);
                 }
 
             }
@@ -701,9 +788,9 @@ public class MainController implements Initializable {
                     db.deleteToDoItem(id);
                     //refresh list of tasks
                     if (onlyStarred || showDateStart != null) {
-                        listTasks(true, onlyStarred, true);
+                        listTasks(true, onlyStarred, true, 1);
                     } else {
-                        listTasks(onlyActive, onlyStarred, true);
+                        listTasks(onlyActive, onlyStarred, true, 1);
                     }
                 } else if (result.get() == noButton) {
                     event.consume();
@@ -733,9 +820,9 @@ public class MainController implements Initializable {
                 //reset date in DatePicker
                 menuDatePicker.setValue(null);
                 if (onlyStarred || showDateStart != null) {
-                    listTasks(true, onlyStarred, true);
+                    listTasks(true, onlyStarred, true, 1);
                 } else {
-                    listTasks(onlyActive, onlyStarred, true);
+                    listTasks(onlyActive, onlyStarred, true, 1);
                 }
 
             }
@@ -829,6 +916,10 @@ public class MainController implements Initializable {
         removeAlarm.setOnAction(actionRemoveAlarm);
         removeAlarm.setGraphic(new ImageView("/todo/alarm-off.png"));
 
+        ChoiceBox folderChoiceBox = new ChoiceBox(folderNames);
+        menuFolderChoiceBox.setGraphic(folderChoiceBox);
+        assignFolder.getItems().addAll(menuFolderChoiceBox);
+        
         //context menu for TableView
         ContextMenu tableContextMenu = new ContextMenu(editItem, assignFolder, setAlarm, removeAlarm, emailItem, starItem, unstarItem, setDueDate, setDoneMenuItem, setActiveItem, deleteMenuItem);
 
@@ -867,9 +958,9 @@ public class MainController implements Initializable {
 
             //refresh list of tasks after every task
             if (onlyStarred || showDateStart != null) {
-                listTasks(true, onlyStarred, true);
+                listTasks(true, onlyStarred, true, 1);
             } else {
-                listTasks(onlyActive, onlyStarred, true);
+                listTasks(onlyActive, onlyStarred, true, 1);
             }
         }
 
@@ -972,24 +1063,25 @@ public class MainController implements Initializable {
     //private method to list all folders
     private void listFolders() {
         folderItems = dbFolders.viewFolderTable();
-        ObservableList<String> folderNames = FXCollections.observableArrayList();
-        for(int i = 0; i < folderItems.size(); i++) {
+        folderNames.clear();
+        for (int i = 0; i < folderItems.size(); i++) {
             folderNames.add(folderItems.get(i).getFolderName());
         }
         folderList.setItems(folderNames);
-        menuFolders.clear();
-        for (int i = 0; i < folderItems.size(); i++) {
-            menuFolders.add(new MenuItem(folderItems.get(i).getFolderName()));
-            //menuFolders.get(i).setOnAction((event) -> {
+        //menuFolders.clear();
+        //for (int i = 0; i < folderItems.size(); i++) {
+        //    menuFolders.add(new MenuItem(folderItems.get(i).getFolderName()));
+        //}
 
-            // db.assignFolder(id, folderList.getItems().get(i)  .get(i));
-            //});
-        }
-        assignFolder.getItems().addAll(menuFolders);
     }
 
-//private method for refreshing list of tasks
-    private void listTasks(boolean showOnlyActive, boolean showOnlyStarred, boolean refreshData) {
+    //private method for listing tasks
+    private void listTasks(
+            boolean showOnlyActive, //show done items or not
+            boolean showOnlyStarred, //show only favorite items or all
+            boolean refreshData, //check with DB
+            int folderId) //which folder to list (1-All)
+    {
 
         if (refreshData) {
             //read all DB and save to local variable 'toDoList'
@@ -1013,6 +1105,7 @@ public class MainController implements Initializable {
             }
 
             int intStatus = checkOverDue(allItems.get(i).getStatus(), allItems.get(i).getDate(), allItems.get(i).getId());
+            allItems.get(i).setStatus(intStatus);
             //only active items
             if (intStatus != 0) {
                 //update counters
@@ -1032,28 +1125,35 @@ public class MainController implements Initializable {
                 if (allItems.get(i).getDate().compareTo(todayDate.toString()) >= 0 && allItems.get(i).getDate().compareTo(todayDate.plus(todayDate.lengthOfMonth(), ChronoUnit.DAYS).toString()) <= 0) {
                     month++;
                 }
-                //check if only favorites
-                if (showOnlyStarred) {
-                    //check star
-                    if (allItems.get(i).getStar() == 1) {
 
-                        activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
-                    }
-                    //otherwise, check dates
-                } else {
-                    //check if showDate is set
-                    if (showDateStart == null) {
-                        //show all
-                        activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
-                    } else {
-                        //show only for selected date
-                        if (showDateStart.toString().compareTo(allItems.get(i).getDate()) <= 0) {
-                            if (showDateEnd.toString().compareTo(allItems.get(i).getDate()) >= 0) {
-                                activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
-                            }
+                //if default 'All' folder
+                if (folderId == 1) {
+                    //check if only favorites
+                    if (showOnlyStarred) {
+                        //check star
+                        if (allItems.get(i).getStar() == 1) {
+
+                            activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
                         }
+                        //otherwise, check dates
+                    } else {
+                        //check if showDate is set
+                        if (showDateStart == null) {
+                            //show all
+                            activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
+                        } else {
+                            //show only for selected date
+                            if (showDateStart.toString().compareTo(allItems.get(i).getDate()) <= 0) {
+                                if (showDateEnd.toString().compareTo(allItems.get(i).getDate()) >= 0) {
+                                    activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
+                                }
+                            }
 
+                        }
                     }
+                } else { //other custom folders, folderId /= 1
+                    if(folderId == allItems.get(i).getFolderId())
+                        activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
                 }
 
                 //done items, all, no filter
@@ -1191,7 +1291,7 @@ public class MainController implements Initializable {
                     mediaPlayer.play();
                     db.changeItemStatus(activeItemsTable.getItems().get(activeItemsTable.getSelectionModel().getSelectedIndex()).getId(), cell.getItem(), activeItems.size());
                     updateRanks();
-                    listTasks(onlyActive, onlyStarred, true);
+                    listTasks(onlyActive, onlyStarred, true, 1);
                 });
 
                 return cell;
@@ -1264,9 +1364,9 @@ public class MainController implements Initializable {
 
                             db.changeStarred(activeItemsTable.getItems().get(activeItemsTable.getSelectionModel().getSelectedIndex()).getId(), cell.getItem());
                             if (onlyStarred || showDateStart != null) {
-                                listTasks(true, onlyStarred, true);
+                                listTasks(true, onlyStarred, true, 1);
                             } else {
-                                listTasks(onlyActive, onlyStarred, true);
+                                listTasks(onlyActive, onlyStarred, true, 1);
                             }
                         }
                 );
@@ -1337,9 +1437,9 @@ public class MainController implements Initializable {
                         updateRanks();
 
                         if (onlyStarred || showDateStart != null) {
-                            listTasks(true, onlyStarred, true);
+                            listTasks(true, onlyStarred, true, 1);
                         } else {
-                            listTasks(onlyActive, onlyStarred, true);
+                            listTasks(onlyActive, onlyStarred, true, 1);
                         }
                         event.consume();
                     }
@@ -1447,7 +1547,7 @@ public class MainController implements Initializable {
                         t.getTablePosition().getRow())).setDescription(t.getNewValue());
 
                 db.editDescription(doneItemsTable.getItems().get(doneItemsTable.getSelectionModel().getSelectedIndex()).getId(), doneItemsTable.getItems().get(doneItemsTable.getSelectionModel().getSelectedIndex()).getDescription());
-                listTasks(onlyActive, onlyStarred, true);
+                listTasks(onlyActive, onlyStarred, true, 1);
             }
         }
         );
@@ -1492,7 +1592,7 @@ public class MainController implements Initializable {
                     //}
 
                     db.changeItemStatus(doneItemsTable.getItems().get(doneItemsTable.getSelectionModel().getSelectedIndex()).getId(), cell.getItem(), activeItems.size());
-                    listTasks(onlyActive, onlyStarred, true);
+                    listTasks(onlyActive, onlyStarred, true, 1);
                 });
 
                 return cell;
@@ -1606,9 +1706,9 @@ public class MainController implements Initializable {
 
         //refresh list of tasks
         if (onlyStarred || showDateStart != null) {
-            listTasks(true, onlyStarred, true);
+            listTasks(true, onlyStarred, true, 1);
         } else {
-            listTasks(onlyActive, onlyStarred, true);
+            listTasks(onlyActive, onlyStarred, true, 1);
         }
 
         //play alarm
@@ -1659,20 +1759,22 @@ public class MainController implements Initializable {
         //description.setLayoutX(75);
         //rightEdit.setGraphic(new ImageView("/todo/edit.png"));
         //editItem.setGraphic(rightEdit);
-        
+
         folderList.setOnMouseClicked((event) -> {
             int indexLocal = folderList.getSelectionModel().getSelectedIndex();
             folderFolderId = folderItems.get(indexLocal).getFolderId();
-            System.out.println("folder list, index="+indexLocal+"\tFolderId="+folderFolderId);
+            System.out.println("folder list, index=" + indexLocal + "\tFolderId=" + folderFolderId);
             
-            switch(indexLocal) {
+            listTasks(true, onlyStarred, false, folderFolderId);
+
+            switch (indexLocal) {
                 case -1:
                     break;
                 case 0:
                     break;
                 default:
                     break;
-                    
+
             }
         });
 
@@ -1699,7 +1801,7 @@ public class MainController implements Initializable {
                     } else {
                         buttonDeleteDone.setVisible(true);
                     }
-                    listTasks(onlyActive, onlyStarred, false);
+                    listTasks(onlyActive, onlyStarred, false, 1);
                     //index = -1;
 
                     break;
@@ -1713,7 +1815,7 @@ public class MainController implements Initializable {
                     buttonShowOptions.setVisible(false);
                     buttonDeleteDone.setVisible(false);
                     description.setPromptText("Add new todo task...");
-                    listTasks(true, onlyStarred, false);
+                    listTasks(true, onlyStarred, false, 1);
                     //index = -1;
                     ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - Favorites");
                     break;
@@ -1728,7 +1830,7 @@ public class MainController implements Initializable {
                     buttonShowOptions.setVisible(false);
                     buttonDeleteDone.setVisible(false);
                     description.setPromptText("Add new todo task...");
-                    listTasks(true, onlyStarred, false);
+                    listTasks(true, onlyStarred, false, 1);
                     //index = -1;
                     ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - Today");
                     break;
@@ -1743,7 +1845,7 @@ public class MainController implements Initializable {
                     buttonShowOptions.setVisible(false);
                     buttonDeleteDone.setVisible(false);
                     description.setPromptText("Add new todo task...");
-                    listTasks(true, onlyStarred, false);
+                    listTasks(true, onlyStarred, false, 1);
                     //index = -1;
                     ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - Tomorrow");
                     break;
@@ -1760,7 +1862,7 @@ public class MainController implements Initializable {
                     buttonShowOptions.setVisible(false);
                     buttonDeleteDone.setVisible(false);
                     description.setPromptText("Add new todo task...");
-                    listTasks(true, onlyStarred, false);
+                    listTasks(true, onlyStarred, false, 1);
                     //index = -1;
                     ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - Upcoming Week");
                     break;
@@ -1777,7 +1879,7 @@ public class MainController implements Initializable {
                     buttonShowOptions.setVisible(false);
                     buttonDeleteDone.setVisible(false);
                     description.setPromptText("Add new todo task...");
-                    listTasks(true, onlyStarred, false);
+                    listTasks(true, onlyStarred, false, 1);
                     //index = -1;
                     ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - Upcoming Month");
                     break;
@@ -1793,7 +1895,7 @@ public class MainController implements Initializable {
             listFolders();
         });
 
-        listTasks(onlyActive, onlyStarred, true);
+        listTasks(onlyActive, onlyStarred, true, 1);
         String currentDay = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         timeline = new Timeline(new KeyFrame(Duration.seconds(1), (ActionEvent event) -> {
             //final Calendar cal = Calendar.getInstance();
