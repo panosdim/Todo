@@ -5,6 +5,8 @@
  */
 package todo;
 
+import javafx.scene.control.Label;
+
 /**
  *
  * @author ckok
@@ -12,7 +14,7 @@ package todo;
 public class TodoItem {
 
     private long id;
-    private String description;
+    private Label description;
     private String date;
     private int status;
     private int star;
@@ -20,7 +22,7 @@ public class TodoItem {
     private String alarm;
     private int folder_id;
 
-    public TodoItem(long id, String description, String date, int status, int star, int rank, String alarm, int folder_id) {
+    public TodoItem(long id, Label description, String date, int status, int star, int rank, String alarm, int folder_id) {
         this.id = id;
         this.description = description;
         this.date = date;
@@ -55,11 +57,11 @@ public class TodoItem {
         this.id = id;
     }
 
-    public String getDescription() {
+    public Label getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public void setDescription(Label description) {
         this.description = description;
     }
 

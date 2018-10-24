@@ -41,6 +41,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
@@ -76,6 +77,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
+import javafx.scene.shape.FillRule;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -907,7 +909,7 @@ public class MainController implements Initializable {
                             int selectedRowIndex = activeItemsTable.getSelectionModel().getSelectedIndex();
                             String email = "javagroupc@intracom-telecom.com";
                             String subject = "Todo%20item%20info";
-                            String body = "Todo%20Item%20'" + activeItemsTable.getItems().get(selectedRowIndex).getDescription() + "'%20is%20due%20on%20" + activeItemsTable.getItems().get(selectedRowIndex).getDate();
+                            String body = "Todo%20Item%20'" + activeItemsTable.getItems().get(selectedRowIndex).getDescription().getText() + "'%20is%20due%20on%20" + activeItemsTable.getItems().get(selectedRowIndex).getDate();
                             body = body.replaceAll(" ", "%20");
                             URI mailto;
                             mailto = new URI("mailto:" + email + "?subject=" + subject + "&body=" + body);
@@ -1310,12 +1312,12 @@ public class MainController implements Initializable {
         activeItemsTableColId.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("id"));
 
         //tblColDesc = new TableColumn("Description");
-        activeItemsTableColDesc.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("description"));
+        activeItemsTableColDesc.setCellValueFactory(new PropertyValueFactory<TodoItem, Label>("description"));
         //tblColDesc.setStyle("-fx-alignment: LEFT;");
 
         //activeItemsTableColDesc.setCellFactory(TextFieldTableCell.forTableColumn());
         //activeItemsTableColDesc.setOnEditCommit(
-        activeItemsTableColDesc.setCellFactory(TextFieldTableCell.forTableColumn());
+        //activeItemsTableColDesc.setCellFactory(TextFieldTableCell.forTableColumn());
         Label tblColDescLabel = new Label("Description");
         tblColDescLabel.setTooltip(new Tooltip("This column shows the decription of the ToDo tasks."));
         activeItemsTableColDesc.setGraphic(tblColDescLabel);
@@ -1567,8 +1569,50 @@ public class MainController implements Initializable {
                     }
                 });
 
-                row.setOnMouseEntered(event -> {
-                    //
+                row.hoverProperty().addListener((observable) -> {
+                    final TodoItem todoItem = row.getItem();
+
+                    if (row.isHover() && todoItem != null) {
+                        
+                        //prepare set to done icon
+                        Label setDoneOption = new Label();
+                        SVGPath setDoneOptionIcon = new SVGPath();
+                        setDoneOptionIcon.setContent(doSVG);
+                        setDoneOption.setGraphic(setDoneOptionIcon);
+                        
+                        //prepare delete icon
+                        Label deleteOption = new Label();
+                        SVGPath deleteOptionIcon = new SVGPath();
+                        deleteOptionIcon.setContent(trashBucketSVG);
+                        deleteOption.setGraphic(deleteOptionIcon);
+                        
+                        //prepare set Due Date icon
+                        Label setDueDateOption = new Label();
+                        SVGPath setDueDateOptionIcon = new SVGPath();
+                        setDueDateOptionIcon.setContent(calendarSVG);
+                        setDueDateOption.setGraphic(setDueDateOptionIcon);  
+                        
+                        //prepare set Alarm icon
+                        Label setAlarmOption = new Label();
+                        SVGPath setAlarmOptionIcon = new SVGPath();
+                        setAlarmOptionIcon.setContent(setAlarmSVG);
+                        //setAlarmOptionIcon.setFill(Color.RED);
+                        setAlarmOption.setGraphic(setAlarmOptionIcon);                        
+                        
+                        //build HBox of all icons
+                        HBox editOptionsHBox = new HBox(setDoneOption, deleteOption, setDueDateOption, setAlarmOption);
+                        editOptionsHBox.setSpacing(5.0);
+                        editOptionsHBox.setAlignment(Pos.CENTER_RIGHT);
+                        
+                        //set HBox to appear on hover over table's row
+                        todoItem.getDescription().setGraphicTextGap(100.0);
+                        todoItem.getDescription().setContentDisplay(ContentDisplay.RIGHT);
+                        todoItem.getDescription().setGraphic(editOptionsHBox);
+                        
+                    } else {
+                        todoItem.getDescription().setGraphic(null);
+
+                    }
                 });
 
                 return row;
@@ -1665,10 +1709,10 @@ public class MainController implements Initializable {
         doneItemsTableColId.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("id"));
 
         //tblColDesc = new TableColumn("Description");
-        doneItemsTableColDesc.setCellValueFactory(new PropertyValueFactory<TodoItem, String>("description"));
+        doneItemsTableColDesc.setCellValueFactory(new PropertyValueFactory<TodoItem, Label>("description"));
         //tblColDesc.setStyle("-fx-alignment: LEFT;");
-        doneItemsTableColDesc.setCellFactory(TextFieldTableCell.forTableColumn());
-        doneItemsTableColDesc.setOnEditCommit(
+        //doneItemsTableColDesc.setCellFactory(TextFieldTableCell.forTableColumn());
+        /*doneItemsTableColDesc.setOnEditCommit(
                 new EventHandler<CellEditEvent<TodoItem, String>>() {
             @Override
             public void handle(CellEditEvent<TodoItem, String> t) {
@@ -1679,7 +1723,7 @@ public class MainController implements Initializable {
                 listTasks(onlyActive, onlyStarred, true, folderFolderId);
             }
         }
-        );
+        );*/
         //tblColDesc.isEditable();
 
         //tblColDate = new TableColumn("Date");
@@ -2100,7 +2144,7 @@ public class MainController implements Initializable {
                     if (allItems.get(i).getAlarm() != null && allItems.get(i).getDate().equals(currentDay) && allItems.get(i).getAlarm().equals(currentTime)) {
                         //play alarm and continue scanning
                         anyAlarm = false; //will be updated in listTask anyway
-                        executePlayAlarm(allItems.get(i).getId(), allItems.get(i).getDescription());
+                        executePlayAlarm(allItems.get(i).getId(), allItems.get(i).getDescription().getText());
 
                     }
                 }

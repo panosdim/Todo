@@ -14,6 +14,7 @@ import java.text.SimpleDateFormat;
 import static javafx.application.Platform.exit;
 import java.util.Date;
 import javafx.collections.FXCollections;
+import javafx.scene.control.Label;
 
 /**
  *
@@ -400,7 +401,7 @@ public class DBHandler {
             ResultSet rs = statement.executeQuery(query);
             ArrayList<TodoItem> allItems = new ArrayList<TodoItem>();
             while (rs.next()) {
-                allItems.add(new TodoItem(rs.getInt("id"), rs.getString("description"), rs.getString("date"), rs.getInt("status"), rs.getInt("starred"), rs.getInt("rank"), rs.getString("alarm"), rs.getInt("folder_id")));
+                allItems.add(new TodoItem(rs.getInt("id"), new Label(rs.getString("description")), rs.getString("date"), rs.getInt("status"), rs.getInt("starred"), rs.getInt("rank"), rs.getString("alarm"), rs.getInt("folder_id")));
             }
             return allItems;
         } catch (SQLException sQLException) {
