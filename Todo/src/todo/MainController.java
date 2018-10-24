@@ -69,8 +69,10 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.TilePane;
+import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
@@ -140,11 +142,15 @@ public class MainController implements Initializable {
     private final String showAllSVG = "M2.25,12.584c-0.713,0-1.292,0.578-1.292,1.291s0.579,1.291,1.292,1.291c0.713,0,1.292-0.578,1.292-1.291S2.963,12.584,2.25,12.584z M2.25,14.307c-0.238,0-0.43-0.193-0.43-0.432s0.192-0.432,0.43-0.432c0.238,0,0.431,0.193,0.431,0.432S2.488,14.307,2.25,14.307z M5.694,6.555H18.61c0.237,0,0.431-0.191,0.431-0.43s-0.193-0.431-0.431-0.431H5.694c-0.238,0-0.43,0.192-0.43,0.431S5.457,6.555,5.694,6.555z M2.25,8.708c-0.713,0-1.292,0.578-1.292,1.291c0,0.715,0.579,1.292,1.292,1.292c0.713,0,1.292-0.577,1.292-1.292C3.542,9.287,2.963,8.708,2.25,8.708z M2.25,10.43c-0.238,0-0.43-0.192-0.43-0.431c0-0.237,0.192-0.43,0.43-0.43c0.238,0,0.431,0.192,0.431,0.43C2.681,10.238,2.488,10.43,2.25,10.43z M18.61,9.57H5.694c-0.238,0-0.43,0.192-0.43,0.43c0,0.238,0.192,0.431,0.43,0.431H18.61c0.237,0,0.431-0.192,0.431-0.431C19.041,9.762,18.848,9.57,18.61,9.57z M18.61,13.443H5.694c-0.238,0-0.43,0.193-0.43,0.432s0.192,0.432,0.43,0.432H18.61c0.237,0,0.431-0.193,0.431-0.432S18.848,13.443,18.61,13.443z M2.25,4.833c-0.713,0-1.292,0.578-1.292,1.292c0,0.713,0.579,1.291,1.292,1.291c0.713,0,1.292-0.578,1.292-1.291C3.542,5.412,2.963,4.833,2.25,4.833z M2.25,6.555c-0.238,0-0.43-0.191-0.43-0.43s0.192-0.431,0.43-0.431c0.238,0,0.431,0.192,0.431,0.431S2.488,6.555,2.25,6.555z";
     private final String showDateSVG = "M16.254,3.399h-0.695V3.052c0-0.576-0.467-1.042-1.041-1.042c-0.576,0-1.043,0.467-1.043,1.042v0.347H6.526V3.052c0-0.576-0.467-1.042-1.042-1.042S4.441,2.476,4.441,3.052v0.347H3.747c-0.768,0-1.39,0.622-1.39,1.39v11.813c0,0.768,0.622,1.39,1.39,1.39h12.507c0.768,0,1.391-0.622,1.391-1.39V4.789C17.645,4.021,17.021,3.399,16.254,3.399z M14.17,3.052c0-0.192,0.154-0.348,0.348-0.348c0.191,0,0.348,0.156,0.348,0.348v0.347H14.17V3.052z M5.136,3.052c0-0.192,0.156-0.348,0.348-0.348S5.831,2.86,5.831,3.052v0.347H5.136V3.052z M16.949,16.602c0,0.384-0.311,0.694-0.695,0.694H3.747c-0.384,0-0.695-0.311-0.695-0.694V7.568h13.897V16.602z M16.949,6.874H3.052V4.789c0-0.383,0.311-0.695,0.695-0.695h12.507c0.385,0,0.695,0.312,0.695,0.695V6.874z M5.484,11.737c0.576,0,1.042-0.467,1.042-1.042c0-0.576-0.467-1.043-1.042-1.043s-1.042,0.467-1.042,1.043C4.441,11.271,4.908,11.737,5.484,11.737z M5.484,10.348c0.192,0,0.347,0.155,0.347,0.348c0,0.191-0.155,0.348-0.347,0.348s-0.348-0.156-0.348-0.348C5.136,10.503,5.292,10.348,5.484,10.348z M14.518,11.737c0.574,0,1.041-0.467,1.041-1.042c0-0.576-0.467-1.043-1.041-1.043c-0.576,0-1.043,0.467-1.043,1.043C13.475,11.271,13.941,11.737,14.518,11.737z M14.518,10.348c0.191,0,0.348,0.155,0.348,0.348c0,0.191-0.156,0.348-0.348,0.348c-0.193,0-0.348-0.156-0.348-0.348C14.17,10.503,14.324,10.348,14.518,10.348z M14.518,15.212c0.574,0,1.041-0.467,1.041-1.043c0-0.575-0.467-1.042-1.041-1.042c-0.576,0-1.043,0.467-1.043,1.042C13.475,14.745,13.941,15.212,14.518,15.212z M14.518,13.822c0.191,0,0.348,0.155,0.348,0.347c0,0.192-0.156,0.348-0.348,0.348c-0.193,0-0.348-0.155-0.348-0.348C14.17,13.978,14.324,13.822,14.518,13.822z M10,15.212c0.575,0,1.042-0.467,1.042-1.043c0-0.575-0.467-1.042-1.042-1.042c-0.576,0-1.042,0.467-1.042,1.042C8.958,14.745,9.425,15.212,10,15.212z M10,13.822c0.192,0,0.348,0.155,0.348,0.347c0,0.192-0.156,0.348-0.348,0.348s-0.348-0.155-0.348-0.348C9.653,13.978,9.809,13.822,10,13.822z M5.484,15.212c0.576,0,1.042-0.467,1.042-1.043c0-0.575-0.467-1.042-1.042-1.042s-1.042,0.467-1.042,1.042C4.441,14.745,4.908,15.212,5.484,15.212z M5.484,13.822c0.192,0,0.347,0.155,0.347,0.347c0,0.192-0.155,0.348-0.347,0.348s-0.348-0.155-0.348-0.348C5.136,13.978,5.292,13.822,5.484,13.822z M10,11.737c0.575,0,1.042-0.467,1.042-1.042c0-0.576-0.467-1.043-1.042-1.043c-0.576,0-1.042,0.467-1.042,1.043C8.958,11.271,9.425,11.737,10,11.737z M10,10.348c0.192,0,0.348,0.155,0.348,0.348c0,0.191-0.156,0.348-0.348,0.348s-0.348-0.156-0.348-0.348C9.653,10.503,9.809,10.348,10,10.348z";
     private final String activeSVG = "M9.917,0.875c-5.086,0-9.208,4.123-9.208,9.208c0,5.086,4.123,9.208,9.208,9.208s9.208-4.122,9.208-9.208\n"
-            + "								C19.125,4.998,15.003,0.875,9.917,0.875z M9.917,18.141c-4.451,0-8.058-3.607-8.058-8.058s3.607-8.057,8.058-8.057\n"
-            + "								c4.449,0,8.057,3.607,8.057,8.057S14.366,18.141,9.917,18.141z M13.851,6.794l-5.373,5.372L5.984,9.672\n"
-            + "								c-0.219-0.219-0.575-0.219-0.795,0c-0.219,0.22-0.219,0.575,0,0.794l2.823,2.823c0.02,0.028,0.031,0.059,0.055,0.083\n"
-            + "								c0.113,0.113,0.263,0.166,0.411,0.162c0.148,0.004,0.298-0.049,0.411-0.162c0.024-0.024,0.036-0.055,0.055-0.083l5.701-5.7\n"
-            + "								c0.219-0.219,0.219-0.575,0-0.794C14.425,6.575,14.069,6.575,13.851,6.794z";
+            + "C19.125,4.998,15.003,0.875,9.917,0.875z M9.917,18.141c-4.451,0-8.058-3.607-8.058-8.058s3.607-8.057,8.058-8.057\n"
+            + "c4.449,0,8.057,3.607,8.057,8.057S14.366,18.141,9.917,18.141z M13.851,6.794l-5.373,5.372L5.984,9.672\n"
+            + "c-0.219-0.219-0.575-0.219-0.795,0c-0.219,0.22-0.219,0.575,0,0.794l2.823,2.823c0.02,0.028,0.031,0.059,0.055,0.083\n"
+            + "c0.113,0.113,0.263,0.166,0.411,0.162c0.148,0.004,0.298-0.049,0.411-0.162c0.024-0.024,0.036-0.055,0.055-0.083l5.701-5.7\n"
+            + "c0.219-0.219,0.219-0.575,0-0.794C14.425,6.575,14.069,6.575,13.851,6.794z";
+
+    //private final String leftMenuControlSVG = "M5,0v10m0,5v10";
+    private final String openSVG = "M20,0v100h1v-100h1v100h1v-100 M20,150v700h1v-700h1v700h1v-700 M15,105l10,10l-10,10 M15,125l10,10l-10,10";
+
     //declarations of Menu Items
     MenuItem deleteMenuItem = new MenuItem("Delete Item");
     MenuItem setDoneMenuItem = new MenuItem("Set Item to Done");
@@ -160,10 +166,37 @@ public class MainController implements Initializable {
     MenuItem unstarItem = new MenuItem("Unfavor");
     MenuItem emailItem = new MenuItem("Send email");
     Menu setAlarm = new Menu("Set Alarm");
-    Spinner<LocalTime> alarmSpinner = new Spinner(new SpinnerValueFactory() {
+    Spinner<LocalTime> alarmHourSpinner = new Spinner(new SpinnerValueFactory() {
 
         {
-            setConverter(new LocalTimeStringConverter(DateTimeFormatter.ofPattern("HH:mm"), DateTimeFormatter.ofPattern("HH:mm")));
+            setConverter(new LocalTimeStringConverter(DateTimeFormatter.ofPattern("HH"), DateTimeFormatter.ofPattern("HH")));
+        }
+
+        @Override
+        public void decrement(int steps) {
+            if (getValue() == null) {
+                setValue(LocalTime.now());
+            } else {
+                LocalTime time = (LocalTime) getValue();
+                setValue(time.minusHours(steps));
+            }
+        }
+
+        @Override
+        public void increment(int steps) {
+            if (this.getValue() == null) {
+                setValue(LocalTime.now());
+            } else {
+                LocalTime time = (LocalTime) getValue();
+                setValue(time.plusHours(steps));
+            }
+        }
+    });
+    
+    Spinner<LocalTime> alarmMinuteSpinner = new Spinner(new SpinnerValueFactory() {
+
+        {
+            setConverter(new LocalTimeStringConverter(DateTimeFormatter.ofPattern("mm"), DateTimeFormatter.ofPattern("mm")));
         }
 
         @Override
@@ -185,12 +218,12 @@ public class MainController implements Initializable {
                 setValue(time.plusMinutes(steps));
             }
         }
-    });
+    });    
     //spinner.setEditable(true);
     //Spinner minuteSpinner = new Spinner();
     MenuItem setAlarmSpinner = new MenuItem();
     MenuItem confirmAlarmSpinner = new MenuItem();
-    Button confirmAlarm = new Button("Set Alarm");
+    Button confirmAlarm = new Button("Set");
     MenuItem removeAlarm = new MenuItem("Remove Alarm");
     MenuItem menuFolderChoiceBox = new MenuItem();
 
@@ -273,7 +306,7 @@ public class MainController implements Initializable {
     Timeline timeline;
 
     //@FXML
-    private Label leftMenu = new Label(">>");
+    private Label leftMenu = new Label();
     private Label folderLabel = new Label("Folders");
     private ListView folderList = new ListView<String>();
     private TextField folderAddText = new TextField();
@@ -737,10 +770,13 @@ public class MainController implements Initializable {
         EventHandler<ActionEvent> actionSetAlarm = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                if (alarmSpinner.getValue() == null) {
+                if (alarmHourSpinner.getValue() == null) {
+                    //do nothing
+                } else if (alarmMinuteSpinner.getValue() == null) {
                     //do nothing
                 } else {
-                    String spinnerTime = alarmSpinner.getValue().format(DateTimeFormatter.ofPattern("HH:mm"));
+                
+                    String spinnerTime = alarmHourSpinner.getValue().format(DateTimeFormatter.ofPattern("HH")) + ":" + alarmMinuteSpinner.getValue().format(DateTimeFormatter.ofPattern("mm"));
                     db.setAlarm(id, spinnerTime);
 
                     if (onlyStarred || showDateStart != null) {
@@ -892,14 +928,14 @@ public class MainController implements Initializable {
         setDoneMenuItem.setOnAction(actionSetDone);
         //setDoneMenuItem.setGraphic(new ImageView("/todo/done.png"));
         SVGPath setDoneIcon = new SVGPath();
-        setDoneIcon.setContent(doSVG);
+        setDoneIcon.setContent(doSVG); //doSVG
         setDoneMenuItem.setGraphic(setDoneIcon);
         setDoneMenuItem.setAccelerator(cntrlD);
 
         setActiveItem.setOnAction(actionSetActive);
         //setActiveItem.setGraphic(new ImageView("/todo/undo.png"));
         SVGPath setActiveIcon = new SVGPath();
-        setActiveIcon.setContent(undoSVG);
+        setActiveIcon.setContent(backToActiveSVG);
         setActiveItem.setGraphic(setActiveIcon);
         setActiveItem.setAccelerator(cntrlS);
 
@@ -948,12 +984,20 @@ public class MainController implements Initializable {
         emailIcon.setContent(envelopeSVG);
         emailItem.setGraphic(emailIcon);
         emailItem.setAccelerator(cntrlM);
-        setAlarmSpinner.setGraphic(alarmSpinner);
+        
+        alarmHourSpinner.setPrefWidth(70.0);
+        alarmHourSpinner.setTooltip(new Tooltip("Hours"));
+        alarmMinuteSpinner.setPrefWidth(70.0);
+        alarmMinuteSpinner.setTooltip(new Tooltip("Minutes"));
+        HBox spinnerTimeHBox = new HBox(alarmHourSpinner, alarmMinuteSpinner, confirmAlarm);
+        spinnerTimeHBox.setSpacing(5.0);
+        setAlarmSpinner.setGraphic(spinnerTimeHBox);
         //setAlarmSpinner.
         //setAlarmSpinner.setOnAction(actionSetAlarm);
-        confirmAlarmSpinner.setGraphic(confirmAlarm);
-        confirmAlarmSpinner.setOnAction(actionSetAlarm);
-        setAlarm.getItems().addAll(setAlarmSpinner, confirmAlarmSpinner);
+        //confirmAlarmSpinner.setGraphic(confirmAlarm);
+        //confirmAlarmSpinner.setOnAction(actionSetAlarm);
+        confirmAlarm.setOnAction(actionSetAlarm);
+        setAlarm.getItems().addAll(setAlarmSpinner/*, confirmAlarmSpinner*/);
         //setAlarm.setGraphic(new ImageView("/todo/alarm-on.png"));
         SVGPath setAlarmIcon = new SVGPath();
         setAlarmIcon.setContent(setAlarmSVG);
@@ -1531,6 +1575,10 @@ public class MainController implements Initializable {
                     }
                 });
 
+                row.setOnMouseEntered(event -> {
+                    //
+                });
+
                 return row;
             });
         }
@@ -1844,7 +1892,16 @@ public class MainController implements Initializable {
         borderPane.setLeft(leftFlapBar);
         borderPane.setRight(rightFlapBar);
         //toolbar.getItems().addAll(leftMenu);
+        leftMenu.setPrefHeight(650.0);
+        leftMenu.setPrefWidth(30.0);
+        
+        leftMenu.setAlignment(Pos.CENTER);
         leftMenu.setTooltip(new Tooltip("Open side menu"));
+        SVGPath leftMenuIcon = new SVGPath();
+        leftMenuIcon.setContent(openSVG);
+        leftMenu.setGraphic(leftMenuIcon);
+        
+
         clock.setTooltip(new Tooltip("Current time"));
         anchorPane.getChildren().add(0, leftMenu);
         //anchorPane.setH

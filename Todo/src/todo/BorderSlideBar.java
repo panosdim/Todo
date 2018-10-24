@@ -13,8 +13,10 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.VBox;
+import javafx.scene.shape.SVGPath;
 import javafx.util.Duration;
 
 /**
@@ -25,6 +27,9 @@ public class BorderSlideBar extends VBox {
     //private final String CSS = "/" + this.getClass().getSimpleName() + ".css";
     private double expandedSize;
     private Pos flapbarLocation;
+    private final String openSVG = "M20,0v100h1v-100h1v100h1v-100 M20,150v700h1v-700h1v700h1v-700 M15,105l10,10l-10,10 M15,125l10,10l-10,10";
+    private final String closeSVG = "M20,0v100h1v-100h1v100h1v-100 M20,150v700h1v-700h1v700h1v-700 M25,105l-10,10l10,10 M25,125l-10,10l10,10";
+    private SVGPath leftMenuIcon = new SVGPath();
 
     /**
      * Creates a side bar panel in a BorderPane, containing an horizontal
@@ -88,7 +93,10 @@ public class BorderSlideBar extends VBox {
                 @Override
                 public void handle(ActionEvent actionEvent) {
                     setVisible(false);
-                    controlLabel.setText(">>");
+                    //controlLabel.setText(">>");
+                    leftMenuIcon.setContent(openSVG);
+                    controlLabel.setGraphic(leftMenuIcon);
+                    controlLabel.setTooltip(new Tooltip("Open side menu"));
                 }
             });
 
@@ -108,7 +116,10 @@ public class BorderSlideBar extends VBox {
             showPanel.onFinishedProperty().set(new EventHandler<ActionEvent>() {
                 @Override
                 public void handle(ActionEvent actionEvent) {
-                    controlLabel.setText("<<");
+                    //controlLabel.setText("<<");
+                    leftMenuIcon.setContent(closeSVG);
+                    controlLabel.setGraphic(leftMenuIcon);
+                    controlLabel.setTooltip(new Tooltip("Close side menu"));
                 }
             });
 
