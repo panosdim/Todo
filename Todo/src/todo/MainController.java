@@ -192,7 +192,7 @@ public class MainController implements Initializable {
             }
         }
     });
-    
+
     Spinner<LocalTime> alarmMinuteSpinner = new Spinner(new SpinnerValueFactory() {
 
         {
@@ -218,7 +218,7 @@ public class MainController implements Initializable {
                 setValue(time.plusMinutes(steps));
             }
         }
-    });    
+    });
     //spinner.setEditable(true);
     //Spinner minuteSpinner = new Spinner();
     MenuItem setAlarmSpinner = new MenuItem();
@@ -775,7 +775,7 @@ public class MainController implements Initializable {
                 } else if (alarmMinuteSpinner.getValue() == null) {
                     //do nothing
                 } else {
-                
+
                     String spinnerTime = alarmHourSpinner.getValue().format(DateTimeFormatter.ofPattern("HH")) + ":" + alarmMinuteSpinner.getValue().format(DateTimeFormatter.ofPattern("mm"));
                     db.setAlarm(id, spinnerTime);
 
@@ -984,7 +984,7 @@ public class MainController implements Initializable {
         emailIcon.setContent(envelopeSVG);
         emailItem.setGraphic(emailIcon);
         emailItem.setAccelerator(cntrlM);
-        
+
         alarmHourSpinner.setPrefWidth(70.0);
         alarmHourSpinner.setTooltip(new Tooltip("Hours"));
         alarmMinuteSpinner.setPrefWidth(70.0);
@@ -1243,9 +1243,7 @@ public class MainController implements Initializable {
                 if (showOnlyStarred) {
                     //check star
                     if (allItems.get(i).getStar() == 1) {
-                        if (folderId == 1) {
-                            activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
-                        } else if (folderId == allItems.get(i).getFolderId()) {
+                        if (folderId == 1 || folderId == allItems.get(i).getFolderId()) {
                             activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
                         }
                     }
@@ -1254,18 +1252,14 @@ public class MainController implements Initializable {
                     //check if showDate is set
                     if (showDateStart == null) {
                         //show all
-                        if (folderId == 1) {
-                            activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
-                        } else if (folderId == allItems.get(i).getFolderId()) {
+                        if (folderId == 1 || folderId == allItems.get(i).getFolderId()) {
                             activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
                         }
                     } else {
                         //show only for selected date
                         if (showDateStart.toString().compareTo(allItems.get(i).getDate()) <= 0) {
                             if (showDateEnd.toString().compareTo(allItems.get(i).getDate()) >= 0) {
-                                if (folderId == 1) {
-                                    activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
-                                } else if (folderId == allItems.get(i).getFolderId()) {
+                                if (folderId == 1 || folderId == allItems.get(i).getFolderId()) {
                                     activeItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
                                 }
                             }
@@ -1278,17 +1272,15 @@ public class MainController implements Initializable {
             } else {
                 //check if showDateStart is set
                 if (showDateStart == null) {
-                    //show all
-                    doneItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
-                } else {
-                    //show only for selected date
-                    if (showDateStart.toString().compareTo(allItems.get(i).getDate()) <= 0) {
-                        if (showDateEnd.toString().compareTo(allItems.get(i).getDate()) >= 0) {
-                            doneItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
-                        }
+                    if (folderId == 1 || folderId == allItems.get(i).getFolderId()) {
+                        doneItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
+                    }
+                } else //show only for selected date
+                if (showDateStart.toString().compareTo(allItems.get(i).getDate()) <= 0) {
+                    if (showDateEnd.toString().compareTo(allItems.get(i).getDate()) >= 0) {
+                        doneItems.add(new TodoItem(allItems.get(i).getId(), allItems.get(i).getDescription(), allItems.get(i).getDate(), intStatus, allItems.get(i).getStar(), allItems.get(i).getRank(), allItems.get(i).getAlarm(), allItems.get(i).getFolderId()));
                     }
                 }
-
             }
 
         }
@@ -1894,13 +1886,12 @@ public class MainController implements Initializable {
         //toolbar.getItems().addAll(leftMenu);
         leftMenu.setPrefHeight(650.0);
         leftMenu.setPrefWidth(30.0);
-        
+
         leftMenu.setAlignment(Pos.CENTER);
         leftMenu.setTooltip(new Tooltip("Open side menu"));
         SVGPath leftMenuIcon = new SVGPath();
         leftMenuIcon.setContent(openSVG);
         leftMenu.setGraphic(leftMenuIcon);
-        
 
         clock.setTooltip(new Tooltip("Current time"));
         anchorPane.getChildren().add(0, leftMenu);
@@ -1922,7 +1913,7 @@ public class MainController implements Initializable {
                 removeFolderDefault.setDisable(false);
                 removeFolderItems.setDisable(false);
             }
-            listTasks(true, onlyStarred, false, folderFolderId);
+            listTasks(onlyActive, onlyStarred, false, folderFolderId);
 
             /*switch (indexLocal) {
                 case -1:
