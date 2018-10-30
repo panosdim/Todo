@@ -82,6 +82,7 @@ import javafx.scene.shape.FillRule;
 import javafx.scene.shape.SVGPath;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
+import javafx.stage.Window;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import javafx.util.converter.LocalTimeStringConverter;
@@ -556,6 +557,7 @@ public class MainController implements Initializable {
             } else if (hoveredId != -1) {
                 db.setDueDate(hoveredId, localDate.toString());
                 hoveredId = -1;
+                datePicker.setValue(null);
                 if (onlyStarred || showDateStart != null) {
                     listTasks(true, onlyStarred, true, folderFolderId);
                 } else {
@@ -1591,6 +1593,7 @@ public class MainController implements Initializable {
                         SVGPath setDoneOptionIcon = new SVGPath();
                         setDoneOptionIcon.setContent(doSVG);
                         setDoneOption.setGraphic(setDoneOptionIcon);
+                        setDoneOption.setStyle("-fx-opacity: 0.5; -fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;"); // -fx-border-right: 2px solid black; -fx-border-top: 2px solid grey; -fx-border-left: 2px solid grey;");
                         setDoneOption.setOnMouseClicked((event) -> {
                             //if (cell.getItem() == 0) {
                             //    cell.setItem(1);
@@ -1607,33 +1610,53 @@ public class MainController implements Initializable {
                             listTasks(onlyActive, onlyStarred, true, folderFolderId);
                         });
                         setDoneOption.setTooltip(new Tooltip("Press to set to Done (ctrl+D)"));
-                        
+                        setDoneOption.setOnMouseEntered((event) -> {
+                            setDoneOption.setStyle("-fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
+                        });
+                        setDoneOption.setOnMouseExited((event) -> {
+                            setDoneOption.setStyle("-fx-opacity: 0.5; -fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
+                        });
+
                         //prepare edit icon
                         Label editOption = new Label();
                         SVGPath editOptionIcon = new SVGPath();
                         editOptionIcon.setContent(editSVG);
                         editOption.setGraphic(editOptionIcon);
+                        editOption.setStyle("-fx-opacity: 0.5; -fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
                         editOption.setOnMouseClicked((event) -> {
                             editItem.fire();
                         });
-                        editOption.setTooltip(new Tooltip("Press to Edit Item (ctrl+E)"));    
-                        
+                        editOption.setTooltip(new Tooltip("Press to Edit Item (ctrl+E)"));
+                        editOption.setOnMouseEntered((event) -> {
+                            editOption.setStyle("-fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
+                        });
+                        editOption.setOnMouseExited((event) -> {
+                            editOption.setStyle("-fx-opacity: 0.5; -fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
+                        });
+
                         //prepare email icon
                         Label emailOption = new Label();
                         SVGPath emailOptionIcon = new SVGPath();
                         emailOptionIcon.setContent(envelopeSVG);
                         emailOption.setGraphic(emailOptionIcon);
+                        emailOption.setStyle("-fx-opacity: 0.5; -fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
                         emailOption.setOnMouseClicked((event) -> {
                             emailItem.fire();
                         });
-                        emailOption.setTooltip(new Tooltip("Press to send e-mail with Item (ctrl+M)"));                        
-                        
+                        emailOption.setTooltip(new Tooltip("Press to send e-mail with Item (ctrl+M)"));
+                        emailOption.setOnMouseEntered((event) -> {
+                            emailOption.setStyle("-fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
+                        });
+                        emailOption.setOnMouseExited((event) -> {
+                            emailOption.setStyle("-fx-opacity: 0.5; -fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
+                        });                        
 
                         //prepare set favorite icon
                         Label setFavOption = new Label();
                         SVGPath setFavOptionIcon = new SVGPath();
                         setFavOptionIcon.setContent(starSVG);
                         setFavOption.setGraphic(setFavOptionIcon);
+                        setFavOption.setStyle("-fx-opacity: 0.5; -fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
                         setFavOption.setOnMouseClicked((event) -> {
                             if (todoItem.getStar() == 1) {
                                 todoItem.setStar(0);
@@ -1654,12 +1677,19 @@ public class MainController implements Initializable {
                         } else {
                             setFavOption.setTooltip(new Tooltip("Press to add to favorites (ctrl+F)"));
                         }
+                        setFavOption.setOnMouseEntered((event) -> {
+                            setFavOption.setStyle("-fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
+                        });
+                        setFavOption.setOnMouseExited((event) -> {
+                            setFavOption.setStyle("-fx-opacity: 0.5; -fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
+                        });                        
 
                         //prepare delete icon
                         Label deleteOption = new Label();
                         SVGPath deleteOptionIcon = new SVGPath();
                         deleteOptionIcon.setContent(trashBucketSVG);
                         deleteOption.setGraphic(deleteOptionIcon);
+                        deleteOption.setStyle("-fx-opacity: 0.5; -fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
                         deleteOption.setOnMouseClicked((event) -> {
 
                             Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -1692,17 +1722,30 @@ public class MainController implements Initializable {
 
                         });
                         deleteOption.setTooltip(new Tooltip("Press to Delete (Delete)"));
+                        deleteOption.setOnMouseEntered((event) -> {
+                            deleteOption.setStyle("-fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
+                        });
+                        deleteOption.setOnMouseExited((event) -> {
+                            deleteOption.setStyle("-fx-opacity: 0.5; -fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
+                        });                        
 
                         //prepare set Due Date icon
                         Label setDueDateOption = new Label();
                         SVGPath setDueDateOptionIcon = new SVGPath();
                         setDueDateOptionIcon.setContent(calendarSVG);
                         setDueDateOption.setGraphic(setDueDateOptionIcon);
+                        setDueDateOption.setStyle("-fx-opacity: 0.5; -fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
                         setDueDateOption.setOnMouseClicked((event) -> {
                             hoveredId = todoItem.getId();
                             datePicker.show();
                         });
                         setDueDateOption.setTooltip(new Tooltip("Press to select new Due Date"));
+                        setDueDateOption.setOnMouseEntered((event) -> {
+                            setDueDateOption.setStyle("-fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
+                        });
+                        setDueDateOption.setOnMouseExited((event) -> {
+                            setDueDateOption.setStyle("-fx-opacity: 0.5; -fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
+                        });                        
 
                         //prepare set Alarm icon
                         Label setAlarmOption = new Label();
@@ -1719,10 +1762,11 @@ public class MainController implements Initializable {
                                 setAlarmOptionIcon.setContent(setAlarmSVG);
                                 setAlarmOption.setTooltip(new Tooltip("Press to Set Alarm"));
                             }
-                            
+
                         }
                         //setAlarmOptionIcon.setFill(Color.RED);
                         setAlarmOption.setGraphic(setAlarmOptionIcon);
+                        setAlarmOption.setStyle("-fx-opacity: 0.5; -fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
                         setAlarmOption.setOnMouseClicked((event) -> {
                             if (todoItem.getAlarm() != null) {
                                 db.setAlarm(todoItem.getId(), null);
@@ -1735,22 +1779,29 @@ public class MainController implements Initializable {
                                 if (todoItem.getStatus() == 2) { //status =2, item overdue, alarm cannot be set
                                     //no action
                                 } else { //status = 1, item pending, not overdue, alarm can be set
+                                    popup.getContent().clear();
                                     popup.getContent().add(spinnerTimeHBox);
                                     popup.show((Node) event.getSource(), event.getScreenX(), event.getScreenY());
                                 }
 
                             }
                         });
+                        setAlarmOption.setOnMouseEntered((event) -> {
+                            setAlarmOption.setStyle("-fx-border-color: grey; -fx-background-color: red; -fx-border-radius: 4px;");
+                        });
+                        setAlarmOption.setOnMouseExited((event) -> {
+                            setAlarmOption.setStyle("-fx-opacity: 0.5; -fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
+                        });                        
 
                         //build HBox of all icons
                         HBox editOptionsHBox = new HBox(setDoneOption, editOption, emailOption, setFavOption, deleteOption, setDueDateOption, setAlarmOption);
-                        editOptionsHBox.setSpacing(5.0);
+                        editOptionsHBox.setSpacing(8.0);
                         editOptionsHBox.setAlignment(Pos.CENTER_RIGHT);
 
                         //set HBox to appear on hover over table's row
                         todoItem.getDescription().setContentDisplay(ContentDisplay.RIGHT);
                         todoItem.getDescription().setGraphic(editOptionsHBox);
-                        double gapTextToIcon = activeItemsTableColDesc.getWidth() - todoItem.getDescription().getWidth() - 162.0;
+                        double gapTextToIcon = activeItemsTableColDesc.getWidth() - todoItem.getDescription().getWidth() - 190.0;
                         if (gapTextToIcon > 0.0) {
                             todoItem.getDescription().setGraphicTextGap(gapTextToIcon);
                         } else {
@@ -1880,6 +1931,7 @@ public class MainController implements Initializable {
 
         //tblColStat = new TableColumn("Status");
         doneItemsTableColStat.setCellValueFactory(new PropertyValueFactory<TodoItem, Integer>("status"));
+        /*
         Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>> cellDoneDoneFactory;
         cellDoneDoneFactory = new Callback<TableColumn<TodoItem, Integer>, TableCell<TodoItem, Integer>>() {
             @Override
@@ -1923,6 +1975,105 @@ public class MainController implements Initializable {
             }
         };
         doneItemsTableColStat.setCellFactory(cellDoneDoneFactory);
+         */
+        doneItemsTable.setRowFactory(tv -> {
+            TableRow<TodoItem> row = new TableRow<>();
+
+            row.hoverProperty().addListener((observable) -> {
+                final TodoItem todoItem = row.getItem();
+
+                if (row.isHover() && todoItem != null) {
+
+                    //prepare set to pending icon
+                    Label setActiveOption = new Label();
+                    SVGPath setActiveOptionIcon = new SVGPath();
+                    setActiveOptionIcon.setContent(backToActiveSVG);
+                    setActiveOption.setGraphic(setActiveOptionIcon);
+                    setActiveOption.setOnMouseClicked((event) -> {
+                        //if (cell.getItem() == 0) {
+                        //    cell.setItem(1);
+                        //} else {
+                        todoItem.setStatus(1);
+                        //}
+
+                        db.changeItemStatus(todoItem.getId(), todoItem.getStatus(), activeItems.size());
+                        listTasks(onlyActive, onlyStarred, true, folderFolderId);
+                    });
+                    setActiveOption.setTooltip(new Tooltip("Press to put item to active again (ctrl+A)"));
+
+                    //prepare edit icon
+                    Label editOption = new Label();
+                    SVGPath editOptionIcon = new SVGPath();
+                    editOptionIcon.setContent(editSVG);
+                    editOption.setGraphic(editOptionIcon);
+                    editOption.setOnMouseClicked((event) -> {
+                        editItem.fire();
+                    });
+                    editOption.setTooltip(new Tooltip("Press to Edit Item (ctrl+E)"));
+
+                    //prepare delete icon
+                    Label deleteOption = new Label();
+                    SVGPath deleteOptionIcon = new SVGPath();
+                    deleteOptionIcon.setContent(trashBucketSVG);
+                    deleteOption.setGraphic(deleteOptionIcon);
+                    deleteOption.setOnMouseClicked((event) -> {
+
+                        Alert alert = new Alert(Alert.AlertType.WARNING);
+
+                        alert.setTitle("Warning");
+                        alert.setHeaderText("Would You Like To Delete This Item?");
+                        alert.setContentText("Please choose an option.");
+
+                        ButtonType yesButton = new ButtonType("Yes");
+                        ButtonType noButton = new ButtonType("No");
+                        ButtonType cancelButton = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+
+                        alert.getButtonTypes().setAll(yesButton, noButton, cancelButton);
+
+                        Optional<ButtonType> result = alert.showAndWait();
+
+                        if (result.get() == yesButton) {
+                            db.deleteToDoItem(todoItem.getId());
+                            //refresh list of tasks
+                            if (onlyStarred || showDateStart != null) {
+                                listTasks(true, onlyStarred, true, folderFolderId);
+                            } else {
+                                listTasks(onlyActive, onlyStarred, true, folderFolderId);
+                            }
+                        } else if (result.get() == noButton) {
+                            event.consume();
+                        } else if (result.get() == cancelButton) {
+                            event.consume();
+                        }
+
+                    });
+                    deleteOption.setTooltip(new Tooltip("Press to Delete (Delete)"));
+
+                    //build HBox of all icons
+                    HBox editOptionsHBox = new HBox(setActiveOption, editOption, deleteOption);
+                    editOptionsHBox.setSpacing(5.0);
+                    editOptionsHBox.setAlignment(Pos.CENTER_RIGHT);
+
+                    //set HBox to appear on hover over table's row
+                    todoItem.getDescription().setContentDisplay(ContentDisplay.RIGHT);
+                    todoItem.getDescription().setGraphic(editOptionsHBox);
+                    double gapTextToIcon = doneItemsTableColDesc.getWidth() - todoItem.getDescription().getWidth() - 69.0;
+                    if (gapTextToIcon > 0.0) {
+                        todoItem.getDescription().setGraphicTextGap(gapTextToIcon);
+                    } else {
+                        todoItem.getDescription().setGraphicTextGap(0.0);
+                    }
+
+                } else {
+                    todoItem.getDescription().setGraphic(null);
+
+                }
+            });
+
+            return row;
+        });
+
+        //
         //tblColStat.setStyle("-fx-alignment: CENTER;");
         //tblColStat = new TableColumn("Rank");
         doneItemsTableColRank.setCellValueFactory(new PropertyValueFactory<TodoItem, Integer>("rank"));
