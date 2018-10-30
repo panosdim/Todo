@@ -54,7 +54,7 @@
                                             </children>
                                         </HBox>
                                         
-                                        <TableView fx:id="activeItemsTable" onMouseClicked="#selectTableItem" opacity="0.8" prefHeight="560.0" prefWidth="735.0" VBox.vgrow="ALWAYS">
+                                        <TableView fx:id="activeItemsTable" onMouseClicked="#selectTableItem" prefHeight="560.0" prefWidth="735.0" VBox.vgrow="ALWAYS">
                                             <placeholder>
                                                 <Label text="" />
                                             </placeholder>
@@ -87,7 +87,7 @@
                                                 </Button>
                                             </children>
                                         </HBox>
-                                        <TableView fx:id="doneItemsTable" onMouseClicked="#selectDoneTableItem" opacity="0.8" prefHeight="560.0" prefWidth="735.0" VBox.vgrow="ALWAYS">
+                                        <TableView fx:id="doneItemsTable" onMouseClicked="#selectDoneTableItem" prefHeight="560.0" prefWidth="735.0" VBox.vgrow="ALWAYS">
                                             <placeholder>
                                                 <Label text="" />
                                             </placeholder>

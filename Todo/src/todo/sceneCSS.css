@@ -41,6 +41,12 @@ and open the template in the editor.
 
 #activeItemsTable {
     -fx-background-color: transparent;
+
+}
+
+#doneItemsTable {
+    -fx-background-color: transparent;
+
 }
 
 #activeItemsTable .scroll-bar:vertical {
@@ -54,17 +60,39 @@ and open the template in the editor.
     -fx-background-color: #ffff00, transparent;
     -fx-border-color: black;
     -fx-border-radius: 5px;
+    -fx-border-width: 2px;
     -fx-text-fill: white;
 }
 
 #activeItemsTable .table-row-cell {
+    -fx-background-color: transparent;
     -fx-border-color: black;
     -fx-border-radius: 5px;
     -fx-text-fill: white;
+
+}
+
+#activeItemsTable .table-cell {
+    -fx-border-width: 0px;
+
+}
+
+#activeItemsTable .table {
+    
+    -fx-border-collapse: separate;
+    -fx-border-spacing: 0px 15px;
 }
 
 #doneItemsTable .table-row-cell:filled:hover {
     -fx-background-color: #ffff00, transparent;
+    -fx-border-color: black;
+    -fx-border-radius: 5px;
+    -fx-border-width: 2px;
+    -fx-text-fill: white;
+}
+
+#doneItemsTable .table-row-cell {
+    -fx-background-color: transparent;
     -fx-border-color: black;
     -fx-border-radius: 5px;
     -fx-text-fill: white;
@@ -85,8 +113,6 @@ and open the template in the editor.
 
 #doneItemsTable .text {
     -fx-strikethrough: true;
-    -fx-opacity: 0.8;
-    -background-color: transparent;
 }
 
 #doneItemsTable .scroll-bar:vertical {
