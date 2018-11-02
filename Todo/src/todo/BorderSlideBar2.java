@@ -16,6 +16,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
@@ -53,7 +54,8 @@ public class BorderSlideBar2 extends VBox {
             MenuItem controlItem, Pos location, Node... nodes) {
 
         //getStyleClass().add("sidebar");
-        //getStylesheets().add(CSS);        
+        //getStylesheets().add(CSS);   
+        this.alignmentProperty().set(Pos.CENTER);
         setExpandedSize(expandedSize);
         setVisible(false);
 
@@ -69,7 +71,12 @@ public class BorderSlideBar2 extends VBox {
         // Add nodes in the vbox
         getChildren().addAll(nodes);
         
-        setSpacing(5);
+        for(Node n: getChildren())
+        {
+            n.setLayoutX(15.0);
+        }
+        
+        setSpacing(15.0);
         //setAlignment(Pos.CENTER_LEFT);
         //controlLabel.setGraphic(new ImageView("/todo/left_menu.png"));
         controlItem.setOnAction((event) -> {
@@ -128,8 +135,14 @@ public class BorderSlideBar2 extends VBox {
             //    }
             
         });
-        //Update button has to be always last element of vbox
-        getChildren().get(getChildren().size()-1).setOnMouseClicked((event) -> {
+        
+        //((HBox) getChildren().get(5)).getChildren().get(2).setVisible(false);
+        
+        //Cancel button has to be always last element of vbox
+        ((Button) ((HBox) getChildren().get(getChildren().size()-1)).getChildren().get(1)).setOnAction((event) -> {
+        
+        
+        //((Button) getChildren().get(getChildren().size()-1)).setOnAction((event) -> {
 
                 // Create an animation to hide the panel.
                 final Animation hidePanel = new Transition() {

@@ -56,8 +56,16 @@ and open the template in the editor.
     -fx-scale-x: 0;
 }
 
+#activeItemsTable .table-row-cell:selected {
+    -fx-background-color: blue, transparent;
+    -fx-border-color: black;
+    -fx-border-radius: 5px;
+    -fx-border-width: 2px;
+    -fx-text-fill: black;
+}
+
 #activeItemsTable .table-row-cell:filled:hover {
-    -fx-background-color: #ffff00, transparent;
+    -fx-background-color: lightblue, transparent;
     -fx-border-color: black;
     -fx-border-radius: 5px;
     -fx-border-width: 2px;
@@ -65,7 +73,7 @@ and open the template in the editor.
 }
 
 #activeItemsTable .table-row-cell {
-    -fx-background-color: transparent;
+    -fx-background-color: white, transparent;
     -fx-border-color: black;
     -fx-border-radius: 5px;
     -fx-text-fill: white;
@@ -83,8 +91,16 @@ and open the template in the editor.
     -fx-border-spacing: 0px 15px;
 }
 
+#doneItemsTable .table-row-cell:selected {
+    -fx-background-color: blue, transparent;
+    -fx-border-color: black;
+    -fx-border-radius: 5px;
+    -fx-border-width: 2px;
+    -fx-text: black;
+}
+
 #doneItemsTable .table-row-cell:filled:hover {
-    -fx-background-color: #ffff00, transparent;
+    -fx-background-color: lightblue, transparent;
     -fx-border-color: black;
     -fx-border-radius: 5px;
     -fx-border-width: 2px;
@@ -92,7 +108,7 @@ and open the template in the editor.
 }
 
 #doneItemsTable .table-row-cell {
-    -fx-background-color: transparent;
+    -fx-background-color: white, transparent;
     -fx-border-color: black;
     -fx-border-radius: 5px;
     -fx-text-fill: white;
@@ -111,7 +127,7 @@ and open the template in the editor.
     -fx-border-width: 2;
 }
 
-#doneItemsTable .text {
+#doneItemsTable .table-row-cell .text {
     -fx-strikethrough: true;
 }
 
@@ -129,7 +145,10 @@ and open the template in the editor.
     -fx-background-color: transparent;
 }
 
-
+#favEdit {
+    -fx-border-color: transparent, black;
+    -fx-background-color: transparent;     
+}
 
 .button {
     -fx-border-color: transparent, black;
@@ -137,6 +156,11 @@ and open the template in the editor.
     -fx-border-width: 2;
     -fx-background-radius: 0;
     -fx-background-color: transparent;    
+}
+
+.button:hover {
+    -fx-background-color: #ffff00, transparent;
+
 }
 
 .button:pressed {

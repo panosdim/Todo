@@ -56,7 +56,8 @@ public class BorderSlideBar extends VBox {
             Label controlLabel, Pos location, Node... nodes) {
 
         //getStyleClass().add("sidebar");
-        //getStylesheets().add(CSS);        
+        //getStylesheets().add(CSS);
+        
         setExpandedSize(expandedSize);
         setVisible(false);
 

@@ -257,6 +257,7 @@ public class DBHandler {
     //assignFolder
     //This method assigns folder to the item from DB
     //based on parameter id and folderName
+/*    
     public void assignFolder(long id, String folderName) {
 
         try {
@@ -272,7 +273,7 @@ public class DBHandler {
         } catch (SQLException sQLException) {
         }
     }
-
+*/
     //editDescription
     //This method edits description of one entry from DB
     //based on parameter id and desc
@@ -329,7 +330,7 @@ public class DBHandler {
                     query = "UPDATE " + dbName + " SET Status = " + status + ", alarm = null, Starred = 0, Rank = -1 WHERE id=" + id;
                     break;
                 case 1:
-                    query = "UPDATE " + dbName + " SET Status = " + status + ", alarm = null, Starred = 0, Rank = " + rank + " WHERE id=" + id;
+                    query = "UPDATE " + dbName + " SET Status = " + status + ", Rank = " + rank + " WHERE id=" + id;
                     break;
                 default: //case 2:
                     query = "UPDATE " + dbName + " SET Status = " + status + ", alarm = null, Starred = 0 WHERE id=" + id;

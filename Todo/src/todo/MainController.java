@@ -16,6 +16,7 @@ import java.net.URL;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
@@ -44,8 +45,10 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.ContextMenu;
+import javafx.scene.control.DateCell;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
@@ -101,6 +104,7 @@ public class MainController implements Initializable {
     private long id = -1; //id read from DB used to delete single task
     private long hoveredId = -1;
     private int folderFolderId = 1; //folder Id from DB, folder table
+    private TodoItem edittedItem = new TodoItem();
 
     private ObservableList<TodoItem> activeItems = FXCollections.observableArrayList(); //ObservableList of active items
     private ObservableList<TodoItem> doneItems = FXCollections.observableArrayList(); //ObservableList of done items
@@ -202,6 +206,33 @@ public class MainController implements Initializable {
         }
     });
 
+    Spinner<LocalTime> alarmHourSpinnerEdit = new Spinner(new SpinnerValueFactory() {
+
+        {
+            setConverter(new LocalTimeStringConverter(DateTimeFormatter.ofPattern("HH"), DateTimeFormatter.ofPattern("HH")));
+        }
+
+        @Override
+        public void decrement(int steps) {
+            if (getValue() == null) {
+                setValue(LocalTime.now());
+            } else {
+                LocalTime time = (LocalTime) getValue();
+                setValue(time.minusHours(steps));
+            }
+        }
+
+        @Override
+        public void increment(int steps) {
+            if (this.getValue() == null) {
+                setValue(LocalTime.now());
+            } else {
+                LocalTime time = (LocalTime) getValue();
+                setValue(time.plusHours(steps));
+            }
+        }
+    });
+
     Spinner<LocalTime> alarmMinuteSpinner = new Spinner(new SpinnerValueFactory() {
 
         {
@@ -228,8 +259,37 @@ public class MainController implements Initializable {
             }
         }
     });
+
+    Spinner<LocalTime> alarmMinuteSpinnerEdit = new Spinner(new SpinnerValueFactory() {
+
+        {
+            setConverter(new LocalTimeStringConverter(DateTimeFormatter.ofPattern("mm"), DateTimeFormatter.ofPattern("mm")));
+        }
+
+        @Override
+        public void decrement(int steps) {
+            if (getValue() == null) {
+                setValue(LocalTime.now());
+            } else {
+                LocalTime time = (LocalTime) getValue();
+                setValue(time.minusMinutes(steps));
+            }
+        }
+
+        @Override
+        public void increment(int steps) {
+            if (this.getValue() == null) {
+                setValue(LocalTime.now());
+            } else {
+                LocalTime time = (LocalTime) getValue();
+                setValue(time.plusMinutes(steps));
+            }
+        }
+    });
+
     Button confirmAlarm = new Button("Set");
-    private HBox spinnerTimeHBox = new HBox(alarmHourSpinner, alarmMinuteSpinner, confirmAlarm);
+    Button cancelAlarm = new Button("Cancel");
+    private HBox spinnerTimeHBox = new HBox(alarmHourSpinner, alarmMinuteSpinner, confirmAlarm, cancelAlarm);
 
     //spinner.setEditable(true);
     //Spinner minuteSpinner = new Spinner();
@@ -294,8 +354,8 @@ public class MainController implements Initializable {
     private TableColumn doneItemsTableColRank;
 
     private ListView menuList = new ListView<Label>();
-    @FXML
-    private TilePane PaneEditItem;
+    //@FXML
+    //private TilePane PaneEditItem;
 
     @FXML
     private Label Descriptionlabel;
@@ -330,16 +390,35 @@ public class MainController implements Initializable {
     //private ToolBar toolbar = new ToolBar();
 
     //Nodes to appear in new right pane
+    private MenuItem editItemRight = new MenuItem();
     private Label descLabel = new Label("Description");
-    private Label statusLabel = new Label("Status");
-    private Label dueDateLabel = new Label("Due Date");
     private TextField descEdit = new TextField();
-    private TextField statusEdit = new TextField();
+
+    private Label dueDateLabel = new Label("Due Date");
     private DatePicker dateEdit = new DatePicker();
+    private HBox dueDateHBox = new HBox(dueDateLabel, dateEdit);
+
+    private Label alarmLabel = new Label("Alarm");
+    private HBox spinnerTimeNoButtonHBox = new HBox(alarmLabel, alarmHourSpinnerEdit, alarmMinuteSpinnerEdit);
+
+    private Label statusLabel = new Label("Status");
+    private ChoiceBox statusEdit = new ChoiceBox();
+    private HBox statusHBox = new HBox(statusLabel, statusEdit);
+
+    private Label favLabel = new Label("Favorites");
+    private ChoiceBox favEdit = new ChoiceBox();
+    private HBox favHBox = new HBox(favLabel, favEdit);
+
+    private Label foldersLabel = new Label("Folder");
+    private ChoiceBox foldersEdit = new ChoiceBox();
+    private HBox foldersHBox = new HBox(foldersLabel, foldersEdit);
+
     private Button updateButton = new Button("Update");
+    private Button cancelButton = new Button("Cancel");
+    private HBox finishButtonsHBox = new HBox(updateButton, cancelButton);
 
     //control MenuItem is editItem from context menu
-    private BorderSlideBar2 rightFlapBar = new BorderSlideBar2(220, editItem, Pos.BASELINE_RIGHT, descLabel, descEdit, statusLabel, statusEdit, dueDateLabel, dateEdit, updateButton);
+    private BorderSlideBar2 rightFlapBar = new BorderSlideBar2(220, editItemRight, Pos.BASELINE_RIGHT, descLabel, descEdit, dueDateHBox, spinnerTimeNoButtonHBox, statusHBox, favHBox, foldersHBox, finishButtonsHBox);
 
     //method handling tooltip in the left list via mouse 
     @FXML
@@ -534,9 +613,19 @@ public class MainController implements Initializable {
     //handleDatePicker
     @FXML
     private void handleDatePicker() {
+        datePicker.setDayCellFactory(picker -> new DateCell() {
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                LocalDate today = LocalDate.now();
+
+                setDisable(empty || date.compareTo(today) < 0);
+            }
+        });
         localDate = datePicker.getValue();
         if (localDate != null) {
-            if (descriptionText != null) {
+            descriptionText = description.getText();
+            descriptionText = descriptionText.replaceAll("'", "''");
+            if (descriptionText != null && (!descriptionText.equals("")) ) {
                 //create new item
                 db.insertToDoItem(descriptionText, 1, localDate.toString(), onlyStarred ? 1 : 0, activeItems.size(), folderFolderId);
 
@@ -801,6 +890,9 @@ public class MainController implements Initializable {
 
                     String spinnerTime = alarmHourSpinner.getValue().format(DateTimeFormatter.ofPattern("HH")) + ":" + alarmMinuteSpinner.getValue().format(DateTimeFormatter.ofPattern("mm"));
                     db.setAlarm(id, spinnerTime);
+                    alarmMinuteSpinner.getValueFactory().setValue(null);
+                    alarmHourSpinner.getValueFactory().setValue(null);
+
                     if (popup.isShowing()) {
                         popup.hide();
                     }
@@ -810,6 +902,21 @@ public class MainController implements Initializable {
                     } else {
                         listTasks(onlyActive, onlyStarred, true, folderFolderId);
                     }
+                }
+
+            }
+        };
+
+        //cancel setting alarm
+        EventHandler<ActionEvent> actionCancelAlarm = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+
+                alarmMinuteSpinner.getValueFactory().setValue(null);
+                alarmHourSpinner.getValueFactory().setValue(null);
+
+                if (popup.isShowing()) {
+                    popup.hide();
                 }
 
             }
@@ -901,13 +1008,53 @@ public class MainController implements Initializable {
             @Override
 
             public void handle(ActionEvent event) {
-                System.out.println("test1");
-                PaneEditItem.setVisible(true);
 
+                //read row
                 int selectedRowIndex = activeItemsTable.getSelectionModel().getSelectedIndex();
-                activeItemsTable.edit(selectedRowIndex, activeItemsTable.getColumns().get(1));
 
-                //tblitems.fireEvent(event);
+                //save Id for executing updates in DB
+                edittedItem = activeItemsTable.getItems().get(selectedRowIndex);
+
+                //read and fill description field
+                descEdit.setText(activeItemsTable.getItems().get(selectedRowIndex).getDescription().getText());
+
+                //read and fill date field
+                dateEdit.setValue(LocalDate.parse(activeItemsTable.getItems().get(selectedRowIndex).getDate(), DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+
+                //read and fill (if set) alarm field
+                //String alarmSet = activeItemsTable.getItems().get(selectedRowIndex).getAlarm();
+                //if (alarmSet != null) {
+                //    alarmMinuteSpinnerEdit.getValueFactory().setValue(LocalTime.parse(alarmSet.substring(3),DateTimeFormatter.ofPattern("mm")));
+                //    alarmHourSpinnerEdit.getValueFactory().setValue(LocalTime.parse(alarmSet.substring(0,1),DateTimeFormatter.ofPattern("HH")));
+                //}
+                //prepare choiceBox for status
+                statusEdit.getItems().add("open");
+                statusEdit.getItems().add("done");
+                statusEdit.setValue("open");
+
+                //prepare choiceBox for favorites
+                favEdit.getItems().add("yes");
+                favEdit.getItems().add("no");
+                if (activeItemsTable.getItems().get(selectedRowIndex).getStar() == 0) {
+                    favEdit.setValue("no");
+                } else {
+                    favEdit.setValue("yes");
+                }
+
+                //prepare choiceBox for folders
+                String currentFolder = null;
+                foldersEdit.getItems().clear();
+                for (int i = 0; i < folderItems.size(); i++) {
+                    foldersEdit.getItems().add(folderItems.get(i).getFolderName());
+                    if (activeItemsTable.getItems().get(selectedRowIndex).getFolderId() == folderItems.get(i).getFolderId()) {
+                        currentFolder = folderItems.get(i).getFolderName();
+                    }
+                }
+                foldersEdit.setValue(currentFolder);
+
+                //fire right slideBar open
+                editItemRight.fire();
+
             }
         };
 
@@ -975,7 +1122,7 @@ public class MainController implements Initializable {
         setDateIcon.setContent(calendarSVG);
         setDueDate.setGraphic(setDateIcon);
 
-        //editItem.setOnAction(actionEdit);
+        editItem.setOnAction(actionEdit);
         //editItem.setGraphic(new ImageView("/todo/edit.png"));
         SVGPath editIcon = new SVGPath();
         editIcon.setContent(editSVG);
@@ -1014,6 +1161,7 @@ public class MainController implements Initializable {
         //confirmAlarmSpinner.setGraphic(confirmAlarm);
         //confirmAlarmSpinner.setOnAction(actionSetAlarm);
         confirmAlarm.setOnAction(actionSetAlarm);
+        cancelAlarm.setOnAction(actionCancelAlarm);
         setAlarm.getItems().addAll(setAlarmSpinner/*, confirmAlarmSpinner*/);
         //setAlarm.setGraphic(new ImageView("/todo/alarm-on.png"));
         SVGPath setAlarmIcon = new SVGPath();
@@ -1096,7 +1244,7 @@ public class MainController implements Initializable {
     private int checkOverDue(int inStatus, String dueDateString, long id) {
         int outStatus = inStatus;
         //if pending, check the dates
-        if (outStatus == 1 && !dueDateString.isEmpty()) {
+        if (outStatus == 1) {
             Date today = new Date();
             String todayString = new SimpleDateFormat("yyyy-MM-dd").format(today);
 
@@ -1109,18 +1257,13 @@ public class MainController implements Initializable {
         }
         //if overdue, check dates
         if (outStatus == 2) {
-            if (!dueDateString.isEmpty()) {
-                Date today = new Date();
-                String todayString = new SimpleDateFormat("yyyy-MM-dd").format(today);
-                //System.out.println(todayString + "\t" + dueDateString);
-                //if today is less than dueDate, change status to 'pending'
-                if (dueDateString.compareTo(todayString) >= 0) {
-                    outStatus = 1;
-                }
-                //if date was removed, cant be overdue, change to pending    
-            } else {
+
+            Date today = new Date();
+            String todayString = new SimpleDateFormat("yyyy-MM-dd").format(today);
+            //System.out.println(todayString + "\t" + dueDateString);
+            //if today is less than dueDate, change status to 'pending'
+            if (dueDateString.compareTo(todayString) >= 0) {
                 outStatus = 1;
-                //update DB as well
                 db.changeItemStatus(id, outStatus, activeItems.size());
             }
 
@@ -1810,7 +1953,7 @@ public class MainController implements Initializable {
                             todoItem.getDescription().setGraphicTextGap(0.0);
                         }
 
-                    } else {
+                    } else if (!row.isHover() && todoItem != null) {
                         todoItem.getDescription().setGraphic(null);
 
                     }
@@ -2011,6 +2154,7 @@ public class MainController implements Initializable {
                     });
 
                     //prepare edit icon
+                    /*
                     Label editOption = new Label();
                     SVGPath editOptionIcon = new SVGPath();
                     editOptionIcon.setContent(editSVG);
@@ -2025,8 +2169,8 @@ public class MainController implements Initializable {
                     });
                     editOption.setOnMouseExited((event) -> {
                         editOption.setStyle("-fx-opacity: 0.5; -fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
-                    });                    
-
+                    });
+                     */
                     //prepare delete icon
                     Label deleteOption = new Label();
                     SVGPath deleteOptionIcon = new SVGPath();
@@ -2070,24 +2214,24 @@ public class MainController implements Initializable {
                     });
                     deleteOption.setOnMouseExited((event) -> {
                         deleteOption.setStyle("-fx-opacity: 0.5; -fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
-                    });                     
+                    });
 
                     //build HBox of all icons
-                    HBox editOptionsHBox = new HBox(setActiveOption, editOption, deleteOption);
+                    HBox editOptionsHBox = new HBox(setActiveOption, deleteOption);
                     editOptionsHBox.setSpacing(8.0);
                     editOptionsHBox.setAlignment(Pos.CENTER_RIGHT);
 
                     //set HBox to appear on hover over table's row
                     todoItem.getDescription().setContentDisplay(ContentDisplay.RIGHT);
                     todoItem.getDescription().setGraphic(editOptionsHBox);
-                    double gapTextToIcon = doneItemsTableColDesc.getWidth() - todoItem.getDescription().getWidth() - 75.0;
+                    double gapTextToIcon = doneItemsTableColDesc.getWidth() - todoItem.getDescription().getWidth() - 50.0;
                     if (gapTextToIcon > 0.0) {
                         todoItem.getDescription().setGraphicTextGap(gapTextToIcon);
                     } else {
                         todoItem.getDescription().setGraphicTextGap(0.0);
                     }
 
-                } else {
+                } else if (!row.isHover() && todoItem != null) {
                     todoItem.getDescription().setGraphic(null);
 
                 }
@@ -2247,8 +2391,12 @@ public class MainController implements Initializable {
         buildTableContextMenu();
         buildFoldersContextMenu();
 
+        rightFlapBar.setStyle("-fx-background-color: white, transparent; -fx-border-color: black;");
+        leftFlapBar.setStyle("-fx-background-color: white, transparent; -fx-border-color: black; ");
+        //leftFlapBar.set
         borderPane.setLeft(leftFlapBar);
         borderPane.setRight(rightFlapBar);
+
         //toolbar.getItems().addAll(leftMenu);
         leftMenu.setPrefHeight(650.0);
         leftMenu.setPrefWidth(30.0);
@@ -2264,6 +2412,77 @@ public class MainController implements Initializable {
         //description.setLayoutX(75);
         //rightEdit.setGraphic(new ImageView("/todo/edit.png"));
         //editItem.setGraphic(rightEdit);
+
+        //right edit menu handling
+        dueDateHBox.setSpacing(15.0);
+        dateEdit.setPrefWidth(130.0);
+        spinnerTimeNoButtonHBox.setSpacing(15.0);
+        alarmHourSpinnerEdit.setPrefWidth(70.0);
+        alarmMinuteSpinnerEdit.setPrefWidth(70.0);
+        statusHBox.setSpacing(15.0);
+        favHBox.setSpacing(15.0);
+        foldersHBox.setSpacing(15.0);
+        finishButtonsHBox.setSpacing(15.0);
+        finishButtonsHBox.setAlignment(Pos.CENTER);
+
+        updateButton.setOnMouseClicked((event) -> {
+            System.out.println("update button pressed");
+            //insert code to update DB
+            //if changed, update description
+            if (!descEdit.getText().equals(edittedItem.getDescription().getText())) {
+                db.editDescription(edittedItem.getId(), descEdit.getText());
+            }
+
+            //if changed, update due date
+            if (!dateEdit.getValue().toString().equals(edittedItem.getDate())) {
+                db.setDueDate(edittedItem.getId(), dateEdit.getValue().toString());
+                edittedItem.setDate(dateEdit.getValue().toString());
+
+            }
+            listTasks(onlyActive, onlyStarred, true, folderFolderId);
+
+            //if present, set alarm
+            if (alarmHourSpinnerEdit.getValue() != null && alarmMinuteSpinnerEdit.getValue() != null) {
+                db.setAlarm(edittedItem.getId(), alarmHourSpinnerEdit.getValue().format(DateTimeFormatter.ofPattern("HH")) + ":" + alarmMinuteSpinnerEdit.getValue().format(DateTimeFormatter.ofPattern("mm")));
+                alarmHourSpinnerEdit.getValueFactory().setValue(null);
+                alarmMinuteSpinnerEdit.getValueFactory().setValue(null);
+            }
+
+            int newStatus = -1;
+            if (statusEdit.getValue().toString().equals("open")) {
+                newStatus = checkOverDue(1, edittedItem.getDate(), edittedItem.getId());
+
+            } else { //"done"
+                newStatus = 0;
+            }
+            if (newStatus != edittedItem.getStatus()) {
+                db.changeItemStatus(edittedItem.getId(), newStatus, edittedItem.getRank());
+            }
+
+            if (favEdit.getValue().equals("yes")) {
+                if (edittedItem.getStar() == 0) {
+                    db.changeStarred(edittedItem.getId(), 1);
+                }
+            } else {
+                if (edittedItem.getStar() == 1) {
+                    db.changeStarred(edittedItem.getId(), 0);
+                }
+            }
+
+            for (int i = 0; i < folderItems.size(); i++) {
+                if (foldersEdit.getValue().toString().equals(folderItems.get(i).getFolderName())) {
+                    if (folderItems.get(i).getFolderId() != edittedItem.getFolderId()) {
+                        db.moveItem(folderItems.get(i).getFolderId(), edittedItem.getId());
+                    }
+                    break;
+                }
+            }
+
+            listTasks(onlyActive, onlyStarred, true, folderFolderId);
+
+            cancelButton.fire();
+
+        });
 
         folderList.setOnMouseClicked((event) -> {
             int indexLocal = folderList.getSelectionModel().getSelectedIndex();

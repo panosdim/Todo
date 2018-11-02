@@ -22,6 +22,10 @@ public class TodoItem {
     private String alarm;
     private int folder_id;
 
+    public TodoItem() {
+        
+    }
+    
     public TodoItem(long id, Label description, String date, int status, int star, int rank, String alarm, int folder_id) {
         this.id = id;
         this.description = description;
