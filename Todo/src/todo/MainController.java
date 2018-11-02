@@ -613,19 +613,12 @@ public class MainController implements Initializable {
     //handleDatePicker
     @FXML
     private void handleDatePicker() {
-        datePicker.setDayCellFactory(picker -> new DateCell() {
-            public void updateItem(LocalDate date, boolean empty) {
-                super.updateItem(date, empty);
-                LocalDate today = LocalDate.now();
 
-                setDisable(empty || date.compareTo(today) < 0);
-            }
-        });
         localDate = datePicker.getValue();
         if (localDate != null) {
             descriptionText = description.getText();
             descriptionText = descriptionText.replaceAll("'", "''");
-            if (descriptionText != null && (!descriptionText.equals("")) ) {
+            if (descriptionText != null && (!descriptionText.equals(""))) {
                 //create new item
                 db.insertToDoItem(descriptionText, 1, localDate.toString(), onlyStarred ? 1 : 0, activeItems.size(), folderFolderId);
 
@@ -1195,8 +1188,8 @@ public class MainController implements Initializable {
         if (localDate == null) {
             //if DatePicker is empty (no date seleceted)
             //set focus on DatePicker to choose one
-            datePicker.requestFocus();
-            //datePicker.show();
+            //datePicker.requestFocus();
+            datePicker.show();
         } else {
             //insert new task with description and status=1 and set date
             db.insertToDoItem(descriptionText, 1, localDate.toString(), onlyStarred ? 1 : 0, activeItems.size(), folderFolderId);
@@ -2391,6 +2384,15 @@ public class MainController implements Initializable {
         buildTableContextMenu();
         buildFoldersContextMenu();
 
+        datePicker.setDayCellFactory(picker -> new DateCell() {
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                LocalDate today = LocalDate.now();
+
+                setDisable(empty || date.compareTo(today) < 0);
+            }
+        });
+
         rightFlapBar.setStyle("-fx-background-color: white, transparent; -fx-border-color: black;");
         leftFlapBar.setStyle("-fx-background-color: white, transparent; -fx-border-color: black; ");
         //leftFlapBar.set
@@ -2416,6 +2418,14 @@ public class MainController implements Initializable {
         //right edit menu handling
         dueDateHBox.setSpacing(15.0);
         dateEdit.setPrefWidth(130.0);
+        dateEdit.setDayCellFactory(picker -> new DateCell() {
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                LocalDate today = LocalDate.now();
+
+                setDisable(empty || date.compareTo(today) < 0);
+            }
+        });        
         spinnerTimeNoButtonHBox.setSpacing(15.0);
         alarmHourSpinnerEdit.setPrefWidth(70.0);
         alarmMinuteSpinnerEdit.setPrefWidth(70.0);
