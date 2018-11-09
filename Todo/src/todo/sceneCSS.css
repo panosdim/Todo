@@ -57,9 +57,8 @@ and open the template in the editor.
 }
 
 #activeItemsTable .table-row-cell:selected {
-    -fx-background-color: blue, transparent;
+    -fx-background-color: lightgrey, transparent;
     -fx-border-color: black;
-    -fx-border-radius: 5px;
     -fx-border-width: 2px;
     -fx-text-fill: black;
 }
@@ -67,7 +66,6 @@ and open the template in the editor.
 #activeItemsTable .table-row-cell:filled:hover {
     -fx-background-color: lightblue, transparent;
     -fx-border-color: black;
-    -fx-border-radius: 5px;
     -fx-border-width: 2px;
     -fx-text-fill: white;
 }
@@ -75,7 +73,6 @@ and open the template in the editor.
 #activeItemsTable .table-row-cell {
     -fx-background-color: white, transparent;
     -fx-border-color: black;
-    -fx-border-radius: 5px;
     -fx-text-fill: white;
 
 }
@@ -86,15 +83,14 @@ and open the template in the editor.
 }
 
 #activeItemsTable .table {
-    
+
     -fx-border-collapse: separate;
     -fx-border-spacing: 0px 15px;
 }
 
 #doneItemsTable .table-row-cell:selected {
-    -fx-background-color: blue, transparent;
+    -fx-background-color: lightgrey, transparent;
     -fx-border-color: black;
-    -fx-border-radius: 5px;
     -fx-border-width: 2px;
     -fx-text: black;
 }
@@ -106,6 +102,11 @@ and open the template in the editor.
     -fx-border-width: 2px;
     -fx-text-fill: white;
 }
+#titleLabel{
+    -fx-font-size: 20;   
+
+}
+
 
 #doneItemsTable .table-row-cell {
     -fx-background-color: white, transparent;

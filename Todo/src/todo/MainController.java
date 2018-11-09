@@ -6,6 +6,8 @@
 package todo;
 
 import java.awt.Desktop;
+import java.awt.Font;
+import static java.awt.Font.BOLD;
 import javafx.scene.paint.Color;
 import java.io.File;
 import java.io.IOException;
@@ -390,6 +392,7 @@ public class MainController implements Initializable {
     //private ToolBar toolbar = new ToolBar();
 
     //Nodes to appear in new right pane
+    private Label titleLabel = new Label("Edit item");
     private MenuItem editItemRight = new MenuItem();
     private Label descLabel = new Label("Description");
     private TextField descEdit = new TextField();
@@ -418,7 +421,7 @@ public class MainController implements Initializable {
     private HBox finishButtonsHBox = new HBox(updateButton, cancelButton);
 
     //control MenuItem is editItem from context menu
-    private BorderSlideBar2 rightFlapBar = new BorderSlideBar2(220, editItemRight, Pos.BASELINE_RIGHT, descLabel, descEdit, dueDateHBox, spinnerTimeNoButtonHBox, statusHBox, favHBox, foldersHBox, finishButtonsHBox);
+    private BorderSlideBar2 rightFlapBar = new BorderSlideBar2(220, editItemRight, Pos.BASELINE_RIGHT, titleLabel,descLabel, descEdit, dueDateHBox, spinnerTimeNoButtonHBox, statusHBox, favHBox, foldersHBox, finishButtonsHBox);
 
     //method handling tooltip in the left list via mouse 
     @FXML
@@ -2403,7 +2406,7 @@ public class MainController implements Initializable {
         leftMenu.setPrefHeight(650.0);
         leftMenu.setPrefWidth(30.0);
 
-        leftMenu.setAlignment(Pos.CENTER);
+        leftMenu.setAlignment(Pos.TOP_CENTER);
         leftMenu.setTooltip(new Tooltip("Open side menu"));
         SVGPath leftMenuIcon = new SVGPath();
         leftMenuIcon.setContent(openSVG);
@@ -2416,6 +2419,7 @@ public class MainController implements Initializable {
         //editItem.setGraphic(rightEdit);
 
         //right edit menu handling
+        //titleLabel.setFont(Font.BOLD);
         dueDateHBox.setSpacing(15.0);
         dateEdit.setPrefWidth(130.0);
         dateEdit.setDayCellFactory(picker -> new DateCell() {
