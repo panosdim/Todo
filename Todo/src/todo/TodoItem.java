@@ -22,6 +22,7 @@ public class TodoItem {
     private String alarm;
     private int folder_id;
 
+    
     public TodoItem() {
         
     }
@@ -100,5 +101,5 @@ public class TodoItem {
     public void setAlarm(String alarm) {
         this.alarm = alarm;
     }
-
+   
 }

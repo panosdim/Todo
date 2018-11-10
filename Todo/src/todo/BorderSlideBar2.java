@@ -55,7 +55,8 @@ public class BorderSlideBar2 extends VBox {
 
         //getStyleClass().add("sidebar");
         //getStylesheets().add(CSS);   
-        this.alignmentProperty().set(Pos.CENTER);
+        //this.alignmentProperty().set(Pos.CENTER);
+        this.alignmentProperty().set(Pos.TOP_CENTER);
         setExpandedSize(expandedSize);
         setVisible(false);
 

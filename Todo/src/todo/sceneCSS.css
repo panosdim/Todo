@@ -102,8 +102,8 @@ and open the template in the editor.
     -fx-border-width: 2px;
     -fx-text-fill: white;
 }
-#titleLabel{
-    -fx-font-size: 20;   
+#titleLabel {
+    -fx-font-size: 20; 
 
 }
 

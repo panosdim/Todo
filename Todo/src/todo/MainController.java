@@ -6,8 +6,8 @@
 package todo;
 
 import java.awt.Desktop;
-import java.awt.Font;
-import static java.awt.Font.BOLD;
+//import java.awt.Font;
+import javafx.scene.text.Font;
 import javafx.scene.paint.Color;
 import java.io.File;
 import java.io.IOException;
@@ -87,6 +87,7 @@ import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.shape.FillRule;
 import javafx.scene.shape.SVGPath;
+import javafx.scene.text.FontWeight;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
 import javafx.stage.Window;
@@ -2417,9 +2418,14 @@ public class MainController implements Initializable {
         //description.setLayoutX(75);
         //rightEdit.setGraphic(new ImageView("/todo/edit.png"));
         //editItem.setGraphic(rightEdit);
+        
 
         //right edit menu handling
         //titleLabel.setFont(Font.BOLD);
+        titleLabel.setFont(new Font("Arial", 25));
+        titleLabel.setStyle("-fx-font-weight: bold;");
+        descLabel.setFont(new Font("Arial", 20));
+        descLabel.setStyle("-fx-font-weight: bold;");
         dueDateHBox.setSpacing(15.0);
         dateEdit.setPrefWidth(130.0);
         dateEdit.setDayCellFactory(picker -> new DateCell() {
