@@ -308,6 +308,12 @@ public class MainController implements Initializable {
     MenuItem removeFolderItems = new MenuItem("Delete All Items from folder");
 
     private Popup popup = new Popup();
+    private Popup folderPopup = new Popup();
+    // elements for folder pop up
+    private TextField folderAddText = new TextField();
+    private Button addFolderButton = new Button("Add");
+    private Button cancelFolderButton = new Button("Cancel");
+    private HBox addFolderHBox = new HBox(folderAddText, addFolderButton, cancelFolderButton);
 
     //
     //private final String strikeThrough = getClass().getResource("sceneCSS.css").toExternalForm();
@@ -382,14 +388,16 @@ public class MainController implements Initializable {
     final DateFormat format = DateFormat.getInstance();
     Timeline timeline;
 
-    //@FXML
+    //@FXML xaris
     private Label leftMenu = new Label();
     private Label folderLabel = new Label("Folders");
+    private Label addFolderGraphic = new Label();
+    private HBox folderHBox = new HBox(folderLabel, addFolderGraphic);
     private ListView folderList = new ListView<String>();
-    private TextField folderAddText = new TextField();
-    private Label folderAddLabel = new Label("Add new folder");
 
-    private BorderSlideBar leftFlapBar = new BorderSlideBar(220, leftMenu, Pos.BASELINE_LEFT, menuList, folderLabel, folderList, folderAddLabel, folderAddText);
+    //private Label folderAddLabel = new Label("Add new folder");
+    private BorderSlideBar leftFlapBar = new BorderSlideBar(220, leftMenu, Pos.BASELINE_LEFT, menuList, folderHBox, folderList);
+    //private BorderSlideBar leftFlapBar = new BorderSlideBar(220, leftMenu, Pos.BASELINE_LEFT, menuList, folderLabel, folderList, folderAddLabel, folderAddText);
     //private ToolBar toolbar = new ToolBar();
 
     //Nodes to appear in new right pane
@@ -422,7 +430,7 @@ public class MainController implements Initializable {
     private HBox finishButtonsHBox = new HBox(updateButton, cancelButton);
 
     //control MenuItem is editItem from context menu
-    private BorderSlideBar2 rightFlapBar = new BorderSlideBar2(220, editItemRight, Pos.BASELINE_RIGHT, titleLabel,descLabel, descEdit, dueDateHBox, spinnerTimeNoButtonHBox, statusHBox, favHBox, foldersHBox, finishButtonsHBox);
+    private BorderSlideBar2 rightFlapBar = new BorderSlideBar2(220, editItemRight, Pos.BASELINE_RIGHT, titleLabel, descLabel, descEdit, dueDateHBox, spinnerTimeNoButtonHBox, statusHBox, favHBox, foldersHBox, finishButtonsHBox);
 
     //method handling tooltip in the left list via mouse 
     @FXML
@@ -2418,8 +2426,38 @@ public class MainController implements Initializable {
         //description.setLayoutX(75);
         //rightEdit.setGraphic(new ImageView("/todo/edit.png"));
         //editItem.setGraphic(rightEdit);
-        
 
+        //xaris, folder add new button
+        folderHBox.setSpacing(10);
+        folderLabel.setFont(new Font("Arial", 18));
+        folderLabel.setStyle("-fx-font-weight: bold;");
+        addFolderGraphic.setGraphic(new ImageView("/todo/add-button.jpg"));
+        addFolderGraphic.setTooltip(new Tooltip("Add new Folder"));
+        addFolderGraphic.setOnMouseClicked((event) -> {
+
+            folderPopup.getContent().clear();
+            folderPopup.getContent().add(addFolderHBox);
+            folderPopup.show((Node) event.getSource(), event.getScreenX()-20, event.getScreenY()+ 20);
+
+        });
+
+        addFolderButton.setOnMouseClicked((event) -> {
+            if (folderAddText.getText() == null) {
+
+            } else {
+                String newFolderName = folderAddText.getText();
+                dbFolders.insertFolderItem(newFolderName);
+                //folderList.setItems(folderItems);
+                listFolders();
+                folderPopup.hide();
+            }
+        });
+
+        cancelFolderButton.setOnMouseClicked((event) -> {
+
+            folderPopup.hide();
+
+        });
         //right edit menu handling
         //titleLabel.setFont(Font.BOLD);
         titleLabel.setFont(new Font("Arial", 25));
@@ -2435,7 +2473,7 @@ public class MainController implements Initializable {
 
                 setDisable(empty || date.compareTo(today) < 0);
             }
-        });        
+        });
         spinnerTimeNoButtonHBox.setSpacing(15.0);
         alarmHourSpinnerEdit.setPrefWidth(70.0);
         alarmMinuteSpinnerEdit.setPrefWidth(70.0);
@@ -2681,13 +2719,6 @@ public class MainController implements Initializable {
             }
             //event.consume();
 
-        });
-
-        folderAddText.setOnAction((event) -> {
-            String newFolderName = folderAddText.getText();
-            dbFolders.insertFolderItem(newFolderName);
-            //folderList.setItems(folderItems);
-            listFolders();
         });
 
         listTasks(onlyActive, onlyStarred, true, folderFolderId);
