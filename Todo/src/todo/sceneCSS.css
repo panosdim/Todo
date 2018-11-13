@@ -98,7 +98,6 @@ and open the template in the editor.
 #doneItemsTable .table-row-cell:filled:hover {
     -fx-background-color: lightblue, transparent;
     -fx-border-color: black;
-    -fx-border-radius: 5px;
     -fx-border-width: 2px;
     -fx-text-fill: white;
 }
@@ -111,7 +110,6 @@ and open the template in the editor.
 #doneItemsTable .table-row-cell {
     -fx-background-color: white, transparent;
     -fx-border-color: black;
-    -fx-border-radius: 5px;
     -fx-text-fill: white;
 }
 

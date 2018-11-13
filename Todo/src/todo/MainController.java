@@ -43,6 +43,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
@@ -88,8 +89,10 @@ import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.shape.FillRule;
 import javafx.scene.shape.SVGPath;
 import javafx.scene.text.FontWeight;
+import javafx.stage.Modality;
 import javafx.stage.Popup;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import javafx.util.Callback;
 import javafx.util.Duration;
@@ -307,8 +310,12 @@ public class MainController implements Initializable {
     MenuItem removeFolderDefault = new MenuItem("Delete Folder but keep Items");
     MenuItem removeFolderItems = new MenuItem("Delete All Items from folder");
 
-    private Popup popup = new Popup();
-    private Popup folderPopup = new Popup();
+    //private Popup popup = new Popup();
+    //private Popup folderPopup = new Popup();
+    final Stage newFolderDialog = new Stage();
+    final Stage alarmDialog = new Stage();
+    final Stage playAlarmDialog = new Stage();
+
     // elements for folder pop up
     private TextField folderAddText = new TextField();
     private Button addFolderButton = new Button("Add");
@@ -715,6 +722,8 @@ public class MainController implements Initializable {
                     db.deleteFolderItems(folderFolderId);
                     dbFolders.deleteFolder(folderFolderId);
                     //refresh list of tasks
+                    //reset folderFolderId to 1 (default)
+                    folderFolderId = 1;
                     if (onlyStarred || showDateStart != null) {
                         listTasks(true, onlyStarred, true, folderFolderId);
                     } else {
@@ -756,6 +765,8 @@ public class MainController implements Initializable {
                     db.moveItemsDefault(folderFolderId);
                     dbFolders.deleteFolder(folderFolderId);
                     //refresh list of tasks
+                    //reset folderFolderId to 1 (default)
+                    folderFolderId = 1;
                     if (onlyStarred || showDateStart != null) {
                         listTasks(true, onlyStarred, true, folderFolderId);
                     } else {
@@ -898,8 +909,8 @@ public class MainController implements Initializable {
                     alarmMinuteSpinner.getValueFactory().setValue(null);
                     alarmHourSpinner.getValueFactory().setValue(null);
 
-                    if (popup.isShowing()) {
-                        popup.hide();
+                    if (alarmDialog.isShowing()) {
+                        alarmDialog.hide();
                     }
 
                     if (onlyStarred || showDateStart != null) {
@@ -920,8 +931,8 @@ public class MainController implements Initializable {
                 alarmMinuteSpinner.getValueFactory().setValue(null);
                 alarmHourSpinner.getValueFactory().setValue(null);
 
-                if (popup.isShowing()) {
-                    popup.hide();
+                if (alarmDialog.isShowing()) {
+                    alarmDialog.hide();
                 }
 
             }
@@ -1929,9 +1940,9 @@ public class MainController implements Initializable {
                                 if (todoItem.getStatus() == 2) { //status =2, item overdue, alarm cannot be set
                                     //no action
                                 } else { //status = 1, item pending, not overdue, alarm can be set
-                                    popup.getContent().clear();
-                                    popup.getContent().add(spinnerTimeHBox);
-                                    popup.show((Node) event.getSource(), event.getScreenX(), event.getScreenY());
+                                    alarmDialog.setX(event.getScreenX());
+                                    alarmDialog.setY(event.getScreenY());
+                                    alarmDialog.show();
                                 }
 
                             }
@@ -2346,17 +2357,44 @@ public class MainController implements Initializable {
 
     }
 
-    private void executePlayAlarm(long itemId, String text) {
-
-        //reset alarm in DB
-        db.setAlarm(itemId, null);
-
-        //refresh list of tasks
-        if (onlyStarred || showDateStart != null) {
-            listTasks(true, onlyStarred, true, folderFolderId);
-        } else {
-            listTasks(onlyActive, onlyStarred, true, folderFolderId);
+    private String calculateSnoozeTime(int snoozeTime, String oldAlarmTime) {
+        String newAlarmTime = "";
+        
+        //get Integer minutes and hours from String oldAlarmTime
+        int newAlarmMinInt = Integer.parseInt(oldAlarmTime.substring(3));
+        int newAlarmHourInt = Integer.parseInt(oldAlarmTime.substring(0, 2));
+        //System.out.println("old minutes= " + newAlarmMinInt + " and old hours= "+newAlarmHourInt);
+        //increase minutes by snoozeTime
+        newAlarmMinInt += snoozeTime;
+        
+        if (newAlarmMinInt > 59) {
+            //if minutes go over 59, increase hours by one
+            newAlarmHourInt++;
+            
+            //if hours go over 24, reset to 0
+            if (newAlarmHourInt == 24) {
+                newAlarmHourInt = 0;
+            }
+            //decrease minutes by 60
+            newAlarmMinInt -= 60;
         }
+        //if hours less than 10, add leading 0
+        if (newAlarmHourInt < 10) {
+            newAlarmTime = "0";
+        }
+        //add hours and :
+        newAlarmTime = newAlarmTime + String.valueOf(newAlarmHourInt) + ":";
+        //if minutes less than 10, add leading 0
+        if (newAlarmMinInt < 10) {
+            newAlarmTime = newAlarmTime + "0";
+        }
+        //add minutes
+        newAlarmTime = newAlarmTime + String.valueOf(newAlarmMinInt);
+        //System.out.println("new alarm time= " + newAlarmTime);
+        return newAlarmTime;
+    }
+
+    private void executePlayAlarm(long itemId, String itemText, String alarmTime) {
 
         //play alarm
         String musicFile = "alarm.mp3";
@@ -2366,23 +2404,61 @@ public class MainController implements Initializable {
             mediaPlayer.play();
         }
 
-        //popup alert window
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setHeaderText("Todo item's: \"" + text + "\" reminder!");
-
+        //popup dialog window
+        Label playAlarmDialogLabel = new Label("Todo item's: " + itemText + " reminder!");
         Button okButton = new Button("Ok");
+        Button snoozeButton = new Button("Snooze 5min");
+        HBox playAlarmButtons = new HBox(okButton, snoozeButton);
+        VBox playAlarmVBox = new VBox(playAlarmDialogLabel, playAlarmButtons);
+        playAlarmVBox.setSpacing(15.0);
+        playAlarmButtons.setSpacing(15.0);
+        playAlarmVBox.setAlignment(Pos.CENTER);
+        playAlarmButtons.setAlignment(Pos.CENTER);
+
+        Scene playAlarmDialogScene = new Scene(playAlarmVBox, playAlarmVBox.getPrefWidth(), playAlarmVBox.getPrefHeight());
+        //newFolderDialogScene.getStylesheets().addAll(this.getClass().getResource("sceneCSS.css").toExternalForm());
+        playAlarmDialog.setScene(playAlarmDialogScene);
 
         EventHandler<ActionEvent> okButtonPressed = new EventHandler<ActionEvent>() {
             @Override
             public void handle(ActionEvent event) {
-                alert.hide();
+                mediaPlayer.stop();
+                playAlarmDialog.hide();
+                //reset alarm in DB
+                db.setAlarm(itemId, null);
+
+                //refresh list of tasks
+                if (onlyStarred || showDateStart != null) {
+                    listTasks(true, onlyStarred, true, folderFolderId);
+                } else {
+                    listTasks(onlyActive, onlyStarred, true, folderFolderId);
+                }
+
+            }
+        };
+
+        EventHandler<ActionEvent> snoozeButtonPressed = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                mediaPlayer.stop();
+                playAlarmDialog.hide();
+                //set alarm + 5min
+                db.setAlarm(itemId, calculateSnoozeTime(5, alarmTime));
+                anyAlarm = true;
+                //refresh list of tasks
+                if (onlyStarred || showDateStart != null) {
+                    listTasks(true, onlyStarred, true, folderFolderId);
+                } else {
+                    listTasks(onlyActive, onlyStarred, true, folderFolderId);
+                }
 
             }
         };
 
         okButton.setOnAction(okButtonPressed);
+        snoozeButton.setOnAction(snoozeButtonPressed);
         //alert.setGraphic(okButton);
-        alert.show();
+        playAlarmDialog.show();
 
     }
 
@@ -2422,42 +2498,70 @@ public class MainController implements Initializable {
         leftMenu.setGraphic(leftMenuIcon);
 
         anchorPane.getChildren().add(0, leftMenu);
-        //anchorPane.setH
-        //description.setLayoutX(75);
-        //rightEdit.setGraphic(new ImageView("/todo/edit.png"));
-        //editItem.setGraphic(rightEdit);
+
+        alarmDialog.initModality(Modality.APPLICATION_MODAL);
+        Scene alarmDialogScene = new Scene(spinnerTimeHBox, spinnerTimeHBox.getPrefWidth(), spinnerTimeHBox.getPrefHeight());
+        //newFolderDialogScene.getStylesheets().addAll(this.getClass().getResource("sceneCSS.css").toExternalForm());
+        alarmDialog.setScene(alarmDialogScene);
+        alarmDialog.initStyle(StageStyle.DECORATED);
+
+        playAlarmDialog.initModality(Modality.APPLICATION_MODAL);
+        playAlarmDialog.initStyle(StageStyle.DECORATED);
 
         //xaris, folder add new button
+        //new dialog popup
+        newFolderDialog.initModality(Modality.APPLICATION_MODAL); //modality = APPLICATION_MODAL, blocks parent window
+        Scene newFolderDialogScene = new Scene(addFolderHBox, addFolderHBox.getPrefWidth(), addFolderHBox.getPrefHeight());
+        //newFolderDialogScene.getStylesheets().addAll(this.getClass().getResource("sceneCSS.css").toExternalForm());
+        newFolderDialog.setScene(newFolderDialogScene);
+        newFolderDialog.initStyle(StageStyle.DECORATED);
+
         folderHBox.setSpacing(10);
+        addFolderHBox.setSpacing(5);
         folderLabel.setFont(new Font("Arial", 18));
         folderLabel.setStyle("-fx-font-weight: bold;");
-        addFolderGraphic.setGraphic(new ImageView("/todo/add-button.jpg"));
+
+        //set graphic
+        addFolderGraphic.setGraphic(new ImageView("/todo/Folder_Plus.png"));
+        //set Tooltip
         addFolderGraphic.setTooltip(new Tooltip("Add new Folder"));
+        //on Mouse click event handler -> show dialog popup
         addFolderGraphic.setOnMouseClicked((event) -> {
-
-            folderPopup.getContent().clear();
-            folderPopup.getContent().add(addFolderHBox);
-            folderPopup.show((Node) event.getSource(), event.getScreenX()-20, event.getScreenY()+ 20);
+            //popup via new stage
+            newFolderDialog.setX(event.getScreenX() - 20);
+            newFolderDialog.setY(event.getScreenY() + 20);
+            newFolderDialog.show();
+            //clear TextField when showing dialog
+            folderAddText.clear();
 
         });
 
+        //disable Add button by default
+        addFolderButton.setDisable(true);
+        //enable Add button only when valid folder name is given
+        folderAddText.textProperty().addListener((observable, oldValue, newValue) -> {
+            addFolderButton.setDisable(newValue.trim().length() < 2 || newValue.trim().length() > 15);
+        });
+
+        //on Add button click
         addFolderButton.setOnMouseClicked((event) -> {
-            if (folderAddText.getText() == null) {
 
-            } else {
-                String newFolderName = folderAddText.getText();
-                dbFolders.insertFolderItem(newFolderName);
-                //folderList.setItems(folderItems);
-                listFolders();
-                folderPopup.hide();
-            }
+            //no need to check if folderAddText.getText() is null,
+            //since Add button is diabled for folder name under 2chars
+            String newFolderName = folderAddText.getText().replaceAll("'", "''");
+
+            dbFolders.insertFolderItem(newFolderName);
+            //folderList.setItems(folderItems);
+            listFolders();
+            newFolderDialog.close();
+
         });
 
+        //on cancel button click
         cancelFolderButton.setOnMouseClicked((event) -> {
-
-            folderPopup.hide();
-
+            newFolderDialog.close();
         });
+
         //right edit menu handling
         //titleLabel.setFont(Font.BOLD);
         titleLabel.setFont(new Font("Arial", 25));
@@ -2736,7 +2840,7 @@ public class MainController implements Initializable {
                     if (allItems.get(i).getAlarm() != null && allItems.get(i).getDate().equals(currentDay) && allItems.get(i).getAlarm().equals(currentTime)) {
                         //play alarm and continue scanning
                         anyAlarm = false; //will be updated in listTask anyway
-                        executePlayAlarm(allItems.get(i).getId(), allItems.get(i).getDescription().getText());
+                        executePlayAlarm(allItems.get(i).getId(), allItems.get(i).getDescription().getText(), allItems.get(i).getAlarm());
 
                     }
                 }
