@@ -321,6 +321,8 @@ public class MainController implements Initializable {
     private Button addFolderButton = new Button("Add");
     private Button cancelFolderButton = new Button("Cancel");
     private HBox addFolderHBox = new HBox(folderAddText, addFolderButton, cancelFolderButton);
+    private Label folderAddLabel = new Label ("Type folder name (2-15 chars)");
+    private VBox addFolderVBox = new VBox(folderAddLabel, addFolderHBox);
 
     //
     //private final String strikeThrough = getClass().getResource("sceneCSS.css").toExternalForm();
@@ -383,8 +385,8 @@ public class MainController implements Initializable {
     private TextField descriptionEdit;
     @FXML
     private TextField StatusEdit;
-    @FXML
-    private DatePicker datePickerEdit = new DatePicker();
+    //@FXML
+    //private DatePicker datePickerEdit = new DatePicker();
     @FXML
     private Label clock;
     @FXML
@@ -1773,6 +1775,7 @@ public class MainController implements Initializable {
                         setDoneOption.setTooltip(new Tooltip("Press to set to Done (ctrl+D)"));
                         setDoneOption.setOnMouseEntered((event) -> {
                             setDoneOption.setStyle("-fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
+                            
                         });
                         setDoneOption.setOnMouseExited((event) -> {
                             setDoneOption.setStyle("-fx-opacity: 0.5; -fx-border-color: grey; -fx-background-color: #ffff99; -fx-border-radius: 4px;");
@@ -2375,7 +2378,7 @@ public class MainController implements Initializable {
             if (newAlarmHourInt == 24) {
                 newAlarmHourInt = 0;
             }
-            //decrease minutes by 60
+            //and decrease minutes by 60
             newAlarmMinInt -= 60;
         }
         //if hours less than 10, add leading 0
@@ -2406,9 +2409,11 @@ public class MainController implements Initializable {
 
         //popup dialog window
         Label playAlarmDialogLabel = new Label("Todo item's: " + itemText + " reminder!");
-        Button okButton = new Button("Ok");
-        Button snoozeButton = new Button("Snooze 5min");
-        HBox playAlarmButtons = new HBox(okButton, snoozeButton);
+        Button okButton = new Button("Alarm Off");
+        Button snoozeButton = new Button("Snooze");
+        ChoiceBox snoozeTimeChoiceBox = new ChoiceBox(FXCollections.observableArrayList("5min", "10min", "15min"));
+        snoozeTimeChoiceBox.setValue("5min");
+        HBox playAlarmButtons = new HBox(okButton, snoozeTimeChoiceBox, snoozeButton);
         VBox playAlarmVBox = new VBox(playAlarmDialogLabel, playAlarmButtons);
         playAlarmVBox.setSpacing(15.0);
         playAlarmButtons.setSpacing(15.0);
@@ -2442,8 +2447,8 @@ public class MainController implements Initializable {
             public void handle(ActionEvent event) {
                 mediaPlayer.stop();
                 playAlarmDialog.hide();
-                //set alarm + 5min
-                db.setAlarm(itemId, calculateSnoozeTime(5, alarmTime));
+                //set alarm + snooze time in min
+                db.setAlarm(itemId, calculateSnoozeTime(Integer.parseInt(snoozeTimeChoiceBox.getValue().toString().replace("min", "")), alarmTime));
                 anyAlarm = true;
                 //refresh list of tasks
                 if (onlyStarred || showDateStart != null) {
@@ -2473,6 +2478,15 @@ public class MainController implements Initializable {
         buildFoldersContextMenu();
 
         datePicker.setDayCellFactory(picker -> new DateCell() {
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                LocalDate today = LocalDate.now();
+
+                setDisable(empty || date.compareTo(today) < 0);
+            }
+        });
+        
+        menuDatePicker.setDayCellFactory(picker -> new DateCell() {
             public void updateItem(LocalDate date, boolean empty) {
                 super.updateItem(date, empty);
                 LocalDate today = LocalDate.now();
@@ -2511,7 +2525,7 @@ public class MainController implements Initializable {
         //xaris, folder add new button
         //new dialog popup
         newFolderDialog.initModality(Modality.APPLICATION_MODAL); //modality = APPLICATION_MODAL, blocks parent window
-        Scene newFolderDialogScene = new Scene(addFolderHBox, addFolderHBox.getPrefWidth(), addFolderHBox.getPrefHeight());
+        Scene newFolderDialogScene = new Scene(addFolderVBox, addFolderVBox.getPrefWidth(), addFolderVBox.getPrefHeight());
         //newFolderDialogScene.getStylesheets().addAll(this.getClass().getResource("sceneCSS.css").toExternalForm());
         newFolderDialog.setScene(newFolderDialogScene);
         newFolderDialog.initStyle(StageStyle.DECORATED);
@@ -2720,6 +2734,8 @@ public class MainController implements Initializable {
             //index from list of task is read via MouseEvent (any for now)
             int indexLocal = menuList.getSelectionModel().getSelectedIndex();
 
+            //define format: "Wed, 14 Nov 2018"
+            String formatEEEdMMMyyyy = "EEE, d MMM uuuu";
             //if valid, it's used for menu actions (filtering items by dates)
             switch (indexLocal) {
                 case -1:
@@ -2769,7 +2785,8 @@ public class MainController implements Initializable {
                     description.setPromptText("Add new todo task...");
                     listTasks(true, onlyStarred, false, folderFolderId);
                     //index = -1;
-                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - INTRACOM TELECOM - Today");
+                    
+                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - INTRACOM TELECOM - Today (" + showDateStart.format(DateTimeFormatter.ofPattern(formatEEEdMMMyyyy)) + ")");
                     break;
                 case 3:
                     showDateStart = showDateEnd = LocalDate.now().plus(1, ChronoUnit.DAYS);
@@ -2784,7 +2801,7 @@ public class MainController implements Initializable {
                     description.setPromptText("Add new todo task...");
                     listTasks(true, onlyStarred, false, folderFolderId);
                     //index = -1;
-                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - INTRACOM TELECOM - Tomorrow");
+                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - INTRACOM TELECOM - Tomorrow (" + showDateStart.format(DateTimeFormatter.ofPattern(formatEEEdMMMyyyy)) + ")");
                     break;
                 case 4:
                     //showDateStart = LocalDate.now().with(WeekFields.of(Locale.FRANCE).dayOfWeek(), 1);
@@ -2801,7 +2818,7 @@ public class MainController implements Initializable {
                     description.setPromptText("Add new todo task...");
                     listTasks(true, onlyStarred, false, folderFolderId);
                     //index = -1;
-                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - INTRACOM TELECOM - Upcoming Week");
+                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - INTRACOM TELECOM - Upcoming Week (" + showDateStart.format(DateTimeFormatter.ofPattern(formatEEEdMMMyyyy)) + " to " + showDateEnd.format(DateTimeFormatter.ofPattern(formatEEEdMMMyyyy)) + ")");
                     break;
                 case 5:
                     //showDateStart = LocalDate.now().withDayOfMonth(1);
@@ -2818,7 +2835,7 @@ public class MainController implements Initializable {
                     description.setPromptText("Add new todo task...");
                     listTasks(true, onlyStarred, false, folderFolderId);
                     //index = -1;
-                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - INTRACOM TELECOM - Upcoming Month");
+                    ((Stage) ((ListView) event.getSource()).getScene().getWindow()).setTitle("Todo Items - INTRACOM TELECOM - Upcoming Month (" + showDateStart.format(DateTimeFormatter.ofPattern(formatEEEdMMMyyyy)) + " to " + showDateEnd.format(DateTimeFormatter.ofPattern(formatEEEdMMMyyyy)) + ")");
                     break;
             }
             //event.consume();

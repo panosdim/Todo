@@ -60,7 +60,8 @@ and open the template in the editor.
     -fx-background-color: lightgrey, transparent;
     -fx-border-color: black;
     -fx-border-width: 2px;
-    -fx-text-fill: black;
+    -fx-color: black;
+    -fx-font-color: black;
 }
 
 #activeItemsTable .table-row-cell:filled:hover {
@@ -68,6 +69,7 @@ and open the template in the editor.
     -fx-border-color: black;
     -fx-border-width: 2px;
     -fx-text-fill: white;
+    -fx-font-weight: bold;
 }
 
 #activeItemsTable .table-row-cell {
@@ -100,6 +102,7 @@ and open the template in the editor.
     -fx-border-color: black;
     -fx-border-width: 2px;
     -fx-text-fill: white;
+    -fx-font-weight: bold;
 }
 #titleLabel {
     -fx-font-size: 20; 
